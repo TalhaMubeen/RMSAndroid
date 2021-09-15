@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:padding="10dp"
+    >
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="bottom">
+
+    <TextView
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        android:id="@+id/sensor_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Sensor Node"
+        android:textColor="@color/innv_navy"/>
+
+
+    <TextView
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+
+        android:id="@+id/sensor_bd_address"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/sensor_name"
+
+        android:layout_marginTop="0dp"
+        android:layout_toRightOf="@+id/temp_image"
+        android:paddingTop="0dp"
+
+        android:paddingRight="10dp"
+        android:text="00:00:00:00:00:00"
+
+        />
+
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:layout_gravity="start"
+        >
+
+        <ImageView
+
+            android:id="@+id/temp_image"
+            android:layout_width="30dp"
+            android:layout_height="25dp"
+            android:padding="4dp"
+            android:src="@drawable/temp_icon_red"
+            />
+
+        <TextView
+            android:textAppearance="@style/TextAppearance.AppCompat.Small"
+
+            android:id="@+id/temperature_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingEnd="10dp"
+            android:text="25.0"
+            android:textColor="@color/black"
+            />
+
+
+        <ImageView
+            android:id="@+id/humidity_image"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:padding="1dp"
+            android:scaleType="center"
+            android:src="@drawable/humidity_icon" />
+
+
+        <TextView
+            android:textAppearance="@style/TextAppearance.AppCompat.Small"
+            android:id="@+id/humidity_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="25"
+            android:paddingEnd="10dp"
+            android:textColor="@color/black"
+            />
+
+        <ImageView
+            android:id="@+id/rssi"
+            android:layout_width="30dp"
+            android:layout_height="25dp"
+
+            android:src="@drawable/rssi" />
+
+        <TextView
+            android:textAppearance="@style/TextAppearance.AppCompat.Small"
+            android:id="@+id/sensor_rssi"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="-99 dBm"
+
+            />
+    </LinearLayout>
+
+    </LinearLayout>
+
+
+
+
+
+</RelativeLayout>

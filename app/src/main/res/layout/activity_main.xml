@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+
+    <RelativeLayout
+        android:id="@+id/actionbar"
+        android:layout_width="fill_parent"
+        android:layout_height="60dp"
+        android:background="@color/colorPrimary">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="20dp"
+            android:text="@string/rms_sensors"
+            android:textColor="#fff"
+            android:textSize="18dp" />
+
+        <Button
+            android:id="@+id/btn_add"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="30dp"
+            android:text="ADD"
+            />
+
+    </RelativeLayout>
+
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/actionbar"
+        android:layout_alignParentBottom="true">
+
+        <GridView
+            android:gravity="center"
+            android:id="@+id/monitoring_griview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:listSelector="@drawable/gridview_selector"
+            android:horizontalSpacing="8dp"
+            android:verticalSpacing="8dp"
+            android:stretchMode="columnWidth"
+            android:columnWidth="136dp"
+            android:numColumns="auto_fit"
+            android:layout_alignParentLeft="true"/>
+    </RelativeLayout>
+
+</RelativeLayout>
