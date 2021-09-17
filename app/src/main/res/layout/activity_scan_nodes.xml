@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -8,7 +9,7 @@
 
     <RelativeLayout
         android:id="@+id/actionbar"
-        android:layout_width="fill_parent"
+        android:layout_width="match_parent"
         android:layout_height="60dp"
         android:background="@color/colorPrimary">
 
@@ -17,18 +18,20 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
-            android:layout_marginLeft="20dp"
-            android:text="@string/monitor_node"
+            android:layout_marginStart="20dp"
+            android:id="@+id/title"
+            android:text="@string/scanning_nodes"
             android:textColor="#fff" />
 
-        <Button
-            android:id="@+id/btn_scan"
+        <ImageView
+            android:id="@+id/iv_refresh"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
+            android:layout_height="50dp"
             android:layout_centerVertical="true"
-            android:layout_marginRight="30dp"
-            android:text="SCAN" />
+            android:layout_toRightOf="@+id/title"
+            android:src="@drawable/refresh"
+            android:layout_alignParentEnd="true"
+            tools:ignore="UnknownId" />
 
     </RelativeLayout>
 

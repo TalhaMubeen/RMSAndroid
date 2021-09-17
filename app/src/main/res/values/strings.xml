@@ -43,5 +43,7 @@
     <string name="button_ok">OK</string>
     <string name="scan_rms_node">Scan RMS Node</string>
     <string name="rms_node_details">RMS Node Details</string>
+    <string name="monitor_node">Monitor Node</string>
+    <string name="scanning_nodes">Scanning RMS Nodes</string>
 
 </resources>
