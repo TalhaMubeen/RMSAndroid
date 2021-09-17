@@ -84,16 +84,14 @@ public class DBHandler extends SQLiteOpenHelper{
         db.execSQL(sql);
     }
 
-    public void RemoveList(String listName,String orgCode,String criteria)
+    public void RemoveList(String listName,String orgCode,String code)
     {
         SQLiteDatabase db=this.getWritableDatabase();
         String sql="Delete from " + TABLE_DEVICES_LOOKUPS +
                 " WHERE ORGCODE='" + orgCode +"' AND "+
-                " LISTNAME='" + listName +"'";
-        if(!criteria.equals(""))
-        {
-            sql+=" AND "+ criteria;
-        }
+                " LISTNAME='" + listName +"' AND " +
+                "code='"+ code+"'";
+
         db.execSQL(sql);
     }
 

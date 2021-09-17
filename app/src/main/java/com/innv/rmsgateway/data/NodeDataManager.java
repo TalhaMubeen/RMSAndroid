@@ -51,4 +51,8 @@ public class NodeDataManager {
         Globals.db.AddOrUpdateList( Globals.dbContext.getString(R.string.RMS_DEVICES),Globals.orgCode, node.getMacID(),item);
     }
 
+    public static void RemoveNode(SensorNode node){
+        Globals.db.RemoveList(Globals.dbContext.getString(R.string.RMS_DEVICES),Globals.orgCode, node.getMacID());
+    }
+
 }

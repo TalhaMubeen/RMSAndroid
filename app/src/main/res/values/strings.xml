@@ -45,5 +45,6 @@
     <string name="rms_node_details">RMS Node Details</string>
     <string name="monitor_node">Monitor Node</string>
     <string name="scanning_nodes">Scanning RMS Nodes</string>
+    <string name="confirmation">Delete RMS Node</string>
 
 </resources>

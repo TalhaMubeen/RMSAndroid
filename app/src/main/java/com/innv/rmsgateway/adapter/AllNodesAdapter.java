@@ -1,10 +1,13 @@
 package com.innv.rmsgateway.adapter;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -12,6 +15,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.innv.rmsgateway.R;
+import com.innv.rmsgateway.data.Globals;
 import com.innv.rmsgateway.data.NodeDataManager;
 import com.innv.rmsgateway.data.StaticListItem;
 import com.innv.rmsgateway.sensornode.SensorNode;
@@ -23,9 +27,11 @@ public class AllNodesAdapter extends BaseAdapter {
 
     List<StaticListItem> nodes= new ArrayList<>();
     LayoutInflater inflater;
+    Context context;
     public AllNodesAdapter(Context ctx, List<StaticListItem> list){
         nodes = list;
         inflater = LayoutInflater.from(ctx);
+        context = ctx;
     }
 
 
@@ -59,6 +65,42 @@ public class AllNodesAdapter extends BaseAdapter {
 
         ll_details.setOnLongClickListener(v -> {
 
+            AlertDialog.Builder builder = new AlertDialog.Builder(context);
+            builder.setTitle(context.getResources().getString(R.string.confirmation))
+                    .setMessage("Do you want to permanently delete rms node ?")
+                    .setIcon(android.R.drawable.ic_dialog_alert);
+            builder.setPositiveButton("YES", null);
+            builder.setNegativeButton("NO", null);
+            builder.setCancelable(false);
+
+            final AlertDialog alertDialog = builder.create();
+
+            alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                @Override
+                public void onShow(final DialogInterface _dialog) {
+                    Button positiveButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+                    positiveButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            NodeDataManager.RemoveNode(item);
+                            nodes.remove(position);
+                            notifyDataSetChanged();
+                            _dialog.dismiss();
+
+                        }
+                    });
+
+                    Button negativeButton = alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE);
+                    negativeButton.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            _dialog.dismiss();
+                        }
+                    });
+                }
+            });
+
+            alertDialog.show();
             return false;
         });
 
