@@ -1,6 +1,13 @@
 package com.innv.rmsgateway.sensornode;
+import android.content.Context;
 import android.util.Log;
+
+import com.innv.rmsgateway.R;
+import com.innv.rmsgateway.data.Globals;
 import com.innv.rmsgateway.data.IConvertHelper;
+import com.innv.rmsgateway.data.StaticListItem;
+
+import org.json.JSONException;
 import org.json.JSONObject;
 import static android.content.ContentValues.TAG;
 
@@ -11,17 +18,14 @@ import static android.content.ContentValues.TAG;
 
 
 public class  SensorNode implements IConvertHelper {
-/*    private int id;*/
-    private String macID;
 
+    private String macID;
     public String getName() {
         return name;
     }
-
     public void setName(String name) {
         this.name = name;
     }
-
     private String name;
     private String advertisingTime;
     private int timeAtWakeup; // wakeup time in hours,
@@ -32,16 +36,36 @@ public class  SensorNode implements IConvertHelper {
     private int humidity;
     private double batteryVoltage;
 
+    public boolean isPreChecked() {
+        return isPreChecked;
+    }
+
+    public void setPreChecked(boolean preChecked) {
+        isPreChecked = preChecked;
+    }
+
+    private boolean isPreChecked;
+
+    public double getRssi() {
+        return rssi;
+    }
+
+    public void setRssi(double rssi) {
+        this.rssi = rssi;
+    }
+
+    private double rssi;
+
 
     public SensorNode(){
 
     }
 
 
-    public SensorNode(/*int id,*/ String macID, String name, String advertisingTime,
+    public SensorNode(String macID, String name, String advertisingTime,
                                   int timeAtWakeup, int timeSinceWakeup, int timeSlot,
-                                  boolean timeSynced, double temperature, int humidity, double batteryVoltage) {
-    /*    this.id = id;*/
+                                  boolean timeSynced, double temperature, int humidity,
+                                double batteryVoltage, double rssi, boolean isPreChecked) {
         this.macID = macID;
         this.name = name;
         this.advertisingTime = advertisingTime;
@@ -52,17 +76,25 @@ public class  SensorNode implements IConvertHelper {
         this.temperature = temperature;
         this.humidity = humidity;
         this.batteryVoltage = batteryVoltage;
+        this.rssi = rssi;
+        this.isPreChecked = isPreChecked;
+
     }
 
-/*
-    public int getId() {
-        return id;
-    }
+    public StaticListItem getDataAsStaticListItem(){
 
-    public void setId(int id) {
-        this.id = id;
+        try{
+            String opt1 = getJsonObject().toString();
+            return new StaticListItem(Globals.orgCode,
+                    Globals.dbContext.getString(R.string.RMS_DEVICES),
+                    getMacID(),
+                    getName(),
+                    opt1, "");
+        }catch (Exception Ignore) {
+
+        }
+        return null;
     }
-*/
 
     public String getMacID() {
         return macID;
@@ -76,9 +108,7 @@ public class  SensorNode implements IConvertHelper {
         return advertisingTime;
     }
 
-    public void setAdvertisingTime(String advertisingTime) {
-        this.advertisingTime = advertisingTime;
-    }
+    public void setAdvertisingTime(String advertisingTime) { this.advertisingTime = advertisingTime; }
 
     public int getTimeAtWakeup() {
         return timeAtWakeup;
@@ -140,6 +170,29 @@ public class  SensorNode implements IConvertHelper {
     public boolean parseJsonObject(JSONObject jsonObject) {
 
         try {
+            setMacID(jsonObject.optString("macID"));
+            setName(jsonObject.optString("name"));
+            setAdvertisingTime(jsonObject.optString("advertisingTime"));
+            setTimeAtWakeup(jsonObject.optInt("timeAtWakeup"));
+            setTimeSinceWakeup(jsonObject.optInt("timeSinceWakeup"));
+            setTimeSlot(jsonObject.optInt("timeSlot"));
+            setTimeSynced(jsonObject.optBoolean("timeSynced"));
+            setTemperature(jsonObject.optDouble("temperature"));
+            setHumidity(jsonObject.optInt("humidity"));
+            setBatteryVoltage(jsonObject.optDouble("batteryVoltage"));
+            setRssi(jsonObject.optDouble("rssi"));
+            setPreChecked(jsonObject.optBoolean("isPreChecked"));
+        }catch (Exception e){
+            Log.e(TAG,e.toString());
+            return false;
+        }
+
+        return true;
+    }
+
+    public Boolean parseListItem(StaticListItem item) {
+        try {
+            JSONObject jsonObject = new JSONObject(item.getOptParam1());
 
             setMacID(jsonObject.optString("macID"));
             setName(jsonObject.optString("name"));
@@ -151,12 +204,15 @@ public class  SensorNode implements IConvertHelper {
             setTemperature(jsonObject.optDouble("temperature"));
             setHumidity(jsonObject.optInt("humidity"));
             setBatteryVoltage(jsonObject.optDouble("batteryVoltage"));
-        }catch (Exception e){
-            Log.e(TAG,e.toString());
-            return false;
-        }
+            setRssi(jsonObject.optDouble("rssi"));
+            setPreChecked(jsonObject.optBoolean("isPreChecked"));
+            return true;
 
-        return true;
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return false;
+
     }
 
     @Override
@@ -173,13 +229,15 @@ public class  SensorNode implements IConvertHelper {
             jo.put("temperature", getTemperature());
             jo.put("humidity", getHumidity());
             jo.put("batteryVoltage", getBatteryVoltage());
+            jo.put("rssi", getRssi());
+            jo.put("isPreChecked", isPreChecked());
 
-        }catch (Exception e)
-        {
+        }catch (Exception e) {
             Log.e(TAG,e.toString());
+            jo = null;
         }
 
-        return null;
+        return jo;
     }
 }
 

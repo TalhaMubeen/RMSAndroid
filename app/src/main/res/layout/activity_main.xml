@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -19,17 +20,20 @@
             android:layout_marginLeft="20dp"
             android:text="@string/rms_sensors"
             android:textColor="#fff"
-            android:textSize="18dp" />
+            android:textAppearance="@style/TextAppearance.AppCompat.Large"
+            />
 
-        <Button
-            android:id="@+id/btn_add"
+        <ImageView
+            android:id="@+id/iv_add"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
-            android:layout_centerVertical="true"
-            android:layout_marginRight="30dp"
-            android:text="ADD"
-            />
+            android:src="@drawable/add2"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="15dp"
+            android:padding="15dp"
+            android:tint="@color/white"
+            tools:ignore="UseAppTint" />
+
 
     </RelativeLayout>
 
@@ -41,17 +45,15 @@
         android:layout_alignParentBottom="true">
 
         <GridView
-            android:gravity="center"
-            android:id="@+id/monitoring_griview"
+            android:gravity="start"
+            android:id="@+id/gv_devices"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:listSelector="@drawable/gridview_selector"
             android:horizontalSpacing="8dp"
             android:verticalSpacing="8dp"
-            android:stretchMode="columnWidth"
-            android:columnWidth="136dp"
-            android:numColumns="auto_fit"
-            android:layout_alignParentLeft="true"/>
+            android:numColumns="1"
+            android:layout_alignParentStart="true"/>
     </RelativeLayout>
 
 </RelativeLayout>
