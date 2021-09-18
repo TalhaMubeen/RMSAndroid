@@ -21,6 +21,7 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
@@ -53,12 +54,8 @@ public class ScanActivity extends AppCompatActivity implements View.OnClickListe
     private static final int REQUEST_CODE_PERMISSION_LOCATION = 2;
 
     private ImageView iv_refresh;
-    //  private Switch sw_auto;
-    //   private ImageView img_loading;
-
-    //private Animation operatingAnim;
     private SensorNodeAdapter mDeviceAdapter;
-    //private ProgressDialog progressDialog;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,11 +78,27 @@ public class ScanActivity extends AppCompatActivity implements View.OnClickListe
         super.onResume();
         showConnectedDevice();
     }
+    @Override
+    protected void onStop() {
+        super.onStop();
+        BleManager.getInstance().cancelScan();
+        BleManager.getInstance().destroy();
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            BleManager.getInstance().cancelScan();
+            BleManager.getInstance().destroy();
+            finish();
+        }
+        return super.onKeyDown(keyCode, event);
+    }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        BleManager.getInstance().disconnectAllDevice();
+        BleManager.getInstance().cancelScan();
         BleManager.getInstance().destroy();
     }
 
@@ -113,34 +126,8 @@ public class ScanActivity extends AppCompatActivity implements View.OnClickListe
         iv_refresh = (ImageView) findViewById(R.id.iv_refresh);
         iv_refresh.setOnClickListener(this);
 
-      //  progressDialog = new ProgressDialog(this);
-
         mDeviceAdapter = new SensorNodeAdapter(this);
-        mDeviceAdapter.setOnNodeClickListener(new SensorNodeAdapter.OnNodeClickListener() {
-            @Override
-            public void onConnect(BleDevice bleDevice) {
-                if (!BleManager.getInstance().isConnected(bleDevice)) {
-                    BleManager.getInstance().cancelScan();
-                    connect(bleDevice);
-                }
-            }
 
-            @Override
-            public void onDisConnect(final BleDevice bleDevice) {
-                if (BleManager.getInstance().isConnected(bleDevice)) {
-                    BleManager.getInstance().disconnect(bleDevice);
-                }
-            }
-
-            @Override
-            public void onDetail(BleDevice bleDevice) {
-                if (BleManager.getInstance().isConnected(bleDevice)) {
-                    Intent intent = new Intent(ScanActivity.this, OperationActivity.class);
-                    intent.putExtra(OperationActivity.KEY_DATA, bleDevice);
-                    startActivity(intent);
-                }
-            }
-        });
         ListView listView_device = (ListView) findViewById(R.id.list_device);
         listView_device.setAdapter(mDeviceAdapter);
     }
@@ -227,7 +214,7 @@ public class ScanActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
 
-    private void connect(final BleDevice bleDevice) {
+ /*   private void connect(final BleDevice bleDevice) {
         BleManager.getInstance().connect(bleDevice, new BleGattCallback() {
             @Override
             public void onStartConnect() {
@@ -264,8 +251,8 @@ public class ScanActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
     }
-
-    private void readRssi(BleDevice bleDevice) {
+*/
+/*    private void readRssi(BleDevice bleDevice) {
         BleManager.getInstance().readRssi(bleDevice, new BleRssiCallback() {
             @Override
             public void onRssiFailure(BleException exception) {
@@ -277,9 +264,9 @@ public class ScanActivity extends AppCompatActivity implements View.OnClickListe
                 Log.d(TAG, "onRssiSuccess: " + rssi);
             }
         });
-    }
+    }*/
 
-    private void setMtu(BleDevice bleDevice, int mtu) {
+/*    private void setMtu(BleDevice bleDevice, int mtu) {
         BleManager.getInstance().setMtu(bleDevice, mtu, new BleMtuChangedCallback() {
             @Override
             public void onSetMTUFailure(BleException exception) {
@@ -291,7 +278,7 @@ public class ScanActivity extends AppCompatActivity implements View.OnClickListe
                 Log.i(TAG, "onMtuChanged: " + mtu);
             }
         });
-    }
+    }*/
 
     @Override
     public final void onRequestPermissionsResult(int requestCode,

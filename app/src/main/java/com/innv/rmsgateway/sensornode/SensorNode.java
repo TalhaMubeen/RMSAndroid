@@ -358,7 +358,7 @@ public class  SensorNode implements IConvertHelper {
  * header
  * ProductIdentifier = 01 00 00 00
  * ProtocolVer = 01
- * TimeSlot = 0f 00  = 0x000F -15
+ * TimeSlot = 0f 00  = 0x000F -15 =>
  * BitEncodedInfo 65
  *
  * beaconInfo

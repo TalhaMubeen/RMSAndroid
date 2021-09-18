@@ -197,9 +197,9 @@ public class SensorNodeAdapter extends BaseAdapter {
     }
 
     public interface OnNodeClickListener {
-        void onConnect(BleDevice bleDevice);
+/*        void onConnect(BleDevice bleDevice);
 
-        void onDisConnect(BleDevice bleDevice);
+        void onDisConnect(BleDevice bleDevice);*/
 
         void onDetail(BleDevice bleDevice);
     }
