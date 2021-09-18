@@ -3,15 +3,20 @@ package com.innv.rmsgateway;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.provider.Settings;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -26,6 +31,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.innv.rmsgateway.activity.AddNodesActivity;
 import com.innv.rmsgateway.callback.BleMtuChangedCallback;
@@ -37,6 +43,7 @@ import com.innv.rmsgateway.data.NodeDataManager;
 import com.innv.rmsgateway.data.StaticListItem;
 import com.innv.rmsgateway.exception.BleException;
 import com.innv.rmsgateway.sensornode.SensorNode;
+import com.innv.rmsgateway.service.BLEBackgroundService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,10 +52,55 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final String TAG = "sensorScanner";
     private static final int REQUEST_CODE_OPEN_GPS = 1;
     private static final int REQUEST_CODE_PERMISSION_LOCATION = 2;
+    private static final int REQUEST_CODE_PERMISSION_BLUETOOTH = 3;
 
     private Button btn_scan;
     private ImageView ivAddDevices;
     private GridView gvDevices;
+
+
+
+    // A reference to the service used to get location updates.
+    @SuppressLint("StaticFieldLeak")
+    private static BLEBackgroundService mService = null;
+
+    // Tracks the bound state of the service.
+    private boolean mBound = false;
+
+    // Monitors the state of the connection to the service.
+    private final ServiceConnection mServiceConnection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            if (mService == null) {
+                BLEBackgroundService.LocalBinder binder = (BLEBackgroundService.LocalBinder) service;
+                mService = binder.getService();
+
+/*                if (!LocationUpdatesService.canGetLocation()) {
+                    Utilities.showSettingsAlert(LoginActivity.this);
+                }*/
+
+                try {
+                  //  mService.requestLocationUpdates();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+            else{
+              //  mService.requestLocationUpdates();
+            }
+
+            mBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+           // mService.removeLocationUpdates();
+            mService = null;
+            mBound = false;
+        }
+    };
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,18 +109,60 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         Log.d(TAG,"Gateway App started");
         initView();
+
+        checkPermissions();
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+        if (!mBound) {
+            bindService(new Intent(MainActivity.this, BLEBackgroundService.class), mServiceConnection,
+                    Context.BIND_AUTO_CREATE);
+        }
+
         initView();
+    }
+
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (mBound) {
+            // Unbind from the service. This signals to the service that this activity is no longer
+            // in the foreground, and the service can respond by promoting itself to a foreground
+            // service.
+            unbindService(mServiceConnection);
+            mBound = false;
+        }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        unbindService(mServiceConnection);
     }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        switch(keyCode){
+            case KeyEvent.KEYCODE_BACK:
+                // do something here
+                //gps.unbindService();
+                if (mBound) {
+                    // Unbind from the service. This signals to the service that this activity is no longer
+                    // in the foreground, and the service can respond by promoting itself to a foreground
+                    // service.
+                    unbindService(mServiceConnection);
+                    mBound = false;
+                }
+                finish();
+                return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
 
     @Override
     public void onClick(View v) {
@@ -95,35 +189,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         gvDevices.setAdapter(gv_adapter);
     }
 
-
-    private void readRssi(BleDevice bleDevice) {
-        BleManager.getInstance().readRssi(bleDevice, new BleRssiCallback() {
-            @Override
-            public void onRssiFailure(BleException exception) {
-                Log.d(TAG, "onRssiFailure" + exception.toString());
-            }
-
-            @Override
-            public void onRssiSuccess(int rssi) {
-                Log.d(TAG, "onRssiSuccess: " + rssi);
-            }
-        });
-    }
-
-    private void setMtu(BleDevice bleDevice, int mtu) {
-        BleManager.getInstance().setMtu(bleDevice, mtu, new BleMtuChangedCallback() {
-            @Override
-            public void onSetMTUFailure(BleException exception) {
-                Log.i(TAG, "onsetMTUFailure" + exception.toString());
-            }
-
-            @Override
-            public void onMtuChanged(int mtu) {
-                Log.i(TAG, "onMtuChanged: " + mtu);
-            }
-        });
-    }
-
     @Override
     public final void onRequestPermissionsResult(int requestCode,
                                                  @NonNull String[] permissions,
@@ -146,9 +211,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void checkPermissions() {
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (!bluetoothAdapter.isEnabled()) {
-            Log.d(TAG,"BLE adapter is not enabled");
-            Toast.makeText(this, getString(R.string.please_open_blue), Toast.LENGTH_LONG).show();
-            return;
+            //Log.d(TAG,"BLE adapter is not enabled");
+           // Toast.makeText(this, getString(R.string.please_open_blue), Toast.LENGTH_LONG).show();
+            startActivityForResult(new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE),REQUEST_CODE_PERMISSION_BLUETOOTH);
         }
 
         String[] permissions = {Manifest.permission.ACCESS_FINE_LOCATION};
@@ -193,10 +258,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             .setCancelable(false)
                             .show();
                 }
-                else {
-/*                    setScanRule();
-                    //  startScan();*/
-                }
                 break;
         }
     }
@@ -212,10 +273,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE_OPEN_GPS) {
-            if (checkGPSIsOpen()) {
-/*                setScanRule();
-                //  startScan();*/
-            }
+
         }
     }
 

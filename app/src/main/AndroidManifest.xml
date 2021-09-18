@@ -37,6 +37,12 @@
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 
+        <service
+            android:name=".service.BLEBackgroundService"
+            android:enabled="true"
+            android:exported="true" />
+
+
     </application>
 
 </manifest>
