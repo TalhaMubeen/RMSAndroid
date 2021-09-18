@@ -92,6 +92,8 @@ public class ScanActivity extends AppCompatActivity implements View.OnClickListe
             BleManager.getInstance().destroy();
             finish();
         }
+
+        
         return super.onKeyDown(keyCode, event);
     }
 
