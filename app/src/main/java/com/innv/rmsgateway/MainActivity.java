@@ -59,8 +59,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private GridView gvDevices;
 
 
-
-    // A reference to the service used to get location updates.
+    // A reference to the service used to get BLE Updates
     @SuppressLint("StaticFieldLeak")
     private static BLEBackgroundService mService = null;
 
@@ -74,13 +73,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if (mService == null) {
                 BLEBackgroundService.LocalBinder binder = (BLEBackgroundService.LocalBinder) service;
                 mService = binder.getService();
-
-/*                if (!LocationUpdatesService.canGetLocation()) {
-                    Utilities.showSettingsAlert(LoginActivity.this);
-                }*/
-
+                checkPermissions();
                 try {
-                  //  mService.requestLocationUpdates();
+                   mService.startBleService();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }

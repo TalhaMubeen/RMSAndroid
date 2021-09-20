@@ -6,6 +6,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.provider.BaseColumns;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -25,6 +26,7 @@ public class DBHandler extends SQLiteOpenHelper{
 
     //TABLE NAME
     private static final String TABLE_DEVICES_LOOKUPS = "devicelookup";
+    private static final String TABLE_DEVICES_LOG = "devicelog";
 
     public static synchronized DBHandler getInstance(Context context) {
         // Use the application context, which will ensure that you
@@ -52,20 +54,38 @@ public class DBHandler extends SQLiteOpenHelper{
                 + "PRIMARY KEY(ORGCODE,LISTNAME,CODE))";
 
         db.execSQL(CREATE_DYNAPPLOOKUP_TABLE);
+
+
+
+        String CREATE_DYNLOGLOOKUP_TABLE="CREATE TABLE " + TABLE_DEVICES_LOG
+                + " ( ORGCODE TEXT NOT NULL,"
+                + " LISTNAME  NOT NULL,"
+                + " CODE TEXT  NOT NULL,"
+                + " DATE TEXT NOT NULL,"
+                + " DESCRIPTION TEXT,"
+                + " OPTPARAM1 TEXT,"
+                + "PRIMARY KEY(ORGCODE,LISTNAME,CODE))";
+
+        db.execSQL(CREATE_DYNLOGLOOKUP_TABLE);
+
+
+
     }
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-// Drop older table if existed
+        // Drop older table if existed
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_DEVICES_LOOKUPS);
-    //    db.execSQL("DROP TABLE IF EXISTS " + TABLE_MSG_APPLICATIONLOOKUPS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_DEVICES_LOG);
         onCreate(db);
     }
+
     public boolean clearAllData()
     {
         try {
             SQLiteDatabase db = this.getWritableDatabase();
             db.execSQL("DELETE FROM " + TABLE_DEVICES_LOOKUPS);
+            db.execSQL("DELETE FROM " + TABLE_DEVICES_LOG);
         }catch (Exception e)
         {
             e.printStackTrace();
