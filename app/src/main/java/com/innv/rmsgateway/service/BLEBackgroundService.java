@@ -21,6 +21,7 @@ import com.innv.rmsgateway.R;
 import com.innv.rmsgateway.callback.BleScanCallback;
 import com.innv.rmsgateway.data.BleDevice;
 import com.innv.rmsgateway.scan.BleScanRuleConfig;
+import com.innv.rmsgateway.sensornode.SensorDataDecoder;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,7 +37,8 @@ public class BLEBackgroundService extends Service {
     private Handler mServiceHandler;
     private Context mContext = null;
 
-    private List<BleDevice> _scannedList;
+    private static List<BleDevice> _scannedList;
+    private static SensorDataDecoder sensorDataDecoder;
     @Override
     public IBinder onBind(Intent intent) {
         return mBinder;
@@ -67,7 +69,7 @@ public class BLEBackgroundService extends Service {
         handlerThread.start();
         mServiceHandler = new Handler(handlerThread.getLooper());
         mContext = this;
-
+        sensorDataDecoder = new SensorDataDecoder();
         BleManager.getInstance().init(getApplication());
         BleManager.getInstance()
                 .enableLog(true)
@@ -117,7 +119,9 @@ public class BLEBackgroundService extends Service {
             @Override
             public void onScanStarted(boolean success) {
                 _scannedList = new ArrayList<>();
+                Log.i(TAG, "Started");
 
+/*
                 ActivityManager am = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
                 ComponentName cn = am.getRunningTasks(1).get(0).topActivity;
                 String name = cn.getShortClassName();
@@ -126,6 +130,7 @@ public class BLEBackgroundService extends Service {
                 if (onBLEUpdateCallbacks.containsKey(name)) {
                     Objects.requireNonNull(onBLEUpdateCallbacks.get(name)).onReadyScanCallback(success);
                 }
+*/
 
                     //send scan started callback event
 /*
@@ -144,19 +149,21 @@ public class BLEBackgroundService extends Service {
 
             @Override
             public void onScanning(BleDevice bleDevice) {
-                if(!_scannedList.contains(bleDevice)) {
-                    _scannedList.add(bleDevice);
+                if(sensorDataDecoder.nodeValid(bleDevice)) { //Checking if the scanned node is really RMS node
 
-                    ActivityManager am = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-                    ComponentName cn = am.getRunningTasks(1).get(0).topActivity;
-                    String name = cn.getShortClassName();
-                    name = name.replace(".", "");
+                    if (!_scannedList.contains(bleDevice)) {
+                        _scannedList.add(bleDevice);
 
-                    if (onBLEUpdateCallbacks.containsKey(name)) {
-                        Objects.requireNonNull(onBLEUpdateCallbacks.get(name)).onBLEDeviceCallback(bleDevice);
+                        ActivityManager am = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+                        ComponentName cn = am.getRunningTasks(1).get(0).topActivity;
+                        String name = cn.getShortClassName();
+                        name = name.replace(".", "");
+
+                        if (onBLEUpdateCallbacks.containsKey(name)) {
+                            Objects.requireNonNull(onBLEUpdateCallbacks.get(name)).onBLEDeviceCallback(bleDevice);
+                        }
                     }
                 }
-
                 //send device to callback
 
 /*                mDeviceAdapter.addDevice(bleDevice);
@@ -178,6 +185,7 @@ public class BLEBackgroundService extends Service {
                             }
                         }
                     }
+                    Log.i(TAG, "Finished");
                 }
 
                 //scanBLE();
@@ -186,7 +194,7 @@ public class BLEBackgroundService extends Service {
         });
     }
 
-    public List<BleDevice> getScannedBLEDeviceList(){
+    public static List<BleDevice> getScannedBLEDeviceList(){
         return _scannedList != null? _scannedList : new ArrayList<>();
     }
 

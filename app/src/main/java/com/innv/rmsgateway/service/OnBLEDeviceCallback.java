@@ -6,5 +6,4 @@ import com.innv.rmsgateway.data.BleDevice;
 
 public interface OnBLEDeviceCallback {
     void onBLEDeviceCallback(BleDevice device);
-    void onReadyScanCallback(Boolean isReady);
 }

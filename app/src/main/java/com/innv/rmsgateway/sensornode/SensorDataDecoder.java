@@ -74,8 +74,6 @@ public class SensorDataDecoder {
 
 
     public SensorDataDecoder() {
-
-
     }
 
     public boolean nodeValid(BleDevice bleDevice){
@@ -105,17 +103,21 @@ public class SensorDataDecoder {
         return bResult;
     }
 
-    public double getTemperature(){
+    public double getTemperature(BleDevice bleDevice){
         int temp = 0;
+        sensorData =  bleDevice.getScanRecord();
 
         temp = (int)sensorData[TEMPERATURE0_LOCATION] *255;
         temp += sensorData[TEMPERATURE1_LOCATION];
         return (double)temp*0.01;
     }
-    public int getHumidity(){
+
+    public int getHumidity(BleDevice bleDevice){
+        sensorData =  bleDevice.getScanRecord();
         humidity = sensorData[HUMIDITY_LOCATION];
         return (int)humidity;
     }
+
 
 
 }

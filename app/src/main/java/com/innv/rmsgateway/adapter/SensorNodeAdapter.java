@@ -1,16 +1,28 @@
 package com.innv.rmsgateway.adapter;
 
 import com.innv.rmsgateway.R;
+
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.innv.rmsgateway.BleManager;
 import com.innv.rmsgateway.data.BleDevice;
+import com.innv.rmsgateway.data.NodeDataManager;
+import com.innv.rmsgateway.sensornode.SensorNode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,11 +30,13 @@ import java.util.List;
 public class SensorNodeAdapter extends BaseAdapter {
     private static final String TAG = "sensorScanner";
     private final Context context;
+    LayoutInflater inflater;
     private final List<BleDevice> bleDeviceList;
 
     //constructor function
     public SensorNodeAdapter(Context context) {
         this.context = context;
+        inflater = LayoutInflater.from(context);
         bleDeviceList = new ArrayList<>();
     }
 
@@ -31,6 +45,10 @@ public class SensorNodeAdapter extends BaseAdapter {
         Log.d(TAG,"add ble devices into list");
         removeDevice(bleDevice);
         bleDeviceList.add(bleDevice);
+    }
+    public void addDevices(List<BleDevice> list){
+        clear();
+        bleDeviceList.addAll(list);
     }
     //remove device
     public void removeDevice(BleDevice bleDevice) {
@@ -90,6 +108,40 @@ public class SensorNodeAdapter extends BaseAdapter {
 
 
     @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+        View nodeView = convertView;
+
+        if (nodeView == null) {
+            nodeView = inflater.inflate(R.layout.add_rms_node_item, parent, false);
+        }
+        BleDevice device = getItem(position);
+        EditText node_name = (EditText) nodeView.findViewById(R.id.editTV_name);
+
+
+        TextView tv_address = (TextView) nodeView.findViewById(R.id.tv_address);
+        tv_address.setText(device.getMac());
+
+        CheckBox add_checkbox = (CheckBox) nodeView.findViewById(R.id.add_checkbox);
+        add_checkbox.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (((CompoundButton) view).isChecked()) {
+                    if(node_name.getText().length() >0 ) {
+                        add_checkbox.setChecked(true);
+                    }else{
+                        Toast.makeText(context, "Please enter node name", Toast.LENGTH_SHORT).show();
+                    }
+
+                }
+                //NodeDataManager.SaveSensorNodeData(item);
+            }
+        });
+        return nodeView;
+
+    }
+
+
+/*    @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         SensorNodeAdapter.ViewNodeHolder holder;
         if (convertView != null) {
@@ -181,9 +233,9 @@ public class SensorNodeAdapter extends BaseAdapter {
 //        });
 
         return convertView;
-    }
+    }*/
 
-    class ViewNodeHolder {
+   /* class ViewNodeHolder {
         ImageView temp_image;
         TextView sensor_name;
         TextView sensor_bd_address;
@@ -195,19 +247,6 @@ public class SensorNodeAdapter extends BaseAdapter {
         //Button btn_list_graph;
 
     }
-
-    public interface OnNodeClickListener {
-/*        void onConnect(BleDevice bleDevice);
-
-        void onDisConnect(BleDevice bleDevice);*/
-
-        void onDetail(BleDevice bleDevice);
-    }
-
-    private SensorNodeAdapter.OnNodeClickListener mListener;
-
-    public void setOnNodeClickListener(SensorNodeAdapter.OnNodeClickListener listener) {
-        this.mListener = listener;
-    }
+*/
 
 }

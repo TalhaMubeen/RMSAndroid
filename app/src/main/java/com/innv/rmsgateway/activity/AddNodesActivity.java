@@ -25,7 +25,6 @@ public class AddNodesActivity extends AppCompatActivity {
         ListView list_device = (ListView) findViewById(R.id.list_device);
         list_device.setAdapter(nodesAdapter);
 
-
         Button btn_scan = (Button) findViewById(R.id.btn_scan);
         btn_scan.setOnClickListener(v -> {
             Intent intent = new Intent(this, ScanActivity.class);
@@ -33,5 +32,7 @@ public class AddNodesActivity extends AppCompatActivity {
         });
 
     }
+
+
 
 }

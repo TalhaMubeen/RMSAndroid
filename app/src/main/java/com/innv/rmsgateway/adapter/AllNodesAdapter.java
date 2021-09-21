@@ -53,6 +53,7 @@ public class AllNodesAdapter extends BaseAdapter {
     public long getItemId(int position) {
         return nodes.get(position).hashCode();
     }
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View nodeView = convertView;

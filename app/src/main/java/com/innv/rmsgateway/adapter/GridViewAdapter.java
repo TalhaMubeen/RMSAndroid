@@ -2,7 +2,6 @@ package com.innv.rmsgateway.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
-import android.se.omapi.Session;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,15 +13,24 @@ import com.innv.rmsgateway.data.StaticListItem;
 import com.innv.rmsgateway.sensornode.SensorNode;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class GridViewAdapter extends BaseAdapter {
 
     List<StaticListItem> mRMSDevices= new ArrayList<>();
+    Map<String, View> deviceViewList = new HashMap();
     LayoutInflater inflater;
     public GridViewAdapter(Context ctx, List<StaticListItem> list){
         mRMSDevices = list;
+/*        for(StaticListItem item : list){
+            SensorNode node = new SensorNode();
+            node.parseListItem(item);
+            devivesList.put(node.getMacID(), item);
+        }*/
         inflater = LayoutInflater.from(ctx);
+        deviceViewList.clear();
     }
 
 
@@ -71,7 +79,22 @@ public class GridViewAdapter extends BaseAdapter {
 
         sensor_rssi.setText("-99.6 dbm");
         //sensor_rssi.setText(item.get());
-
+        deviceViewList.put(item.getMacID(), rmsDeviceCardView);
         return rmsDeviceCardView;
     }
+
+    @SuppressLint("SetTextI18n")
+    public void updateValues(String Mac, double temp, int humidity, int rssi){
+        TextView temperature_value = (TextView) deviceViewList.get(Mac).findViewById(R.id.temperature_value);
+        temperature_value.setText(Double.toString(temp));
+
+        TextView humidity_value = (TextView) deviceViewList.get(Mac).findViewById(R.id.humidity_value);
+        humidity_value.setText(Integer.toString(humidity) + "%");
+
+        TextView sensor_rssi = (TextView) deviceViewList.get(Mac).findViewById(R.id.sensor_rssi);
+        sensor_rssi.setText(Integer.toString(rssi) + " dbm");
+
+    }
+
+
 }

@@ -6,7 +6,6 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-
     <RelativeLayout
         android:id="@+id/actionbar"
         android:layout_width="match_parent"
@@ -51,9 +50,6 @@
             android:paddingStart="5dp"
             android:paddingEnd="5dp"
             android:scrollbars="none" />
-
-
     </LinearLayout>
-
 
 </RelativeLayout>

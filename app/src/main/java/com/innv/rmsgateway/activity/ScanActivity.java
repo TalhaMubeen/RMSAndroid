@@ -43,12 +43,14 @@ import com.innv.rmsgateway.data.BleDevice;
 import com.innv.rmsgateway.exception.BleException;
 import com.innv.rmsgateway.operation.OperationActivity;
 import com.innv.rmsgateway.scan.BleScanRuleConfig;
+import com.innv.rmsgateway.service.BLEBackgroundService;
+import com.innv.rmsgateway.service.OnBLEDeviceCallback;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public class ScanActivity extends AppCompatActivity implements View.OnClickListener{
+public class ScanActivity extends AppCompatActivity implements View.OnClickListener, OnBLEDeviceCallback {
     private static final String TAG = ScanActivity.class.getSimpleName();
 
     private ImageView iv_refresh;
@@ -64,17 +66,17 @@ public class ScanActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onResume() {
         super.onResume();
-        showConnectedDevice();
+        BLEBackgroundService.addBLEUpdateListener(this.getClass().getSimpleName(), this);
     }
     @Override
     protected void onStop() {
         super.onStop();
-        finish();
-   }
+    }
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
+            BLEBackgroundService.removeBLEUpdateListener(this.getClass().getSimpleName());
             finish();
         }
         return super.onKeyDown(keyCode, event);
@@ -83,7 +85,7 @@ public class ScanActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        finish();
+        BLEBackgroundService.removeBLEUpdateListener(this.getClass().getSimpleName());
     }
 
     @Override
@@ -96,8 +98,10 @@ public class ScanActivity extends AppCompatActivity implements View.OnClickListe
                         iv_refresh.clearAnimation();
                     }
                 }else {//start animation here
+                    mDeviceAdapter.clear();
                     Animation rotationAnimation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate);
                     iv_refresh.startAnimation(rotationAnimation);
+
                 }
                 break;
 
@@ -112,17 +116,18 @@ public class ScanActivity extends AppCompatActivity implements View.OnClickListe
         iv_refresh.setOnClickListener(this);
 
         mDeviceAdapter = new SensorNodeAdapter(this);
-
+        mDeviceAdapter.addDevices(BLEBackgroundService.getScannedBLEDeviceList());
         ListView listView_device = (ListView) findViewById(R.id.list_device);
         listView_device.setAdapter(mDeviceAdapter);
     }
 
-    private void showConnectedDevice() {
-      /*  List<BleDevice> deviceList = BleManager.getInstance().getAllConnectedDevice();
-        mDeviceAdapter.clearConnectedDevice();
-        for (BleDevice bleDevice : deviceList) {
-            mDeviceAdapter.addDevice(bleDevice);
-        }
-        mDeviceAdapter.notifyDataSetChanged();*/
+    public  void addDevice(BleDevice device){
+        mDeviceAdapter.addDevice(device);
+    }
+
+
+    @Override
+    public void onBLEDeviceCallback(BleDevice device) {
+        mDeviceAdapter.addDevice(device);
     }
 }

@@ -42,13 +42,15 @@ import com.innv.rmsgateway.adapter.GridViewAdapter;
 import com.innv.rmsgateway.data.NodeDataManager;
 import com.innv.rmsgateway.data.StaticListItem;
 import com.innv.rmsgateway.exception.BleException;
+import com.innv.rmsgateway.sensornode.SensorDataDecoder;
 import com.innv.rmsgateway.sensornode.SensorNode;
 import com.innv.rmsgateway.service.BLEBackgroundService;
+import com.innv.rmsgateway.service.OnBLEDeviceCallback;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, OnBLEDeviceCallback {
     private static final String TAG = "sensorScanner";
     private static final int REQUEST_CODE_OPEN_GPS = 1;
     private static final int REQUEST_CODE_PERMISSION_LOCATION = 2;
@@ -62,9 +64,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     // A reference to the service used to get BLE Updates
     @SuppressLint("StaticFieldLeak")
     private static BLEBackgroundService mService = null;
-
+    private SensorDataDecoder sensorDataDecoder;
     // Tracks the bound state of the service.
     private boolean mBound = false;
+    GridViewAdapter gv_adapter;
 
     // Monitors the state of the connection to the service.
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
@@ -103,6 +106,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         Log.d(TAG,"Gateway App started");
+        sensorDataDecoder = new SensorDataDecoder();
         initView();
 
         checkPermissions();
@@ -113,6 +117,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onResume() {
         super.onResume();
         if (!mBound) {
+            BLEBackgroundService.addBLEUpdateListener(this.getClass().getSimpleName(), this);
+
             bindService(new Intent(MainActivity.this, BLEBackgroundService.class), mServiceConnection,
                     Context.BIND_AUTO_CREATE);
         }
@@ -128,15 +134,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             // Unbind from the service. This signals to the service that this activity is no longer
             // in the foreground, and the service can respond by promoting itself to a foreground
             // service.
+            BLEBackgroundService.removeBLEUpdateListener(this.getClass().getSimpleName());
             unbindService(mServiceConnection);
             mBound = false;
         }
     }
 
     @Override
+    protected void onPause(){
+        super.onPause();
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
-        unbindService(mServiceConnection);
+        if(mBound) {
+            mBound = false;
+            unbindService(mServiceConnection);
+            BLEBackgroundService.removeBLEUpdateListener(this.getClass().getSimpleName());
+        }
     }
 
     @Override
@@ -149,6 +165,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     // Unbind from the service. This signals to the service that this activity is no longer
                     // in the foreground, and the service can respond by promoting itself to a foreground
                     // service.
+                    BLEBackgroundService.removeBLEUpdateListener(this.getClass().getSimpleName());
+
                     unbindService(mServiceConnection);
                     mBound = false;
                 }
@@ -178,7 +196,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //Testing db
        // NodeDataManager.AddDummyDatainDB();
 
-        GridViewAdapter gv_adapter = new GridViewAdapter(this, NodeDataManager.getPreCheckedNodesList());
+        gv_adapter = new GridViewAdapter(this, NodeDataManager.getPreCheckedNodesList());
 
         gvDevices = (GridView) findViewById(R.id.gv_devices);
         gvDevices.setAdapter(gv_adapter);
@@ -268,8 +286,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE_OPEN_GPS) {
-
+            //done
         }
     }
 
+    @Override
+    public void onBLEDeviceCallback(BleDevice device) {
+        int humidity = sensorDataDecoder.getHumidity(device);
+        double temp = sensorDataDecoder.getTemperature(device);
+        String mac = device.getMac();
+        int rssi = device.getRssi();
+        gv_adapter.updateValues(mac, temp, humidity, rssi);
+    }
 }
