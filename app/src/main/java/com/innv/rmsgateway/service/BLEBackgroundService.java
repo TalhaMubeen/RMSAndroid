@@ -154,13 +154,17 @@ public class BLEBackgroundService extends Service {
                     if (!_scannedList.contains(bleDevice)) {
                         _scannedList.add(bleDevice);
 
-                        ActivityManager am = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-                        ComponentName cn = am.getRunningTasks(1).get(0).topActivity;
-                        String name = cn.getShortClassName();
-                        name = name.replace(".", "");
+                        try {
+                            ActivityManager am = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+                            ComponentName cn = am.getRunningTasks(1).get(0).topActivity;
+                            String name = cn.getShortClassName();
+                            name = name.replace(".", "");
 
-                        if (onBLEUpdateCallbacks.containsKey(name)) {
-                            Objects.requireNonNull(onBLEUpdateCallbacks.get(name)).onBLEDeviceCallback(bleDevice);
+                            if (onBLEUpdateCallbacks.containsKey(name)) {
+                                Objects.requireNonNull(onBLEUpdateCallbacks.get(name)).onBLEDeviceCallback(bleDevice);
+                            }
+                        }catch(Exception ignored){
+
                         }
                     }
                 }

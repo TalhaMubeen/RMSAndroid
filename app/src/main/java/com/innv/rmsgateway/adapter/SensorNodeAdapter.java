@@ -112,7 +112,7 @@ public class SensorNodeAdapter extends BaseAdapter {
         View nodeView = convertView;
 
         if (nodeView == null) {
-            nodeView = inflater.inflate(R.layout.add_rms_node_item, parent, false);
+            nodeView = inflater.inflate(R.layout.scan_rms_items, parent, false);
         }
         BleDevice device = getItem(position);
         EditText node_name = (EditText) nodeView.findViewById(R.id.editTV_name);
@@ -130,6 +130,7 @@ public class SensorNodeAdapter extends BaseAdapter {
                         add_checkbox.setChecked(true);
                     }else{
                         Toast.makeText(context, "Please enter node name", Toast.LENGTH_SHORT).show();
+                        add_checkbox.setChecked(false);
                     }
 
                 }
