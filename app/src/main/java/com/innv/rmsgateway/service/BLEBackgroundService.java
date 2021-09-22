@@ -39,6 +39,7 @@ public class BLEBackgroundService extends Service {
 
     private static List<BleDevice> _scannedList;
     private static SensorDataDecoder sensorDataDecoder;
+    private static Boolean isScanning = false;
     @Override
     public IBinder onBind(Intent intent) {
         return mBinder;
@@ -105,7 +106,7 @@ public class BLEBackgroundService extends Service {
     }
 
 
-    public static void StopScan(){
+    public static void stopScan(){
         BleManager.getInstance().cancelScan();
     }
 
@@ -116,8 +117,14 @@ public class BLEBackgroundService extends Service {
 
 
     public static void restartBLEScan(){
-        StopScan();
-        scanBLE();
+        try {
+            if(isScanning) {
+                stopScan();
+            }
+            scanBLE();
+        }catch(Exception ignored){
+
+        }
     }
 
     private static void scanBLE(){
@@ -126,6 +133,9 @@ public class BLEBackgroundService extends Service {
             public void onScanStarted(boolean success) {
                 _scannedList = new ArrayList<>();
                 Log.i(TAG, "Started");
+                if(success) {
+                    isScanning = true;
+                }
             }
 
             @Override
@@ -149,6 +159,7 @@ public class BLEBackgroundService extends Service {
 
             @Override
             public void onScanFinished(List<BleDevice> scanResultList) {
+                isScanning = false;
                 if(scanResultList.size() != _scannedList.size() && scanResultList.size() > 0 ){
                     for(BleDevice device : scanResultList){
                         if(!_scannedList.contains(device)){

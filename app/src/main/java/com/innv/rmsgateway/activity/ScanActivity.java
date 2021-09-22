@@ -60,6 +60,7 @@ public class ScanActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scan_nodes);
+        BLEBackgroundService.restartBLEScan();
         initView();
     }
 
@@ -94,13 +95,14 @@ public class ScanActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.iv_refresh:
                 if (iv_refresh.getAnimation() != null) {
                     if (!iv_refresh.getAnimation().hasEnded()) {
-                       /* BleManager.getInstance().cancelScan();*/
+                        BLEBackgroundService.stopScan();
                         iv_refresh.clearAnimation();
                     }
                 }else {//start animation here
                     mDeviceAdapter.clear();
                     Animation rotationAnimation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate);
                     iv_refresh.startAnimation(rotationAnimation);
+                    BLEBackgroundService.restartBLEScan();
 
                 }
                 break;
@@ -116,7 +118,9 @@ public class ScanActivity extends AppCompatActivity implements View.OnClickListe
         iv_refresh.setOnClickListener(this);
 
         mDeviceAdapter = new SensorNodeAdapter(this);
+
         mDeviceAdapter.addDevices(BLEBackgroundService.getScannedBLEDeviceList());
+
         ListView listView_device = (ListView) findViewById(R.id.list_device);
         listView_device.setAdapter(mDeviceAdapter);
     }
