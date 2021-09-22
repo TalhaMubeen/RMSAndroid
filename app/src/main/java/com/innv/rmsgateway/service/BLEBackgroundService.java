@@ -85,6 +85,7 @@ public class BLEBackgroundService extends Service {
         BleManager.getInstance().initScanRule(scanRuleConfig);
 
     }
+
     private static Map<String,OnBLEDeviceCallback> onBLEUpdateCallbacks = new HashMap<>();
 
     public static void addBLEUpdateListener(@NonNull String className, @NonNull OnBLEDeviceCallback listener) {
@@ -104,9 +105,8 @@ public class BLEBackgroundService extends Service {
     }
 
 
-    public void StopScan(){
+    public static void StopScan(){
         BleManager.getInstance().cancelScan();
-        BleManager.getInstance().destroy();
     }
 
     public void startBleService() {
@@ -114,33 +114,19 @@ public class BLEBackgroundService extends Service {
         scanBLE();
     }
 
-    private void scanBLE(){
+
+    public static void restartBLEScan(){
+        StopScan();
+        scanBLE();
+    }
+
+    private static void scanBLE(){
         BleManager.getInstance().scan(new BleScanCallback() {
             @Override
             public void onScanStarted(boolean success) {
                 _scannedList = new ArrayList<>();
                 Log.i(TAG, "Started");
-
-/*
-                ActivityManager am = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-                ComponentName cn = am.getRunningTasks(1).get(0).topActivity;
-                String name = cn.getShortClassName();
-                name = name.replace(".", "");
-
-                if (onBLEUpdateCallbacks.containsKey(name)) {
-                    Objects.requireNonNull(onBLEUpdateCallbacks.get(name)).onReadyScanCallback(success);
-                }
-*/
-
-                    //send scan started callback event
-/*
-                mDeviceAdapter.clearScanDevice();
-                mDeviceAdapter.notifyDataSetChanged();
-*/
-
-  /*              Animation rotationAnimation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate);
-                iv_refresh.startAnimation(rotationAnimation);
- */           }
+            }
 
             @Override
             public void onLeScan(BleDevice bleDevice) {
@@ -154,24 +140,11 @@ public class BLEBackgroundService extends Service {
                     if (!_scannedList.contains(bleDevice)) {
                         _scannedList.add(bleDevice);
 
-                        try {
-                            ActivityManager am = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-                            ComponentName cn = am.getRunningTasks(1).get(0).topActivity;
-                            String name = cn.getShortClassName();
-                            name = name.replace(".", "");
-
-                            if (onBLEUpdateCallbacks.containsKey(name)) {
-                                Objects.requireNonNull(onBLEUpdateCallbacks.get(name)).onBLEDeviceCallback(bleDevice);
-                            }
-                        }catch(Exception ignored){
-
+                        for(String name : onBLEUpdateCallbacks.keySet()) {
+                            onBLEUpdateCallbacks.get(name).onBLEDeviceCallback(bleDevice);
                         }
                     }
                 }
-                //send device to callback
-
-/*                mDeviceAdapter.addDevice(bleDevice);
-                mDeviceAdapter.notifyDataSetChanged();*/
             }
 
             @Override
@@ -179,21 +152,16 @@ public class BLEBackgroundService extends Service {
                 if(scanResultList.size() != _scannedList.size() && scanResultList.size() > 0 ){
                     for(BleDevice device : scanResultList){
                         if(!_scannedList.contains(device)){
-                            ActivityManager am = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-                            ComponentName cn = am.getRunningTasks(1).get(0).topActivity;
-                            String name = cn.getShortClassName();
-                            name = name.replace(".", "");
 
-                            if (onBLEUpdateCallbacks.containsKey(name)) {
-                                Objects.requireNonNull(onBLEUpdateCallbacks.get(name)).onBLEDeviceCallback(device);
-                            }
+                            //Do something with the missing device if any
+/*
+                            for(String name : onBLEUpdateCallbacks.keySet()) {
+                                onBLEUpdateCallbacks.get(name).onBLEDeviceCallback(device);
+                            }*/
                         }
                     }
                     Log.i(TAG, "Finished");
                 }
-
-                //scanBLE();
-
             }
         });
     }
