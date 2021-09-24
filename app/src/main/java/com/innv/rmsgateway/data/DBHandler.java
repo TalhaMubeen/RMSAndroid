@@ -28,7 +28,8 @@ public class DBHandler extends SQLiteOpenHelper{
     private static final String TABLE_DEVICES_LOOKUPS = "devicelookup";
     private static final String TABLE_DEVICES_LOG = "devicelog";
 
-    public static synchronized DBHandler getInstance(Context context) {
+    public static synchronized DBHandler getInstance(Context context)
+    {
         // Use the application context, which will ensure that you
         // don't accidentally leak an Activity's context.
         // See this article for more information: http://bit.ly/6LRzfx
@@ -42,6 +43,7 @@ public class DBHandler extends SQLiteOpenHelper{
     {
         super(context,DATABASE_NAME,null,DATABASE_VERSION );
     }
+
     @Override
     public void onCreate(SQLiteDatabase db) {
         String CREATE_DYNAPPLOOKUP_TABLE="CREATE TABLE " + TABLE_DEVICES_LOOKUPS
@@ -52,24 +54,16 @@ public class DBHandler extends SQLiteOpenHelper{
                 + " OPTPARAM1 TEXT,"
                 + " OPTPARAM2 TEXT,"
                 + "PRIMARY KEY(ORGCODE,LISTNAME,CODE))";
-
         db.execSQL(CREATE_DYNAPPLOOKUP_TABLE);
-
-
 
         String CREATE_DYNLOGLOOKUP_TABLE="CREATE TABLE " + TABLE_DEVICES_LOG
                 + " ( ORGCODE TEXT NOT NULL,"
                 + " LISTNAME  NOT NULL,"
                 + " CODE TEXT  NOT NULL,"
                 + " DATE TEXT NOT NULL,"
-                + " DESCRIPTION TEXT,"
                 + " OPTPARAM1 TEXT,"
-                + "PRIMARY KEY(ORGCODE,LISTNAME,CODE))";
-
+                + "PRIMARY KEY(ORGCODE,LISTNAME,CODE, DATE))";
         db.execSQL(CREATE_DYNLOGLOOKUP_TABLE);
-
-
-
     }
 
     @Override
@@ -126,6 +120,26 @@ public class DBHandler extends SQLiteOpenHelper{
             return AddList(listName,orgCode,array);
         }
     }
+
+    public int AddSensorLogs(String listName, String orgCode, String code, String date, StaticListItem data){
+        SQLiteDatabase db=this.getWritableDatabase();
+        int count=0;
+
+        try {
+            ContentValues values=new ContentValues();
+            values.put("ORGCODE",orgCode);
+            values.put("LISTNAME",listName);
+            values.put("CODE",data.getCode());
+            values.put("DATE",data.getCode());
+            values.put("OPTPARAM1",data.getOptParam1());
+            db.insert(TABLE_DEVICES_LOG,null,values);
+            count++;
+        } catch (Exception e) {
+
+        }
+        return count;
+    }
+
 
     public int AddList(String listName,String orgCode, StaticListItem array)
     {

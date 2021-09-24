@@ -64,9 +64,6 @@ public class ScanActivity extends AppCompatActivity implements View.OnClickListe
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scan_nodes);
-
-        allSavedNodes = NodeDataManager.getAllNodesLst();
-
         BLEBackgroundService.restartBLEScan();
         initView();
     }
@@ -127,7 +124,7 @@ public class ScanActivity extends AppCompatActivity implements View.OnClickListe
         iv_refresh.setOnClickListener(this);
 
         mDeviceAdapter = new SensorNodeAdapter(this);
-        mDeviceAdapter.addDevices(BLEBackgroundService.getScannedBLEDeviceList());
+      //  mDeviceAdapter.addDevices(BLEBackgroundService.getScannedBLEDeviceList());
 
         ListView listView_device = (ListView) findViewById(R.id.list_device);
         listView_device.setAdapter(mDeviceAdapter);
@@ -138,6 +135,7 @@ public class ScanActivity extends AppCompatActivity implements View.OnClickListe
 
     public void addDevice(BleDevice device){
 
+        allSavedNodes = NodeDataManager.getAllNodesLst();
         for(SensorNode node : allSavedNodes){
             if(device.getMac().equals(node.getMacID())){
                 return;

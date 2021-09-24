@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -23,6 +24,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -48,7 +50,9 @@ import com.innv.rmsgateway.service.BLEBackgroundService;
 import com.innv.rmsgateway.service.OnBLEDeviceCallback;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, OnBLEDeviceCallback {
     private static final String TAG = "sensorScanner";
@@ -66,8 +70,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static BLEBackgroundService mService = null;
     private SensorDataDecoder sensorDataDecoder;
     // Tracks the bound state of the service.
-    private boolean mBound = false;
+    private static boolean mBound = false;
     GridViewAdapter gv_adapter;
+    static boolean updatingTime = false;
 
     // Monitors the state of the connection to the service.
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
@@ -108,24 +113,104 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         Log.d(TAG,"Gateway App started");
         sensorDataDecoder = new SensorDataDecoder();
-        initView();
 
         checkPermissions();
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        Globals.setDbContext(getApplicationContext());
+
+        ivAddDevices = (ImageView) findViewById(R.id.iv_add);
+        ivAddDevices.setOnClickListener(this);
+
+        //Testing db
+        // NodeDataManager.AddDummyDatainDB();
+
+        gv_adapter = new GridViewAdapter(this, NodeDataManager.getPreCheckedNodes());
+
+        gvDevices = (GridView) findViewById(R.id.gv_devices);
+        gvDevices.setAdapter(gv_adapter);
+
+
+        if (!mBound) {
+            bindService(new Intent(MainActivity.this, BLEBackgroundService.class), mServiceConnection,
+                    Context.BIND_AUTO_CREATE);
+        }
+
+
 
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        if (!mBound) {
-            BLEBackgroundService.addBLEUpdateListener(this.getClass().getSimpleName(), this);
-
-            bindService(new Intent(MainActivity.this, BLEBackgroundService.class), mServiceConnection,
-                    Context.BIND_AUTO_CREATE);
-        }
-
-        initView();
+        BLEBackgroundService.addBLEUpdateListener(this.getClass().getSimpleName(), this);
+        UpdateTime();
     }
+
+    public void UpdateTime() {
+
+        if (updatingTime)
+            return;
+
+        Thread thread = new Thread() {
+
+            @Override
+            public void run() {
+                try {
+
+                    updatingTime = true;
+                    while (true) {
+
+                        Map<String, View> deviceViewList = gv_adapter.getCardViewList();
+                        if (deviceViewList.size() > 0) {
+                            List<SensorNode> mRMSDevices = NodeDataManager.getPreCheckedNodes();
+                            for (SensorNode node : mRMSDevices) {
+                                if (deviceViewList.containsKey(node.getMacID())) {
+                                    TextView last_Updated_On = (TextView) deviceViewList.get(node.getMacID()).findViewById(R.id.tv_last_updated);
+
+                                    Date lastUpdate = node.getLastUpdatedDate();
+                                    if (lastUpdate != null) {
+
+                                        final int[] elapsedTime = node.elapsedCalculator(new Date(), lastUpdate);
+
+                                        String hours = elapsedTime[1] + "h";
+                                        String mins = elapsedTime[2] + "m";
+                                        String sec = elapsedTime[3] + "s";
+
+                                        if (elapsedTime[2] >= 6 || elapsedTime[1] > 0) {
+                                            View color = (View) deviceViewList.get(node.getMacID()).findViewById(R.id.colorNA);
+                                            color.setBackgroundTintList(ColorStateList.valueOf(GridViewAdapter.NODE_INACTIVE));
+                                        } else {
+                                            View color = (View) deviceViewList.get(node.getMacID()).findViewById(R.id.colorNA);
+                                            color.setBackgroundTintList(ColorStateList.valueOf(GridViewAdapter.NODE_ACTIVE));
+                                        }
+
+                                        MainActivity.this.runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                last_Updated_On.setText(hours + " " + mins + " " + sec + " ago");
+                                            }
+                                        });
+
+
+                                    }
+                                }
+                            }
+                        }
+
+                        Thread.sleep(1000);
+                    }
+
+                }catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        thread.start();
+    }
+
 
 
     @Override
@@ -186,22 +271,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    private void initView() {
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        Globals.setDbContext(getApplicationContext());
-
-        ivAddDevices = (ImageView) findViewById(R.id.iv_add);
-        ivAddDevices.setOnClickListener(this);
-
-        //Testing db
-       // NodeDataManager.AddDummyDatainDB();
-
-        gv_adapter = new GridViewAdapter(this, NodeDataManager.getPreCheckedNodes());
-
-        gvDevices = (GridView) findViewById(R.id.gv_devices);
-        gvDevices.setAdapter(gv_adapter);
-    }
 
     @Override
     public final void onRequestPermissionsResult(int requestCode,

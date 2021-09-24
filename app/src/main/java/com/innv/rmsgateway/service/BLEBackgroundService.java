@@ -21,8 +21,10 @@ import com.innv.rmsgateway.BleManager;
 import com.innv.rmsgateway.R;
 import com.innv.rmsgateway.callback.BleScanCallback;
 import com.innv.rmsgateway.data.BleDevice;
+import com.innv.rmsgateway.data.NodeDataManager;
 import com.innv.rmsgateway.scan.BleScanRuleConfig;
 import com.innv.rmsgateway.sensornode.SensorDataDecoder;
+import com.innv.rmsgateway.sensornode.SensorNode;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -38,9 +40,10 @@ public class BLEBackgroundService extends Service {
     private Handler mServiceHandler;
     private Context mContext = null;
 
-    private static List<BleDevice> _scannedList;
+    private static Map<String, BleDevice> _scannedList;
     private static SensorDataDecoder sensorDataDecoder;
     private static Boolean isScanning = false;
+    private static List<SensorNode> allSavedNodes = NodeDataManager.getAllNodesLst();
     static Thread thread = null;
     @Override
     public IBinder onBind(Intent intent) {
@@ -151,7 +154,7 @@ public class BLEBackgroundService extends Service {
         BleManager.getInstance().scan(new BleScanCallback() {
             @Override
             public void onScanStarted(boolean success) {
-                _scannedList = new ArrayList<>();
+                _scannedList = new HashMap<>();
                 Log.i(TAG, "Started");
                 if(success) {
                     isScanning = true;
@@ -166,10 +169,6 @@ public class BLEBackgroundService extends Service {
             @Override
             public void onScanning(BleDevice bleDevice) {
                 if(sensorDataDecoder.nodeValid(bleDevice)) { //Checking if the scanned node is really RMS node
-
-                    if (!_scannedList.contains(bleDevice)) {
-                        _scannedList.add(bleDevice);
-                    }
 
                     for (String name : onBLEUpdateCallbacks.keySet()) {
                         onBLEUpdateCallbacks.get(name).onBLEDeviceCallback(bleDevice);
@@ -187,7 +186,7 @@ public class BLEBackgroundService extends Service {
     }
 
     public static List<BleDevice> getScannedBLEDeviceList(){
-        return _scannedList != null? _scannedList : new ArrayList<>();
+        return _scannedList != null? new ArrayList<BleDevice>(_scannedList.values()) : new ArrayList<>();
     }
 
 

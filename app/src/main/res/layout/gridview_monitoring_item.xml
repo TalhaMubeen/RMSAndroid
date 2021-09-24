@@ -118,13 +118,23 @@
         android:layout_alignParentEnd="true" />
 
     <TextView
-        android:id="@+id/tv_last_updated"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentEnd="true"
         android:layout_marginTop="35dp"
         android:layout_marginEnd="15dp"
-        android:text="6min ago"
+        android:text="Last Updated"
+        android:textStyle="bold"
+        />
+
+    <TextView
+        android:id="@+id/tv_last_updated"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="55dp"
+        android:layout_marginEnd="20dp"
+        android:text="-min -s ago"
         android:textStyle="bold"
          />
 

@@ -3,8 +3,11 @@ package com.innv.rmsgateway.data;
 import com.innv.rmsgateway.R;
 import com.innv.rmsgateway.sensornode.SensorNode;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 public class NodeDataManager {
 
@@ -94,6 +97,20 @@ public class NodeDataManager {
     public static void SaveSensorNodeData(SensorNode node){
         StaticListItem item = node.getDataAsStaticListItem();
         Globals.db.AddOrUpdateList( Globals.dbContext.getString(R.string.RMS_DEVICES),Globals.orgCode, node.getMacID(),item);
+    }
+
+    public static void LogSensorNodeData(SensorNode node){
+
+        SimpleDateFormat sdf = new SimpleDateFormat("MMM-dd-yyyy", Locale.getDefault());
+        String dateToday = sdf.format(new Date());
+
+        StaticListItem item = node.getDataAsStaticListItem();
+        Globals.db.AddSensorLogs(
+                Globals.dbContext.getString(R.string.RMS_DEVICES),
+                Globals.orgCode,
+                node.getMacID(),
+                dateToday,
+                item);
     }
 
     public static void RemoveNode(SensorNode node){

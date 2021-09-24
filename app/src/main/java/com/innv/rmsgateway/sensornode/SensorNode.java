@@ -14,6 +14,8 @@ import org.json.JSONObject;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 import static android.content.ContentValues.TAG;
@@ -27,12 +29,15 @@ import static android.content.ContentValues.TAG;
 public class  SensorNode implements IConvertHelper {
 
     private String macID;
+
     public String getName() {
         return name;
     }
+
     public void setName(String name) {
         this.name = name;
     }
+
     private String name;
     private String advertisingTime;
     private int timeAtWakeup; // wakeup time in hours,
@@ -42,20 +47,117 @@ public class  SensorNode implements IConvertHelper {
     private double temperature;
     private int humidity;
     private double batteryVoltage;
-    private Date lastUpdateRcvdOn;
+    private String lastUpdated;
+    private String timeStamp;
 
-    public static Date ConvertToDate(String dateValue)
-    {
+    public boolean isNumeric(String str) {
+        return str.matches("^(?:(?:\\-{1})?\\d+(?:\\.{1}\\d+)?)$");
+    }
+
+    public int parseInt(String value) {
+        if (value.equals("")) {
+            return 0;
+        }
+        if (isNumeric(value)) {
+            return Integer.parseInt(value);
+        }
+        return 0;
+    }
+
+    public int[] elapsedCalculator(Date date1, Date date2) {
+        // retObj[0] - elapsed days
+        // retObj[1] - elapsed hours
+        // retObj[2] - elapsed min
+        // retObj[3] - elapsed sec
+        int[] retValue = {0, 0, 0, 0};
+        TimeZone tz = TimeZone.getDefault();
+        Date now = new Date();
+        int offsetFromUtc = tz.getOffset(now.getTime()); // / 3600000;
+        offsetFromUtc = 0;
+        long different = date1.getTime() - (date2.getTime() + offsetFromUtc);
+        long secondsInMilli = 1000;
+        long minutesInMilli = secondsInMilli * 60;
+        long hoursInMilli = minutesInMilli * 60;
+        long daysInMilli = hoursInMilli * 24;
+        long elapsedDays = different / daysInMilli;
+        different = different % daysInMilli;
+        long elapsedHours = different / hoursInMilli;
+        different = different % hoursInMilli;
+        long elapsedMinutes = different / minutesInMilli;
+        different = different % minutesInMilli;
+        long elapsedSeconds = different / secondsInMilli;
+        retValue[0] = parseInt("" + elapsedDays);
+        retValue[1] = parseInt("" + elapsedHours);
+        retValue[2] = parseInt("" + elapsedMinutes);
+        retValue[3] = parseInt("" + elapsedSeconds);
+        return retValue;
+    }
+
+    static final String DATEFORMAT = "yyyy-MM-dd HH:mm:ss";
+    public static String defaultDateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS";
+
+    public static Date getUTCdatetimeFromString(String dateValue) {
+        try {
+            final SimpleDateFormat sdf = new SimpleDateFormat(DATEFORMAT);
+            sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
+            Date dt = sdf.parse(dateValue);
+            return dt;
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static String FormatDateTime(Date dateValue, String format) {
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat(format);
+            return sdf.format(dateValue);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+
+    public String getTimeStampFormatted() {
+        if (!timeStamp.equals("")) {
+            Date dt = getUTCdatetimeFromString(timeStamp);
+            return FormatDateTime(dt, defaultDateFormat);
+        }
+        return null;
+    }
+
+    public Date ConvertToDate(String dateValue) {
         @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("MMM-dd-yyyy");
         try {
             Date d = sdf.parse(dateValue);
-            return  d;
+            return d;
 
         } catch (ParseException ex) {
             ex.printStackTrace();
             return null;
 
         }
+    }
+
+    public Date getLastUpdatedDate() {
+        SimpleDateFormat sm = new SimpleDateFormat(defaultDateFormat, Locale.getDefault());
+        Date dt = null;
+        try {
+            dt = sm.parse(lastUpdated);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return dt;
+    }
+
+    public void setLastUpdatedOn(Date dt) {
+        SimpleDateFormat sm = new SimpleDateFormat(defaultDateFormat, Locale.getDefault());
+        lastUpdated = sm.format(dt);
+    }
+
+    public String getLastUpdatedOn() {
+        return lastUpdated;
     }
 
     public static long getDateDiff(Date date1, Date date2, TimeUnit timeUnit) {
@@ -84,15 +186,15 @@ public class  SensorNode implements IConvertHelper {
     private double rssi;
 
 
-    public SensorNode(){
+    public SensorNode() {
 
     }
 
 
     public SensorNode(String macID, String name, String advertisingTime,
-                                  int timeAtWakeup, int timeSinceWakeup, int timeSlot,
-                                  boolean timeSynced, double temperature, int humidity,
-                                double batteryVoltage, double rssi, boolean isPreChecked) {
+                      int timeAtWakeup, int timeSinceWakeup, int timeSlot,
+                      boolean timeSynced, double temperature, int humidity,
+                      double batteryVoltage, double rssi, boolean isPreChecked) {
         this.macID = macID;
         this.name = name;
         this.advertisingTime = advertisingTime;
@@ -108,16 +210,16 @@ public class  SensorNode implements IConvertHelper {
 
     }
 
-    public StaticListItem getDataAsStaticListItem(){
+    public StaticListItem getDataAsStaticListItem() {
 
-        try{
+        try {
             String opt1 = getJsonObject().toString();
             return new StaticListItem(Globals.orgCode,
                     Globals.dbContext.getString(R.string.RMS_DEVICES),
                     getMacID(),
                     getName(),
                     opt1, "");
-        }catch (Exception Ignore) {
+        } catch (Exception Ignore) {
 
         }
         return null;
@@ -135,7 +237,9 @@ public class  SensorNode implements IConvertHelper {
         return advertisingTime;
     }
 
-    public void setAdvertisingTime(String advertisingTime) { this.advertisingTime = advertisingTime; }
+    public void setAdvertisingTime(String advertisingTime) {
+        this.advertisingTime = advertisingTime;
+    }
 
     public int getTimeAtWakeup() {
         return timeAtWakeup;
@@ -209,8 +313,10 @@ public class  SensorNode implements IConvertHelper {
             setBatteryVoltage(jsonObject.optDouble("batteryVoltage"));
             setRssi(jsonObject.optDouble("rssi"));
             setPreChecked(jsonObject.optBoolean("isPreChecked"));
-        }catch (Exception e){
-            Log.e(TAG,e.toString());
+            setPreChecked(jsonObject.optBoolean("isPreChecked"));
+            lastUpdated = jsonObject.optString("LastUpdateTime");
+        } catch (Exception e) {
+            Log.e(TAG, e.toString());
             return false;
         }
 
@@ -233,6 +339,7 @@ public class  SensorNode implements IConvertHelper {
             setBatteryVoltage(jsonObject.optDouble("batteryVoltage"));
             setRssi(jsonObject.optDouble("rssi"));
             setPreChecked(jsonObject.optBoolean("isPreChecked"));
+            lastUpdated = jsonObject.optString("LastUpdateTime");
             return true;
 
         } catch (JSONException e) {
@@ -244,8 +351,8 @@ public class  SensorNode implements IConvertHelper {
 
     @Override
     public JSONObject getJsonObject() {
-        JSONObject jo=new JSONObject();
-        try{
+        JSONObject jo = new JSONObject();
+        try {
             jo.put("macID", getMacID());
             jo.put("name", getName());
             jo.put("advertisingTime", getAdvertisingTime());
@@ -258,14 +365,16 @@ public class  SensorNode implements IConvertHelper {
             jo.put("batteryVoltage", getBatteryVoltage());
             jo.put("rssi", getRssi());
             jo.put("isPreChecked", isPreChecked());
-
-        }catch (Exception e) {
-            Log.e(TAG,e.toString());
+            jo.put("LastUpdateTime", getLastUpdatedOn());
+        } catch (Exception e) {
+            Log.e(TAG, e.toString());
             jo = null;
         }
 
         return jo;
     }
+
+
 }
 
 /**
