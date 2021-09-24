@@ -158,7 +158,7 @@ public abstract class BleScanPresenter implements BluetoothAdapter.LeScanCallbac
             AtomicBoolean hasFound = new AtomicBoolean(false);
             for (BleDevice result : mBleDeviceList) {
                 if (result.getDevice().equals(bleDevice.getDevice())) {
-                    hasFound.set(true);
+                    //hasFound.set(true);
                 }
             }
             if (!hasFound.get()) {
@@ -168,7 +168,7 @@ public abstract class BleScanPresenter implements BluetoothAdapter.LeScanCallbac
                         + "  Rssi: " + bleDevice.getRssi()
                         + "  scanRecord: " + HexUtil.formatHexString(bleDevice.getScanRecord(), true));
 
-                mBleDeviceList.add(bleDevice);
+                //mBleDeviceList.add(bleDevice);
                 mMainHandler.post(new Runnable() {
                     @Override
                     public void run() {

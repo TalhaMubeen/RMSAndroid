@@ -26,6 +26,7 @@ import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LinearInterpolator;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -40,9 +41,11 @@ import com.innv.rmsgateway.callback.BleRssiCallback;
 import com.innv.rmsgateway.callback.BleScanCallback;
 import com.innv.rmsgateway.comm.ObserverManager;
 import com.innv.rmsgateway.data.BleDevice;
+import com.innv.rmsgateway.data.NodeDataManager;
 import com.innv.rmsgateway.exception.BleException;
 import com.innv.rmsgateway.operation.OperationActivity;
 import com.innv.rmsgateway.scan.BleScanRuleConfig;
+import com.innv.rmsgateway.sensornode.SensorNode;
 import com.innv.rmsgateway.service.BLEBackgroundService;
 import com.innv.rmsgateway.service.OnBLEDeviceCallback;
 
@@ -55,11 +58,15 @@ public class ScanActivity extends AppCompatActivity implements View.OnClickListe
 
     private ImageView iv_refresh;
     private SensorNodeAdapter mDeviceAdapter;
+    List<SensorNode> allSavedNodes = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scan_nodes);
+
+        allSavedNodes = NodeDataManager.getAllNodesLst();
+
         BLEBackgroundService.restartBLEScan();
         initView();
     }
@@ -97,9 +104,11 @@ public class ScanActivity extends AppCompatActivity implements View.OnClickListe
                     if (!iv_refresh.getAnimation().hasEnded()) {
                         BLEBackgroundService.stopScan();
                         iv_refresh.clearAnimation();
+
                     }
                 }else {//start animation here
                     mDeviceAdapter.clear();
+                    mDeviceAdapter.notifyDataSetChanged();
                     Animation rotationAnimation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate);
                     iv_refresh.startAnimation(rotationAnimation);
                     BLEBackgroundService.restartBLEScan();
@@ -118,20 +127,30 @@ public class ScanActivity extends AppCompatActivity implements View.OnClickListe
         iv_refresh.setOnClickListener(this);
 
         mDeviceAdapter = new SensorNodeAdapter(this);
-
         mDeviceAdapter.addDevices(BLEBackgroundService.getScannedBLEDeviceList());
 
         ListView listView_device = (ListView) findViewById(R.id.list_device);
         listView_device.setAdapter(mDeviceAdapter);
+
+        Animation rotationAnimation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate);
+        iv_refresh.startAnimation(rotationAnimation);
     }
 
-    public  void addDevice(BleDevice device){
+    public void addDevice(BleDevice device){
+
+        for(SensorNode node : allSavedNodes){
+            if(device.getMac().equals(node.getMacID())){
+                return;
+            }
+        }
+
         mDeviceAdapter.addDevice(device);
+        mDeviceAdapter.notifyDataSetChanged();
     }
 
 
     @Override
     public void onBLEDeviceCallback(BleDevice device) {
-        mDeviceAdapter.addDevice(device);
+        addDevice(device);
     }
 }

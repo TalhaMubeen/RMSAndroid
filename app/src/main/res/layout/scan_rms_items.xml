@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:descendantFocusability="blocksDescendants"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:gravity="center">
@@ -20,15 +19,20 @@
             android:layout_height="match_parent"
             android:layout_marginTop="1dp"
             android:gravity="bottom">
-
-            <EditText
-                android:textAppearance="@style/TextAppearance.AppCompat.Large"
-                android:id="@+id/editTV_name"
+            <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Enter RMS node name"
-                android:layout_marginStart="5dp"
-                android:singleLine="true"/>
+                android:layout_height="wrap_content">
+                <EditText
+                    android:id="@+id/editTV_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="Enter RMS node name"
+                    android:layout_marginStart="5dp"
+                    android:focusable="true"
+                    android:singleLine="true"/>
+            </com.google.android.material.textfield.TextInputLayout>
+
+
 
             <TextView
                 android:textAppearance="@style/TextAppearance.AppCompat.Small"

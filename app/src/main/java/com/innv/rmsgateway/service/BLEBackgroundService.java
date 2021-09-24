@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
 import android.util.Log;
+import android.view.View;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 
@@ -40,6 +41,7 @@ public class BLEBackgroundService extends Service {
     private static List<BleDevice> _scannedList;
     private static SensorDataDecoder sensorDataDecoder;
     private static Boolean isScanning = false;
+    static Thread thread = null;
     @Override
     public IBinder onBind(Intent intent) {
         return mBinder;
@@ -108,11 +110,29 @@ public class BLEBackgroundService extends Service {
 
     public static void stopScan(){
         BleManager.getInstance().cancelScan();
+        thread.interrupt();
     }
 
     public void startBleService() {
         startService(new Intent(getApplicationContext(), BLEBackgroundService.class));
-        scanBLE();
+
+        thread = new Thread() {
+            @Override
+            public void run() {
+                try {
+                    while (true) {
+                        if (!isScanning) {
+                            scanBLE();
+                        }
+                        Thread.sleep(1000);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        thread.start();
     }
 
 
@@ -149,30 +169,19 @@ public class BLEBackgroundService extends Service {
 
                     if (!_scannedList.contains(bleDevice)) {
                         _scannedList.add(bleDevice);
-
-                        for(String name : onBLEUpdateCallbacks.keySet()) {
-                            onBLEUpdateCallbacks.get(name).onBLEDeviceCallback(bleDevice);
-                        }
                     }
+
+                    for (String name : onBLEUpdateCallbacks.keySet()) {
+                        onBLEUpdateCallbacks.get(name).onBLEDeviceCallback(bleDevice);
+                    }
+
                 }
             }
 
             @Override
             public void onScanFinished(List<BleDevice> scanResultList) {
                 isScanning = false;
-                if(scanResultList.size() != _scannedList.size() && scanResultList.size() > 0 ){
-                    for(BleDevice device : scanResultList){
-                        if(!_scannedList.contains(device)){
 
-                            //Do something with the missing device if any
-/*
-                            for(String name : onBLEUpdateCallbacks.keySet()) {
-                                onBLEUpdateCallbacks.get(name).onBLEDeviceCallback(device);
-                            }*/
-                        }
-                    }
-                    Log.i(TAG, "Finished");
-                }
             }
         });
     }

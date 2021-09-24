@@ -24,6 +24,51 @@ public class NodeDataManager {
         SaveSensorNodeData(sn6);
     }
 
+
+    public static void AddNodeToDB(String name, String macAddress){
+        SensorNode sn1 = new SensorNode(macAddress,
+                name,
+                "0:00am",
+                0,
+                0,
+                0,
+                true,
+                0.0,
+                0,
+                0.0,
+                0.0,
+                true);
+        SaveSensorNodeData(sn1);
+    }
+
+    public static List<SensorNode> getAllNodesLst(){
+        List<SensorNode> retList = new ArrayList<>();
+        List<StaticListItem> dataSaved = getAllNodeList();
+
+        for (StaticListItem item : dataSaved){
+            SensorNode node = new SensorNode();
+            if(node.parseListItem(item)) {
+                retList.add(node);
+            }
+        }
+        return retList;
+    }
+
+    public static List<SensorNode> getPreCheckedNodes(){
+        List<SensorNode> retList = new ArrayList<>();
+        List<StaticListItem> dataSaved = getAllNodeList();
+
+        for (StaticListItem item : dataSaved){
+            SensorNode node = new SensorNode();
+            if(node.parseListItem(item)) {
+                if(node.isPreChecked()){
+                    retList.add(node);
+                }
+            }
+        }
+        return retList;
+    }
+
     public static List<StaticListItem> getPreCheckedNodesList(){
         //Retrieve all data without giving device code
         List<StaticListItem> retList = new ArrayList<>();

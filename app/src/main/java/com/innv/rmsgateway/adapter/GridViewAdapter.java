@@ -2,13 +2,19 @@ package com.innv.rmsgateway.adapter;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import androidx.core.content.ContextCompat;
+
 import com.innv.rmsgateway.R;
+import com.innv.rmsgateway.data.Globals;
+import com.innv.rmsgateway.data.NodeDataManager;
 import com.innv.rmsgateway.data.StaticListItem;
 import com.innv.rmsgateway.sensornode.SensorNode;
 
@@ -17,12 +23,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.crypto.Mac;
+
 public class GridViewAdapter extends BaseAdapter {
 
-    List<StaticListItem> mRMSDevices= new ArrayList<>();
+
+    public static int COLOR_TEST_NOT_ACTIVE= Color.parseColor("darkgray");
+    public static int NODE_ACTIVE = Color.parseColor("#FF00CC00");
+    public static int NODE_INACTIVE =Color.parseColor("#FFFF0000");
+
+    List<SensorNode> mRMSDevices= new ArrayList<>();
     Map<String, View> deviceViewList = new HashMap();
     LayoutInflater inflater;
-    public GridViewAdapter(Context ctx, List<StaticListItem> list){
+    Context context;
+    public GridViewAdapter(Context ctx, List<SensorNode> list){
         mRMSDevices = list;
 /*        for(StaticListItem item : list){
             SensorNode node = new SensorNode();
@@ -31,6 +45,7 @@ public class GridViewAdapter extends BaseAdapter {
         }*/
         inflater = LayoutInflater.from(ctx);
         deviceViewList.clear();
+        context = ctx;
     }
 
 
@@ -41,11 +56,7 @@ public class GridViewAdapter extends BaseAdapter {
 
     @Override
     public SensorNode getItem(int position) {
-        SensorNode node = new SensorNode();
-        if(node.parseListItem(mRMSDevices.get(position))){
-            return node;
-        }
-        return  new SensorNode();
+        return mRMSDevices.get(position);
     }
 
     @Override
@@ -77,24 +88,57 @@ public class GridViewAdapter extends BaseAdapter {
 
         TextView sensor_rssi = (TextView) rmsDeviceCardView.findViewById(R.id.sensor_rssi);
 
-        sensor_rssi.setText("-99.6 dbm");
-        //sensor_rssi.setText(item.get());
+        sensor_rssi.setText("0.0 dbm");
+
         deviceViewList.put(item.getMacID(), rmsDeviceCardView);
         return rmsDeviceCardView;
     }
 
     @SuppressLint("SetTextI18n")
     public void updateValues(String Mac, double temp, int humidity, int rssi){
-        TextView temperature_value = (TextView) deviceViewList.get(Mac).findViewById(R.id.temperature_value);
-        temperature_value.setText(Double.toString(temp));
 
-        TextView humidity_value = (TextView) deviceViewList.get(Mac).findViewById(R.id.humidity_value);
-        humidity_value.setText(Integer.toString(humidity) + "%");
+        if(deviceViewList.size() >0 && deviceViewList.containsKey(Mac)) {
 
-        TextView sensor_rssi = (TextView) deviceViewList.get(Mac).findViewById(R.id.sensor_rssi);
-        sensor_rssi.setText(Integer.toString(rssi) + " dbm");
+            SensorNode node = getNode(Mac);
+            if(node == null){
+                return;
+            }
 
+            temp = Math.floor(temp * 100 +.5)/100;
+            TextView temperature_value = (TextView) deviceViewList.get(Mac).findViewById(R.id.temperature_value);
+            temperature_value.setText(Double.toString(temp) +  "°C");
+            node.setTemperature(temp);
+
+            TextView humidity_value = (TextView) deviceViewList.get(Mac).findViewById(R.id.humidity_value);
+            humidity_value.setText(Integer.toString(humidity) + "%");
+            node.setHumidity(humidity);
+
+            TextView sensor_rssi = (TextView) deviceViewList.get(Mac).findViewById(R.id.sensor_rssi);
+            sensor_rssi.setText(Integer.toString(rssi) + " dbm");
+            node.setRssi(rssi);
+
+            View color = (View) deviceViewList.get(Mac).findViewById(R.id.colorNA);
+            color.setBackgroundTintList (ColorStateList.valueOf(NODE_ACTIVE));
+
+
+            NodeDataManager.SaveSensorNodeData(node);
+
+        }
     }
+
+
+
+    private SensorNode getNode(String mac){
+        for(SensorNode node : mRMSDevices){
+            if(node.getMacID().equals(mac)){
+                return node;
+            }
+        }
+        return null;
+    }
+
+
+
 
 
 }

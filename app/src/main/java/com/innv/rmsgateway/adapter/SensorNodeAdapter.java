@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -40,14 +41,26 @@ public class SensorNodeAdapter extends BaseAdapter {
         bleDeviceList = new ArrayList<>();
     }
 
+    private boolean isDeviceAdded(BleDevice device){
+        for(BleDevice dev : bleDeviceList){
+            if(dev.getMac().equals(device.getMac())){
+                return true;
+            }
+        }
+        return false;
+    }
+
     //add node
     public void addDevice(BleDevice bleDevice) {
         Log.d(TAG,"add ble devices into list");
-        removeDevice(bleDevice);
-        bleDeviceList.add(bleDevice);
+        if(!isDeviceAdded(bleDevice)) {
+            bleDeviceList.add(bleDevice);
+        }
     }
     public void addDevices(List<BleDevice> list){
         clear();
+        bleDeviceList.clear();
+
         bleDeviceList.addAll(list);
     }
     //remove device
@@ -60,16 +73,7 @@ public class SensorNodeAdapter extends BaseAdapter {
             }
         }
     }
-    //clear connected devices, their are some connected
-    public void clearConnectedDevice() {
-        Log.d(TAG,"clear connected devices");
-        for (int index = 0; index < bleDeviceList.size(); index++) {
-            BleDevice device = bleDeviceList.get(index);
-            if (BleManager.getInstance().isConnected(device)) {
-                bleDeviceList.remove(index);
-            }
-        }
-    }
+
     //clear scan devices from list
     public void clearScanDevice() {
         Log.d(TAG,"clear scanned devices");
@@ -83,7 +87,6 @@ public class SensorNodeAdapter extends BaseAdapter {
 
     public void clear() {
         Log.d(TAG,"clear all devices");
-        clearConnectedDevice();
         clearScanDevice();
     }
 
@@ -103,8 +106,9 @@ public class SensorNodeAdapter extends BaseAdapter {
 
     @Override
     public long getItemId(int position) {
-        return 0;
+        return bleDeviceList.get(position).hashCode();
     }
+
 
 
     @Override
@@ -117,7 +121,6 @@ public class SensorNodeAdapter extends BaseAdapter {
         BleDevice device = getItem(position);
         EditText node_name = (EditText) nodeView.findViewById(R.id.editTV_name);
 
-
         TextView tv_address = (TextView) nodeView.findViewById(R.id.tv_address);
         tv_address.setText(device.getMac());
 
@@ -126,13 +129,21 @@ public class SensorNodeAdapter extends BaseAdapter {
             @Override
             public void onClick(View view) {
                 if (((CompoundButton) view).isChecked()) {
-                    if(node_name.getText().length() >0 ) {
+                    if(node_name.getText().length() >0 && node_name.isEnabled()) {
                         add_checkbox.setChecked(true);
+                        node_name.setEnabled(false);
+
+                        NodeDataManager.AddNodeToDB(node_name.getText().toString(), tv_address.getText().toString());
+
                     }else{
                         Toast.makeText(context, "Please enter node name", Toast.LENGTH_SHORT).show();
                         add_checkbox.setChecked(false);
+                        node_name.setEnabled(true);
                     }
 
+                }else if(!node_name.isEnabled()){
+                    add_checkbox.setChecked(false);
+                    node_name.setEnabled(true);
                 }
                 //NodeDataManager.SaveSensorNodeData(item);
             }

@@ -84,6 +84,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
             }
             else{
+                mService.startBleService();
               //  mService.requestLocationUpdates();
             }
 
@@ -196,7 +197,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //Testing db
        // NodeDataManager.AddDummyDatainDB();
 
-        gv_adapter = new GridViewAdapter(this, NodeDataManager.getPreCheckedNodesList());
+        gv_adapter = new GridViewAdapter(this, NodeDataManager.getPreCheckedNodes());
 
         gvDevices = (GridView) findViewById(R.id.gv_devices);
         gvDevices.setAdapter(gv_adapter);
