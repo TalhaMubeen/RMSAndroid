@@ -10,6 +10,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -17,6 +19,7 @@ import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,12 +36,20 @@ public class SensorNodeAdapter extends BaseAdapter {
     private final Context context;
     LayoutInflater inflater;
     private final List<String> bleDeviceList;
+    ArrayList<String> profileList;
 
     //constructor function
     public SensorNodeAdapter(Context context) {
         this.context = context;
         inflater = LayoutInflater.from(context);
         bleDeviceList = new ArrayList<>();
+        profileList = new ArrayList<>();
+
+        //Adding dummy profiles here
+        profileList.add("Default");
+        profileList.add("Freezer");
+        profileList.add("Fridge");
+
     }
 
     private boolean isDeviceAdded(String device){
@@ -108,6 +119,7 @@ public class SensorNodeAdapter extends BaseAdapter {
         if (nodeView == null) {
             nodeView = inflater.inflate(R.layout.scan_rms_items, parent, false);
         }
+
         String device = getItem(position);
         EditText node_name = (EditText) nodeView.findViewById(R.id.editTV_name);
 
@@ -115,6 +127,18 @@ public class SensorNodeAdapter extends BaseAdapter {
         tv_address.setText(device);
 
         CheckBox add_checkbox = (CheckBox) nodeView.findViewById(R.id.add_checkbox);
+
+        Spinner sp_profile = nodeView.findViewById(R.id.sp_profile);
+
+        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this.context, android.R.layout.simple_spinner_item, profileList);
+        // Drop down layout style - list view with radio button
+        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        sp_profile.setAdapter(dataAdapter);
+        sp_profile.setSelection(0, false);
+        if(profileList.size() == 0){
+            sp_profile.setEnabled(false);
+        }
+
         add_checkbox.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -122,8 +146,8 @@ public class SensorNodeAdapter extends BaseAdapter {
                     if(node_name.getText().length() >0 && node_name.isEnabled()) {
                         add_checkbox.setChecked(true);
                         node_name.setEnabled(false);
-
-                        NodeDataManager.AddNodeToDB(node_name.getText().toString(), tv_address.getText().toString());
+                        String profileSelected = sp_profile.getSelectedItem().toString();
+                        NodeDataManager.AddNodeToDB(node_name.getText().toString(), tv_address.getText().toString(),profileSelected);
 
                     }else{
                         Toast.makeText(context, "Please enter node name", Toast.LENGTH_SHORT).show();

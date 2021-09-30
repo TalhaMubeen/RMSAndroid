@@ -136,7 +136,7 @@ public class BLEBackgroundService extends Service {
             @Override
             public void run() {
                 try {
-                    while (true) {
+                    while (!thread.isInterrupted()) {
                         if (!isScanning) {
                             scanBLE();
                         }
