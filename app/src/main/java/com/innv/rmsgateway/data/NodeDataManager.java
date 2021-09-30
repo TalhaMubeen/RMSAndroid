@@ -1,15 +1,53 @@
 package com.innv.rmsgateway.data;
 
+import android.widget.ListView;
+
 import com.innv.rmsgateway.R;
 import com.innv.rmsgateway.sensornode.SensorNode;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.TreeMap;
 
 public class NodeDataManager {
+
+
+    static Map<String, List<SensorNode>> allNodesData = new HashMap<>();
+
+    public static boolean isStopUpdates() {
+        return stopUpdates;
+    }
+
+    public static void setStopUpdates(boolean stop) {
+        stopUpdates = stop;
+    }
+
+    static boolean stopUpdates = false;
+
+    public static void init(){
+        allNodesData.put("All", new ArrayList<>());
+        allNodesData.put("Checked", new ArrayList<>());
+
+        List<StaticListItem> dataSaved = getAllNodeList();
+
+        for (StaticListItem item : dataSaved){
+            SensorNode node = new SensorNode();
+            if(node.parseListItem(item)) {
+                allNodesData.get("All").add(node);
+
+                if(node.isPreChecked()){
+                    allNodesData.get("Checked").add(node);
+                }
+
+            }
+        }
+
+    }
 
     public static void AddDummyDatainDB(){
         SensorNode sn1 = new SensorNode("11:11:11:11","Dummy 1", "2:45am", 4, 6, 1,true,22.5,40,13.5, -99.6, true);
@@ -41,51 +79,16 @@ public class NodeDataManager {
                 0.0,
                 0.0,
                 true);
+        sn1.setLastUpdatedOn(new Date());
         SaveSensorNodeData(sn1);
     }
 
     public static List<SensorNode> getAllNodesLst(){
-        List<SensorNode> retList = new ArrayList<>();
-        List<StaticListItem> dataSaved = getAllNodeList();
-
-        for (StaticListItem item : dataSaved){
-            SensorNode node = new SensorNode();
-            if(node.parseListItem(item)) {
-                retList.add(node);
-            }
-        }
-        return retList;
+        return allNodesData.get("All");
     }
 
     public static List<SensorNode> getPreCheckedNodes(){
-        List<SensorNode> retList = new ArrayList<>();
-        List<StaticListItem> dataSaved = getAllNodeList();
-
-        for (StaticListItem item : dataSaved){
-            SensorNode node = new SensorNode();
-            if(node.parseListItem(item)) {
-                if(node.isPreChecked()){
-                    retList.add(node);
-                }
-            }
-        }
-        return retList;
-    }
-
-    public static List<StaticListItem> getPreCheckedNodesList(){
-        //Retrieve all data without giving device code
-        List<StaticListItem> retList = new ArrayList<>();
-        List<StaticListItem> dataSaved =  getAllNodeList();
-        for (StaticListItem item : dataSaved){
-            SensorNode node = new SensorNode();
-            if(node.parseListItem(item)){
-                if(node.isPreChecked()){
-                    retList.add(item);
-                }
-            }
-        }
-
-        return  retList;
+        return allNodesData.get("Checked");
     }
 
     public static List<StaticListItem> getAllNodeList(){
@@ -94,10 +97,79 @@ public class NodeDataManager {
     }
 
 
-    public static void SaveSensorNodeData(SensorNode node){
+    public static void SaveSensorNodeData(String mac, double temp,int humidity, int rssi){
+        SensorNode node = getNodeFromMac(mac);
+        if(node != null){
+            node.setLastUpdatedOn(new Date());
+            node.setTemperature(temp);
+            node.setHumidity(humidity);
+            node.setRssi(rssi);
+
+            SaveSensorNodeData(node);
+            LogSensorNodeData(node);
+        }
+    }
+
+
+    public static SensorNode getNodeFromMac(String mac){
+        for(SensorNode node : allNodesData.get("All")){
+            if(node.getMacID().equals(mac)){
+                return node;
+            }
+        }
+        return null;
+    }
+
+
+    public static void SaveSensorNodeData(SensorNode node, boolean... forceUpdate){
+        if(forceUpdate.length == 0) {
+            if (stopUpdates)
+                return;
+        }
+
         StaticListItem item = node.getDataAsStaticListItem();
         Globals.db.AddOrUpdateList( Globals.dbContext.getString(R.string.RMS_DEVICES),Globals.orgCode, node.getMacID(),item);
+
+        if(forceUpdate.length > 0) {
+            SimpleDateFormat sdf = new SimpleDateFormat("MMM-dd-yyyy", Locale.getDefault());
+            String dateToday = sdf.format(new Date());
+            Globals.db.AddSensorLogs(Globals.dbContext.getString(R.string.RMS_DEVICES), Globals.orgCode, node.getMacID(), dateToday, node.getLastUpdatedOn(), item);
+        }
+
+        AddorUpdateData(node);
+
     }
+
+    private static void AddorUpdateData(SensorNode data){
+
+        boolean updated = false;
+        for(SensorNode node : allNodesData.get("All")){
+            if(node.getMacID().equals(data.getMacID())){
+
+                allNodesData.get("All").remove(node);
+                allNodesData.get("All").add(data);
+
+                if(node.isPreChecked()){
+                    allNodesData.get("Checked").remove(node);
+                }
+
+                if(data.isPreChecked()){
+                    allNodesData.get("Checked").add(data);
+                }
+
+
+                updated = true;
+                break;
+            }
+        }
+        if(!updated){
+            allNodesData.get("All").add(data);
+            if(data.isPreChecked()){
+                allNodesData.get("Checked").add(data);
+            }
+        }
+    }
+
 
     public static void LogSensorNodeData(SensorNode node){
 
@@ -110,11 +182,48 @@ public class NodeDataManager {
                 Globals.orgCode,
                 node.getMacID(),
                 dateToday,
+                node.getLastUpdatedOn(),
                 item);
     }
 
+
+    public static TreeMap<Date, Double> getTemerature(String mac){
+
+        List<StaticListItem> dataSaved = getAllLoggedData(mac);
+
+/*        SimpleDateFormat sdf = new SimpleDateFormat("MMM-dd-yyyy", Locale.getDefault());
+        String dateToday = sdf.format(new Date());*/
+
+        TreeMap<Date, Double> temp = new TreeMap<>();
+
+        for (StaticListItem item : dataSaved){
+            SensorNode node = new SensorNode();
+            if(node.parseListItem(item)) {
+                temp.put(item.getTimeStampdate(),node.getTemperature());
+            }
+        }
+        return  temp;
+    }
+
+
+    public static List<StaticListItem> getAllLoggedData(String mac){
+
+        SimpleDateFormat sdf = new SimpleDateFormat("MMM-dd-yyyy", Locale.getDefault());
+        String dateToday = sdf.format(new Date());
+
+        List<StaticListItem> dataSaved =  Globals.db.getSensorLogs(Globals.dbContext.getString(R.string.RMS_DEVICES), Globals.orgCode, mac, dateToday);
+
+
+        return  dataSaved;
+    }
+
+
     public static void RemoveNode(SensorNode node){
         Globals.db.RemoveList(Globals.dbContext.getString(R.string.RMS_DEVICES),Globals.orgCode, node.getMacID());
+        Globals.db.RemoveLogs(Globals.dbContext.getString(R.string.RMS_DEVICES),Globals.orgCode, node.getMacID());
+
+        allNodesData.clear();
+        init();
     }
 
 }

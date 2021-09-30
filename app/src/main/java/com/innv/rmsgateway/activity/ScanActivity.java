@@ -23,6 +23,7 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.LinearInterpolator;
@@ -63,8 +64,8 @@ public class ScanActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_scan_nodes);
-        BLEBackgroundService.restartBLEScan();
         initView();
     }
 
@@ -99,7 +100,7 @@ public class ScanActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.iv_refresh:
                 if (iv_refresh.getAnimation() != null) {
                     if (!iv_refresh.getAnimation().hasEnded()) {
-                        BLEBackgroundService.stopScan();
+                        //BLEBackgroundService.stopScan();
                         iv_refresh.clearAnimation();
 
                     }
@@ -108,8 +109,6 @@ public class ScanActivity extends AppCompatActivity implements View.OnClickListe
                     mDeviceAdapter.notifyDataSetChanged();
                     Animation rotationAnimation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate);
                     iv_refresh.startAnimation(rotationAnimation);
-                    BLEBackgroundService.restartBLEScan();
-
                 }
                 break;
 
@@ -124,7 +123,7 @@ public class ScanActivity extends AppCompatActivity implements View.OnClickListe
         iv_refresh.setOnClickListener(this);
 
         mDeviceAdapter = new SensorNodeAdapter(this);
-      //  mDeviceAdapter.addDevices(BLEBackgroundService.getScannedBLEDeviceList());
+        mDeviceAdapter.addDevices(BLEBackgroundService.getScannedBLEDeviceList());
 
         ListView listView_device = (ListView) findViewById(R.id.list_device);
         listView_device.setAdapter(mDeviceAdapter);

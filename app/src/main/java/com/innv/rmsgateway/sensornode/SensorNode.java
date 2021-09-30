@@ -47,51 +47,9 @@ public class  SensorNode implements IConvertHelper {
     private double temperature;
     private int humidity;
     private double batteryVoltage;
+
     private String lastUpdated;
-    private String timeStamp;
 
-    public boolean isNumeric(String str) {
-        return str.matches("^(?:(?:\\-{1})?\\d+(?:\\.{1}\\d+)?)$");
-    }
-
-    public int parseInt(String value) {
-        if (value.equals("")) {
-            return 0;
-        }
-        if (isNumeric(value)) {
-            return Integer.parseInt(value);
-        }
-        return 0;
-    }
-
-    public int[] elapsedCalculator(Date date1, Date date2) {
-        // retObj[0] - elapsed days
-        // retObj[1] - elapsed hours
-        // retObj[2] - elapsed min
-        // retObj[3] - elapsed sec
-        int[] retValue = {0, 0, 0, 0};
-        TimeZone tz = TimeZone.getDefault();
-        Date now = new Date();
-        int offsetFromUtc = tz.getOffset(now.getTime()); // / 3600000;
-        offsetFromUtc = 0;
-        long different = date1.getTime() - (date2.getTime() + offsetFromUtc);
-        long secondsInMilli = 1000;
-        long minutesInMilli = secondsInMilli * 60;
-        long hoursInMilli = minutesInMilli * 60;
-        long daysInMilli = hoursInMilli * 24;
-        long elapsedDays = different / daysInMilli;
-        different = different % daysInMilli;
-        long elapsedHours = different / hoursInMilli;
-        different = different % hoursInMilli;
-        long elapsedMinutes = different / minutesInMilli;
-        different = different % minutesInMilli;
-        long elapsedSeconds = different / secondsInMilli;
-        retValue[0] = parseInt("" + elapsedDays);
-        retValue[1] = parseInt("" + elapsedHours);
-        retValue[2] = parseInt("" + elapsedMinutes);
-        retValue[3] = parseInt("" + elapsedSeconds);
-        return retValue;
-    }
 
     static final String DATEFORMAT = "yyyy-MM-dd HH:mm:ss";
     public static String defaultDateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS";
@@ -119,13 +77,13 @@ public class  SensorNode implements IConvertHelper {
         return "";
     }
 
-    public String getTimeStampFormatted() {
+/*    public String getTimeStampFormatted() {
         if (!timeStamp.equals("")) {
             Date dt = getUTCdatetimeFromString(timeStamp);
             return FormatDateTime(dt, defaultDateFormat);
         }
         return null;
-    }
+    }*/
 
     public Date ConvertToDate(String dateValue) {
         @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("MMM-dd-yyyy");
@@ -141,6 +99,9 @@ public class  SensorNode implements IConvertHelper {
     }
 
     public Date getLastUpdatedDate() {
+        if(lastUpdated.isEmpty()){
+            return  null;
+        }
         SimpleDateFormat sm = new SimpleDateFormat(defaultDateFormat, Locale.getDefault());
         Date dt = null;
         try {
@@ -277,8 +238,8 @@ public class  SensorNode implements IConvertHelper {
         return temperature;
     }
 
-    public void setTemperature(double temperature) {
-        this.temperature = temperature;
+    public void setTemperature(double temp) {
+        this.temperature = temp;
     }
 
     public int getHumidity() {

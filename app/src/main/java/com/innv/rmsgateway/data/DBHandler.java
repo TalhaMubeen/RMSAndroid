@@ -13,13 +13,14 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
 public class DBHandler extends SQLiteOpenHelper{
     // Database Version
     private static DBHandler sInstance;
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
 
     // Database Name
     private static final String DATABASE_NAME = "RMS";
@@ -61,8 +62,9 @@ public class DBHandler extends SQLiteOpenHelper{
                 + " LISTNAME  NOT NULL,"
                 + " CODE TEXT  NOT NULL,"
                 + " DATE TEXT NOT NULL,"
+                + " TIMESTAMP TEXT NOT NULL,"
                 + " OPTPARAM1 TEXT,"
-                + "PRIMARY KEY(ORGCODE,LISTNAME,CODE, DATE))";
+                + "PRIMARY KEY(ORGCODE,LISTNAME,CODE, DATE, TIMESTAMP))";
         db.execSQL(CREATE_DYNLOGLOOKUP_TABLE);
     }
 
@@ -109,6 +111,19 @@ public class DBHandler extends SQLiteOpenHelper{
         db.execSQL(sql);
     }
 
+
+    public void RemoveLogs(String listName,String orgCode,String code)
+    {
+        SQLiteDatabase db=this.getWritableDatabase();
+        String sql="Delete from " + TABLE_DEVICES_LOG +
+                " WHERE ORGCODE='" + orgCode +"' AND "+
+                " LISTNAME='" + listName +"' AND " +
+                "code='"+ code+"'";
+
+        db.execSQL(sql);
+    }
+
+
     public int AddOrUpdateList(String listName,String orgCode, String code, StaticListItem array)
     {
         List<StaticListItem> items = getListItems(listName, orgCode, "", "code='" + code + "'");
@@ -121,23 +136,60 @@ public class DBHandler extends SQLiteOpenHelper{
         }
     }
 
-    public int AddSensorLogs(String listName, String orgCode, String code, String date, StaticListItem data){
+    public int AddSensorLogs(String listName, String orgCode, String code, String date, String timeStamp , StaticListItem data){
         SQLiteDatabase db=this.getWritableDatabase();
         int count=0;
 
         try {
-            ContentValues values=new ContentValues();
-            values.put("ORGCODE",orgCode);
-            values.put("LISTNAME",listName);
-            values.put("CODE",data.getCode());
-            values.put("DATE",data.getCode());
-            values.put("OPTPARAM1",data.getOptParam1());
-            db.insert(TABLE_DEVICES_LOG,null,values);
+            ContentValues values = new ContentValues();
+            values.put("ORGCODE", orgCode);
+            values.put("LISTNAME", listName);
+            values.put("CODE", code);
+            values.put("DATE", date);
+            values.put("TIMESTAMP", timeStamp);
+            values.put("OPTPARAM1", data.getOptParam1());
+            db.insert(TABLE_DEVICES_LOG, null, values);
             count++;
         } catch (Exception e) {
 
         }
         return count;
+    }
+
+
+    public List<StaticListItem> getSensorLogs(String listName , String orgCode , String code, String date)
+    {
+        List<StaticListItem> items=new ArrayList<StaticListItem>();
+        String sql="SELECT * FROM  " + TABLE_DEVICES_LOG +
+                " WHERE LISTNAME='" + listName +
+                "' AND " + " ORGCODE = '" + orgCode +"'" +
+                 " AND code='" + code + "'";
+
+        if(!date.equals("") )
+        {
+            sql += " AND DATE='" + date + "'";
+        }
+        try {
+            SQLiteDatabase db=this.getReadableDatabase();
+            Cursor cursor= db.rawQuery(sql,null);
+            if(cursor.moveToFirst())
+            {
+                do{
+                    StaticListItem item=new StaticListItem();
+                    item.setOrgCode(cursor.getString(0));
+                    item.setListName(cursor.getString(1));
+                    item.setCode(cursor.getString(2));
+                    item.setDate(cursor.getString(3));
+                    item.setTimeStamp(cursor.getString(4));
+                    item.setOptParam1(cursor.getString(5));
+                    items.add(item);
+
+                }while(cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return items;
     }
 
 

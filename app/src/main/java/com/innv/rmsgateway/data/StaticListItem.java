@@ -4,6 +4,11 @@ package com.innv.rmsgateway.data;
 import android.util.Log;
 import org.json.JSONObject;
 import java.io.Serializable;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 import static android.content.ContentValues.TAG;
 
 public class StaticListItem implements Serializable {
@@ -13,6 +18,37 @@ public class StaticListItem implements Serializable {
     private String description;
     private String optParam1;
     private String optParam2;
+    public static String defaultDateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS";
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
+    }
+
+    private String date;
+
+    public String getTimeStamp() {
+        return timeStamp;
+    }
+    public Date getTimeStampdate(){
+        SimpleDateFormat sm = new SimpleDateFormat(defaultDateFormat, Locale.getDefault());
+        Date dt = null;
+        try {
+            dt = sm.parse(timeStamp);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        return dt;
+    }
+
+    public void setTimeStamp(String timeStamp) {
+        this.timeStamp = timeStamp;
+    }
+
+    private String timeStamp;
     private int status = 0;
     private boolean holdCode = false;
 

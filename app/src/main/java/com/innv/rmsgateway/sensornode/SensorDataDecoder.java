@@ -109,7 +109,18 @@ public class SensorDataDecoder {
 
         temp = (int)sensorData[TEMPERATURE0_LOCATION] *255;
         temp += sensorData[TEMPERATURE1_LOCATION];
-        return (double)temp*0.01;
+        double ret = round((double)temp*0.01, 2);
+        return  ret;
+
+    }
+
+    private static double round(double value, int places) {
+        if (places < 0) throw new IllegalArgumentException();
+
+        long factor = (long) Math.pow(10, places);
+        value = value * factor;
+        long tmp = Math.round(value);
+        return (double) tmp / factor;
     }
 
     public int getHumidity(BleDevice bleDevice){

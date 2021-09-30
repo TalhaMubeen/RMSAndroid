@@ -1,16 +1,23 @@
 package com.innv.rmsgateway.activity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ListView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.innv.rmsgateway.MainActivity;
 import com.innv.rmsgateway.R;
 import com.innv.rmsgateway.adapter.AllNodesAdapter;
 import com.innv.rmsgateway.data.NodeDataManager;
+import com.innv.rmsgateway.sensornode.SensorNode;
+import com.innv.rmsgateway.service.BLEBackgroundService;
+
+import java.util.List;
 
 public class AddNodesActivity extends AppCompatActivity {
 
@@ -20,6 +27,12 @@ public class AddNodesActivity extends AppCompatActivity {
         setContentView(R.layout.activity_device_view);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
+    }
+
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         AllNodesAdapter nodesAdapter = new AllNodesAdapter(this, NodeDataManager.getAllNodeList());
 
         ListView list_device = (ListView) findViewById(R.id.list_device);
@@ -33,6 +46,19 @@ public class AddNodesActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onPause(){
+        super.onPause();
+    }
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        switch(keyCode){
+            case KeyEvent.KEYCODE_BACK:
+                finish();
+                return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
 
 }

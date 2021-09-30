@@ -26,6 +26,10 @@ import com.innv.rmsgateway.scan.BleScanRuleConfig;
 import com.innv.rmsgateway.sensornode.SensorDataDecoder;
 import com.innv.rmsgateway.sensornode.SensorNode;
 
+import org.w3c.dom.Node;
+
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,6 +43,7 @@ public class BLEBackgroundService extends Service {
 
     private Handler mServiceHandler;
     private Context mContext = null;
+    private static  Intent bleService = null;
 
     private static Map<String, BleDevice> _scannedList;
     private static SensorDataDecoder sensorDataDecoder;
@@ -117,7 +122,15 @@ public class BLEBackgroundService extends Service {
     }
 
     public void startBleService() {
-        startService(new Intent(getApplicationContext(), BLEBackgroundService.class));
+
+        if(bleService != null){
+            BleManager.getInstance().cancelScan();
+            stopService(bleService);
+            thread.interrupt();
+        }
+
+        bleService = new Intent(getApplicationContext(), BLEBackgroundService.class);
+        startService(bleService);
 
         thread = new Thread() {
             @Override
@@ -127,7 +140,7 @@ public class BLEBackgroundService extends Service {
                         if (!isScanning) {
                             scanBLE();
                         }
-                        Thread.sleep(1000);
+                        Thread.sleep(5000);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -136,18 +149,6 @@ public class BLEBackgroundService extends Service {
         };
 
         thread.start();
-    }
-
-
-    public static void restartBLEScan(){
-        try {
-            if(isScanning) {
-                stopScan();
-            }
-            scanBLE();
-        }catch(Exception ignored){
-
-        }
     }
 
     private static void scanBLE(){
@@ -170,8 +171,25 @@ public class BLEBackgroundService extends Service {
             public void onScanning(BleDevice bleDevice) {
                 if(sensorDataDecoder.nodeValid(bleDevice)) { //Checking if the scanned node is really RMS node
 
-                    for (String name : onBLEUpdateCallbacks.keySet()) {
-                        onBLEUpdateCallbacks.get(name).onBLEDeviceCallback(bleDevice);
+                    if(NodeDataManager.getNodeFromMac(bleDevice.getMac()) == null){
+
+                        for (String name : onBLEUpdateCallbacks.keySet()) {
+                            if(name.equals("ScanActivity")) {
+                                onBLEUpdateCallbacks.get(name).onBLEDeviceCallback(bleDevice);
+                            }
+                        }
+                    }
+                    else {
+                        int humidity = sensorDataDecoder.getHumidity(bleDevice);
+                        double temp = sensorDataDecoder.getTemperature(bleDevice);
+                        String mac = bleDevice.getMac();
+                        int rssi = bleDevice.getRssi();
+
+                        NodeDataManager.SaveSensorNodeData(mac, temp, humidity, rssi);
+
+                        for (String name : onBLEUpdateCallbacks.keySet()) {
+                            onBLEUpdateCallbacks.get(name).onBLEDeviceCallback(bleDevice);
+                        }
                     }
 
                 }
@@ -180,10 +198,11 @@ public class BLEBackgroundService extends Service {
             @Override
             public void onScanFinished(List<BleDevice> scanResultList) {
                 isScanning = false;
-
             }
         });
     }
+
+
 
     public static List<BleDevice> getScannedBLEDeviceList(){
         return _scannedList != null? new ArrayList<BleDevice>(_scannedList.values()) : new ArrayList<>();

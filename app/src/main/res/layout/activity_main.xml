@@ -45,7 +45,7 @@
         android:layout_below="@+id/actionbar"
         android:layout_alignParentBottom="true">
 
-        <GridView
+        <ListView
             android:gravity="start"
             android:id="@+id/gv_devices"
             android:layout_width="match_parent"

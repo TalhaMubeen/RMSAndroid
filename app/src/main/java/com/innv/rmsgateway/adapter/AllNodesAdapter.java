@@ -83,10 +83,12 @@ public class AllNodesAdapter extends BaseAdapter {
                     positiveButton.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
+                            NodeDataManager.setStopUpdates(true);
                             NodeDataManager.RemoveNode(item);
                             nodes.remove(position);
                             notifyDataSetChanged();
                             _dialog.dismiss();
+                            NodeDataManager.setStopUpdates(false);
 
                         }
                     });

@@ -7,10 +7,10 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -18,14 +18,17 @@ import android.os.IBinder;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
+import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -33,17 +36,13 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 import com.innv.rmsgateway.activity.AddNodesActivity;
-import com.innv.rmsgateway.callback.BleMtuChangedCallback;
-import com.innv.rmsgateway.callback.BleRssiCallback;
+import com.innv.rmsgateway.activity.GraphViewActivity;
+import com.innv.rmsgateway.adapter.TextViewTimeCounter;
 import com.innv.rmsgateway.data.BleDevice;
 import com.innv.rmsgateway.data.Globals;
-import com.innv.rmsgateway.adapter.GridViewAdapter;
 import com.innv.rmsgateway.data.NodeDataManager;
-import com.innv.rmsgateway.data.StaticListItem;
-import com.innv.rmsgateway.exception.BleException;
 import com.innv.rmsgateway.sensornode.SensorDataDecoder;
 import com.innv.rmsgateway.sensornode.SensorNode;
 import com.innv.rmsgateway.service.BLEBackgroundService;
@@ -51,8 +50,10 @@ import com.innv.rmsgateway.service.OnBLEDeviceCallback;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener, OnBLEDeviceCallback {
     private static final String TAG = "sensorScanner";
@@ -60,9 +61,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final int REQUEST_CODE_PERMISSION_LOCATION = 2;
     private static final int REQUEST_CODE_PERMISSION_BLUETOOTH = 3;
 
+    public static int COLOR_TEST_NOT_ACTIVE= Color.parseColor("darkgray");
+    public static int NODE_ACTIVE = Color.parseColor("#FF00CC00");
+    public static int NODE_INACTIVE =Color.parseColor("#FFFF0000");
+/*    private static Map<String, View> deviceViewList = new HashMap();*/
+
+    private static boolean FirstRun = true;
+
     private Button btn_scan;
     private ImageView ivAddDevices;
-    private GridView gvDevices;
+    private ListView gvDevices;
 
 
     // A reference to the service used to get BLE Updates
@@ -73,6 +81,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static boolean mBound = false;
     GridViewAdapter gv_adapter;
     static boolean updatingTime = false;
+    Map<String, SensorNode> precheckedNodes;
+
 
     // Monitors the state of the connection to the service.
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
@@ -90,7 +100,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
             else{
                 mService.startBleService();
-              //  mService.requestLocationUpdates();
             }
 
             mBound = true;
@@ -98,13 +107,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-           // mService.removeLocationUpdates();
             mService = null;
             mBound = false;
         }
     };
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -113,23 +119,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         Log.d(TAG,"Gateway App started");
         sensorDataDecoder = new SensorDataDecoder();
-
         checkPermissions();
+        Globals.setDbContext(getApplicationContext());
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        Globals.setDbContext(getApplicationContext());
 
         ivAddDevices = (ImageView) findViewById(R.id.iv_add);
         ivAddDevices.setOnClickListener(this);
 
-        //Testing db
-        // NodeDataManager.AddDummyDatainDB();
-
-        gv_adapter = new GridViewAdapter(this, NodeDataManager.getPreCheckedNodes());
-
-        gvDevices = (GridView) findViewById(R.id.gv_devices);
-        gvDevices.setAdapter(gv_adapter);
+        NodeDataManager.init();
 
 
         if (!mBound) {
@@ -137,98 +136,53 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     Context.BIND_AUTO_CREATE);
         }
 
-
-
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+
+        if (!mBound) {
+            bindService(new Intent(MainActivity.this, BLEBackgroundService.class), mServiceConnection,
+                    Context.BIND_AUTO_CREATE);
+        }
+
         BLEBackgroundService.addBLEUpdateListener(this.getClass().getSimpleName(), this);
-        UpdateTime();
+        UpdatePreCheckedNodes();
+
+        List<SensorNode> list = NodeDataManager.getPreCheckedNodes();
+        gv_adapter = new GridViewAdapter(this, list);
+        gvDevices = (ListView) findViewById(R.id.gv_devices);
+        gvDevices.setAdapter(gv_adapter);
+
     }
 
-    public void UpdateTime() {
-
-        if (updatingTime)
-            return;
-
-        Thread thread = new Thread() {
-
-            @Override
-            public void run() {
-                try {
-
-                    updatingTime = true;
-                    while (true) {
-
-                        Map<String, View> deviceViewList = gv_adapter.getCardViewList();
-                        if (deviceViewList.size() > 0) {
-                            List<SensorNode> mRMSDevices = NodeDataManager.getPreCheckedNodes();
-                            for (SensorNode node : mRMSDevices) {
-                                if (deviceViewList.containsKey(node.getMacID())) {
-                                    TextView last_Updated_On = (TextView) deviceViewList.get(node.getMacID()).findViewById(R.id.tv_last_updated);
-
-                                    Date lastUpdate = node.getLastUpdatedDate();
-                                    if (lastUpdate != null) {
-
-                                        final int[] elapsedTime = node.elapsedCalculator(new Date(), lastUpdate);
-
-                                        String hours = elapsedTime[1] + "h";
-                                        String mins = elapsedTime[2] + "m";
-                                        String sec = elapsedTime[3] + "s";
-
-                                        if (elapsedTime[2] >= 6 || elapsedTime[1] > 0) {
-                                            View color = (View) deviceViewList.get(node.getMacID()).findViewById(R.id.colorNA);
-                                            color.setBackgroundTintList(ColorStateList.valueOf(GridViewAdapter.NODE_INACTIVE));
-                                        } else {
-                                            View color = (View) deviceViewList.get(node.getMacID()).findViewById(R.id.colorNA);
-                                            color.setBackgroundTintList(ColorStateList.valueOf(GridViewAdapter.NODE_ACTIVE));
-                                        }
-
-                                        MainActivity.this.runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                last_Updated_On.setText(hours + " " + mins + " " + sec + " ago");
-                                            }
-                                        });
-
-
-                                    }
-                                }
-                            }
-                        }
-
-                        Thread.sleep(1000);
-                    }
-
-                }catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        };
-
-        thread.start();
+    public void UpdatePreCheckedNodes(){
+        List<SensorNode> list = NodeDataManager.getPreCheckedNodes();
+        precheckedNodes = new HashMap<>();
+        for(SensorNode node : list){
+            precheckedNodes.put(node.getMacID(), node);
+        }
     }
-
-
 
     @Override
     protected void onStop() {
         super.onStop();
-        if (mBound) {
+/*        if (mBound) {
             // Unbind from the service. This signals to the service that this activity is no longer
             // in the foreground, and the service can respond by promoting itself to a foreground
             // service.
-            BLEBackgroundService.removeBLEUpdateListener(this.getClass().getSimpleName());
+           // BLEBackgroundService.removeBLEUpdateListener(this.getClass().getSimpleName());
             unbindService(mServiceConnection);
             mBound = false;
-        }
+        }*/
     }
 
     @Override
     protected void onPause(){
         super.onPause();
+/*        thread.interrupt();
+        updatingTime = false;*/
     }
 
     @Override
@@ -251,10 +205,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     // Unbind from the service. This signals to the service that this activity is no longer
                     // in the foreground, and the service can respond by promoting itself to a foreground
                     // service.
-                    BLEBackgroundService.removeBLEUpdateListener(this.getClass().getSimpleName());
-
-                    unbindService(mServiceConnection);
-                    mBound = false;
+                   // BLEBackgroundService.removeBLEUpdateListener(this.getClass().getSimpleName());
+                    //unbindService(mServiceConnection);
+                   // mBound = false;
                 }
                 finish();
                 return true;
@@ -362,10 +315,97 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onBLEDeviceCallback(BleDevice device) {
-        int humidity = sensorDataDecoder.getHumidity(device);
-        double temp = sensorDataDecoder.getTemperature(device);
-        String mac = device.getMac();
-        int rssi = device.getRssi();
-        gv_adapter.updateValues(mac, temp, humidity, rssi);
+        gv_adapter.UpdateListData(NodeDataManager.getPreCheckedNodes());
+        gv_adapter.notifyDataSetChanged();
     }
+
+
+    class GridViewAdapter extends BaseAdapter {
+
+        List<SensorNode> mRMSDevices= new ArrayList<>();
+        LayoutInflater inflater;
+        Context context;
+
+        public GridViewAdapter(Context ctx, List<SensorNode> list){
+            mRMSDevices = list;
+            inflater = LayoutInflater.from(ctx);
+            context = ctx;
+        }
+
+        public void UpdateListData(List<SensorNode> list){
+            mRMSDevices = list;
+        }
+
+
+        @Override
+        public int getCount() {
+            return mRMSDevices.size();
+        }
+
+        @Override
+        public SensorNode getItem(int position) {
+            return mRMSDevices.get(position);
+        }
+
+        @Override
+        public long getItemId(int position) {
+            return mRMSDevices.get(position).hashCode();
+        }
+
+
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+
+            View rmsDeviceCardView = convertView;
+            SensorNode item = getItem(position);
+            if (rmsDeviceCardView == null) {
+                rmsDeviceCardView = inflater.inflate(R.layout.gridview_monitoring_item, parent, false);
+            }
+
+            RelativeLayout sensor_card_view = (RelativeLayout) rmsDeviceCardView.findViewById(R.id.sensor_card_view);
+            sensor_card_view.setOnClickListener((View v) -> {
+                Intent intent = new Intent(context, GraphViewActivity.class);
+                intent.putExtra("MAC", item.getMacID());
+                context.startActivity(intent);
+            });
+
+            TextView sensor_name = (TextView) rmsDeviceCardView.findViewById(R.id.sensor_name);
+            sensor_name.setText(item.getName());
+
+            TextView sensor_bd_address = (TextView) rmsDeviceCardView.findViewById(R.id.sensor_bd_address);
+            sensor_bd_address.setText(item.getMacID());
+
+            TextView temperature_value = (TextView) rmsDeviceCardView.findViewById(R.id.temperature_value);
+            temperature_value.setText(Double.toString(item.getTemperature()));
+
+            TextView humidity_value = (TextView) rmsDeviceCardView.findViewById(R.id.humidity_value);
+            humidity_value.setText(Integer.toString(item.getHumidity()) + "%");
+
+            TextView sensor_rssi = (TextView) rmsDeviceCardView.findViewById(R.id.sensor_rssi);
+            sensor_rssi.setText(Double.toString(item.getRssi()) + " dbm");
+
+            View color = (View) rmsDeviceCardView.findViewById(R.id.colorNA);
+
+
+            TextViewTimeCounter tv_last_updated = (TextViewTimeCounter) rmsDeviceCardView.findViewById(R.id.tv_last_updated);
+
+            if(tv_last_updated.isTimerRunning()){
+                tv_last_updated.updateStartTime(item);
+            }else {
+                if (item.getLastUpdatedOn() != null) {
+                    tv_last_updated.startTimer(item, color, 1000, "", " ago");
+                }
+            }
+
+
+
+
+            return rmsDeviceCardView;
+        }
+
+
+    }
+
+
+
 }
