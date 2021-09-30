@@ -1,6 +1,7 @@
 package com.innv.rmsgateway.sensornode;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.se.omapi.Session;
 import android.util.Log;
 
 import com.innv.rmsgateway.R;
@@ -149,6 +150,10 @@ public class  SensorNode implements IConvertHelper {
 
     public SensorNode() {
 
+    }
+
+    public SensorNode(String mac){
+        this.macID = mac;
     }
 
 

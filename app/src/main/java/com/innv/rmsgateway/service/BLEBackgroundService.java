@@ -45,7 +45,7 @@ public class BLEBackgroundService extends Service {
     private Context mContext = null;
     private static  Intent bleService = null;
 
-    private static Map<String, BleDevice> _scannedList;
+    private static Map<String, String> _scannedList;
     private static SensorDataDecoder sensorDataDecoder;
     private static Boolean isScanning = false;
     private static List<SensorNode> allSavedNodes = NodeDataManager.getAllNodesLst();
@@ -204,8 +204,8 @@ public class BLEBackgroundService extends Service {
 
 
 
-    public static List<BleDevice> getScannedBLEDeviceList(){
-        return _scannedList != null? new ArrayList<BleDevice>(_scannedList.values()) : new ArrayList<>();
+    public static List<String> getScannedBLEDeviceList(){
+        return _scannedList != null? new ArrayList<String>(_scannedList.values()) : new ArrayList<>();
     }
 
 

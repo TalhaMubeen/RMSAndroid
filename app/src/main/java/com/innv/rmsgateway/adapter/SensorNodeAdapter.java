@@ -32,7 +32,7 @@ public class SensorNodeAdapter extends BaseAdapter {
     private static final String TAG = "sensorScanner";
     private final Context context;
     LayoutInflater inflater;
-    private final List<BleDevice> bleDeviceList;
+    private final List<String> bleDeviceList;
 
     //constructor function
     public SensorNodeAdapter(Context context) {
@@ -41,9 +41,9 @@ public class SensorNodeAdapter extends BaseAdapter {
         bleDeviceList = new ArrayList<>();
     }
 
-    private boolean isDeviceAdded(BleDevice device){
-        for(BleDevice dev : bleDeviceList){
-            if(dev.getMac().equals(device.getMac())){
+    private boolean isDeviceAdded(String device){
+        for(String dev : bleDeviceList){
+            if(dev.equals(device)){
                 return true;
             }
         }
@@ -51,34 +51,24 @@ public class SensorNodeAdapter extends BaseAdapter {
     }
 
     //add node
-    public void addDevice(BleDevice bleDevice) {
+    public void addDevice(String bleDevice) {
         Log.d(TAG,"add ble devices into list");
         if(!isDeviceAdded(bleDevice)) {
             bleDeviceList.add(bleDevice);
         }
     }
-    public void addDevices(List<BleDevice> list){
+    public void addDevices(List<String> list){
         clear();
         bleDeviceList.clear();
-
         bleDeviceList.addAll(list);
     }
-    //remove device
-    public void removeDevice(BleDevice bleDevice) {
-        Log.d(TAG,"remove device from list");
-        for (int index = 0; index < bleDeviceList.size(); index++) {
-            BleDevice device = bleDeviceList.get(index);
-            if (bleDevice.getKey().equals(device.getKey())) {
-                bleDeviceList.remove(index);
-            }
-        }
-    }
+
 
     //clear scan devices from list
     public void clearScanDevice() {
         Log.d(TAG,"clear scanned devices");
         for (int index = 0; index < bleDeviceList.size(); index++) {
-            BleDevice device = bleDeviceList.get(index);
+            String device = bleDeviceList.get(index);
             if (!BleManager.getInstance().isConnected(device)) {
                 bleDeviceList.remove(index);
             }
@@ -97,7 +87,7 @@ public class SensorNodeAdapter extends BaseAdapter {
     }
 
     @Override
-    public BleDevice getItem(int position) {
+    public String getItem(int position) {
         Log.d(TAG,"get item position in list");
         if (position > bleDeviceList.size())
             return null;
@@ -118,11 +108,11 @@ public class SensorNodeAdapter extends BaseAdapter {
         if (nodeView == null) {
             nodeView = inflater.inflate(R.layout.scan_rms_items, parent, false);
         }
-        BleDevice device = getItem(position);
+        String device = getItem(position);
         EditText node_name = (EditText) nodeView.findViewById(R.id.editTV_name);
 
         TextView tv_address = (TextView) nodeView.findViewById(R.id.tv_address);
-        tv_address.setText(device.getMac());
+        tv_address.setText(device);
 
         CheckBox add_checkbox = (CheckBox) nodeView.findViewById(R.id.add_checkbox);
         add_checkbox.setOnClickListener(new View.OnClickListener() {

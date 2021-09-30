@@ -1,60 +1,36 @@
 package com.innv.rmsgateway.activity;
 
-import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
 
-import android.Manifest;
-import android.app.AlertDialog;
-import android.app.ProgressDialog;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothGatt;
-import android.content.Context;
-import android.content.DialogInterface;
+import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.provider.Settings;
-import android.text.TextUtils;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
-import android.view.animation.LinearInterpolator;
-import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
-import com.innv.rmsgateway.BleManager;
 import com.innv.rmsgateway.R;
 import com.innv.rmsgateway.adapter.SensorNodeAdapter;
-import com.innv.rmsgateway.callback.BleGattCallback;
-import com.innv.rmsgateway.callback.BleMtuChangedCallback;
-import com.innv.rmsgateway.callback.BleRssiCallback;
-import com.innv.rmsgateway.callback.BleScanCallback;
-import com.innv.rmsgateway.comm.ObserverManager;
 import com.innv.rmsgateway.data.BleDevice;
 import com.innv.rmsgateway.data.NodeDataManager;
-import com.innv.rmsgateway.exception.BleException;
-import com.innv.rmsgateway.operation.OperationActivity;
-import com.innv.rmsgateway.scan.BleScanRuleConfig;
 import com.innv.rmsgateway.sensornode.SensorNode;
 import com.innv.rmsgateway.service.BLEBackgroundService;
 import com.innv.rmsgateway.service.OnBLEDeviceCallback;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
-public class ScanActivity extends AppCompatActivity implements View.OnClickListener, OnBLEDeviceCallback {
+public class ScanActivity extends AppCompatActivity implements View.OnClickListener, OnBLEDeviceCallback{
+
     private static final String TAG = ScanActivity.class.getSimpleName();
 
     private ImageView iv_refresh;
@@ -94,6 +70,7 @@ public class ScanActivity extends AppCompatActivity implements View.OnClickListe
         BLEBackgroundService.removeBLEUpdateListener(this.getClass().getSimpleName());
     }
 
+    @SuppressLint("NonConstantResourceId")
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
@@ -110,6 +87,18 @@ public class ScanActivity extends AppCompatActivity implements View.OnClickListe
                     Animation rotationAnimation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate);
                     iv_refresh.startAnimation(rotationAnimation);
                 }
+                break;
+
+            case R.id.iv_scanqr:
+                try {
+
+                    Intent intent = new Intent(ScanActivity.this, QrCodeScanner.class);
+                    startActivityForResult(intent, 0);
+
+                } catch (Exception e) {
+                    Toast.makeText(this, " Failed to start QR camera ", Toast.LENGTH_SHORT).show();
+                }
+
                 break;
 
         }
@@ -130,6 +119,11 @@ public class ScanActivity extends AppCompatActivity implements View.OnClickListe
 
         Animation rotationAnimation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate);
         iv_refresh.startAnimation(rotationAnimation);
+
+
+        ImageView iv_scanqr = (ImageView) findViewById(R.id.iv_scanqr);
+        iv_scanqr.setOnClickListener(this);
+
     }
 
     public void addDevice(BleDevice device){
@@ -141,7 +135,20 @@ public class ScanActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
 
-        mDeviceAdapter.addDevice(device);
+        mDeviceAdapter.addDevice(device.getMac());
+        mDeviceAdapter.notifyDataSetChanged();
+    }
+
+    private void addDevice(String mac){
+        allSavedNodes = NodeDataManager.getAllNodesLst();
+        for(SensorNode node : allSavedNodes){
+            if(mac.equals(node.getMacID())){
+                Toast.makeText(this,"Node " + mac + " is already added", Toast.LENGTH_SHORT).show();
+                return;
+            }
+        }
+
+        mDeviceAdapter.addDevice(mac);
         mDeviceAdapter.notifyDataSetChanged();
     }
 
@@ -149,5 +156,29 @@ public class ScanActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onBLEDeviceCallback(BleDevice device) {
         addDevice(device);
+    }
+
+
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 0) {
+
+            if (resultCode == RESULT_OK) {
+                String contents = data.getStringExtra("SCAN_RESULT");
+                long count = contents.chars().filter(ch -> ch == ':').count();
+                if(count == 5 && contents.length() == 17){ //This is a mac address
+                    addDevice(contents);
+                }else{
+                    Toast.makeText(this, contents + " is not a valid MAC Address", Toast.LENGTH_SHORT).show();
+                }
+            }
+            if(resultCode == RESULT_CANCELED){
+                //handle cancel
+            }
+        }
+
     }
 }

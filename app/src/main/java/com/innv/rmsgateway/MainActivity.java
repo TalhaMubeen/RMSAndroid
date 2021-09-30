@@ -252,7 +252,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             startActivityForResult(new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE),REQUEST_CODE_PERMISSION_BLUETOOTH);
         }
 
-        String[] permissions = {Manifest.permission.ACCESS_FINE_LOCATION};
+        String[] permissions = {
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.CAMERA
+        };
         List<String> permissionDeniedList = new ArrayList<>();
         for (String permission : permissions) {
             int permissionCheck = ContextCompat.checkSelfPermission(this, permission);
@@ -353,6 +356,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
 
+        @SuppressLint("SetTextI18n")
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
 

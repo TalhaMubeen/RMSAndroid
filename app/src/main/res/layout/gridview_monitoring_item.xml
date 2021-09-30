@@ -29,7 +29,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="5dp"
-        android:text="Sensor Node"
+        android:maxLength="20"
+        android:ellipsize="end"
+        android:text="Sensor Node askdjaslkdjalksdjkalslkdsjalkd"
+
         android:textColor="@color/innv_navy"/>
 
     <TextView
@@ -38,8 +41,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="5dp"
-        android:layout_below="@+id/sensor_name"
+
         android:text="00:00:00:00:00:00"
+        android:maxLength="17"
+        android:ellipsize="end"
         android:textStyle="bold"
         android:textColor="@color/black" />
 
@@ -124,6 +129,7 @@
         android:layout_alignParentEnd="true"
         android:layout_marginTop="35dp"
         android:layout_marginEnd="15dp"
+        android:layout_marginStart="10dp"
         android:text="Last Updated"
         android:textStyle="bold"
         />
@@ -135,6 +141,7 @@
         android:layout_alignParentEnd="true"
         android:layout_marginTop="55dp"
         android:layout_marginEnd="20dp"
+        android:layout_marginStart="10dp"
         android:text="-min -s ago"
         android:textStyle="bold" />
 
