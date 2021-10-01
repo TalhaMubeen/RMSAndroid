@@ -3,6 +3,8 @@ package com.innv.rmsgateway.data;
 import android.widget.ListView;
 
 import com.innv.rmsgateway.R;
+import com.innv.rmsgateway.classes.Profile;
+import com.innv.rmsgateway.classes.ProfileManager;
 import com.innv.rmsgateway.sensornode.SensorNode;
 
 import java.text.SimpleDateFormat;
@@ -50,12 +52,12 @@ public class NodeDataManager {
     }
 
     public static void AddDummyDatainDB(){
-        SensorNode sn1 = new SensorNode("11:11:11:11","Dummy 1", "2:45am", 4, 6, 1,true,22.5,40,13.5, -99.6, true, "Default");
-        SensorNode sn2 = new SensorNode("12:12:12:12","Dummy 2", "3:45am", 5, 6, 1,false,22.5,40,13.5, -99.6, true, "Default");
-        SensorNode sn3 = new SensorNode("13:13:13:13","Dummy 3", "4:45am", 6, 6, 1,true,22.5,40,13.5, -99.6, false, "Default");
-        SensorNode sn4 = new SensorNode("14:14:14:14","Dummy 4", "5:45am", 7, 6, 1,false,22.5,40,13.5, -99.6, true, "Default");
-        SensorNode sn5 = new SensorNode("15:15:15:15","Dummy 5", "6:45am", 8, 6, 1,true,22.5,40,13.5, -99.6, true, "Default");
-        SensorNode sn6 = new SensorNode("16:16:16:16","Dummy 6", "7:45am", 9, 6, 1,false,22.5,40,13.5, -99.6, false, "Default");
+        SensorNode sn1 = new SensorNode("11:11:11:11","Dummy 1", "2:45am", 4, 6, 1,true,22.5,40,13.5, -99.6, true, ProfileManager.DefaultProfile);
+        SensorNode sn2 = new SensorNode("12:12:12:12","Dummy 2", "3:45am", 5, 6, 1,false,22.5,40,13.5, -99.6, true, ProfileManager.DefaultProfile);
+        SensorNode sn3 = new SensorNode("13:13:13:13","Dummy 3", "4:45am", 6, 6, 1,true,22.5,40,13.5, -99.6, false, ProfileManager.DefaultProfile);
+        SensorNode sn4 = new SensorNode("14:14:14:14","Dummy 4", "5:45am", 7, 6, 1,false,22.5,40,13.5, -99.6, true, ProfileManager.DefaultProfile);
+        SensorNode sn5 = new SensorNode("15:15:15:15","Dummy 5", "6:45am", 8, 6, 1,true,22.5,40,13.5, -99.6, true, ProfileManager.DefaultProfile);
+        SensorNode sn6 = new SensorNode("16:16:16:16","Dummy 6", "7:45am", 9, 6, 1,false,22.5,40,13.5, -99.6, false, ProfileManager.DefaultProfile);
 
         SaveSensorNodeData(sn1);
         SaveSensorNodeData(sn2);
@@ -66,11 +68,11 @@ public class NodeDataManager {
     }
 
 
-    public static void AddNodeToDB(String name, String macAddress, String profileName){
+    public static void AddNodeToDB(String name, String macAddress, Profile profile){
         SensorNode sn1 = new SensorNode(
                 macAddress, name, "0:00am", 0,
                 0, 0, true, 0.0,
-                0, 0.0, 0.0, true, profileName);
+                0, 0.0, 0.0, true, profile);
 
         sn1.setLastUpdatedOn(new Date());
         SaveSensorNodeData(sn1);

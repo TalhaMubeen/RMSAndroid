@@ -20,7 +20,7 @@ import java.util.List;
 public class DBHandler extends SQLiteOpenHelper{
     // Database Version
     private static DBHandler sInstance;
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 1;
 
     // Database Name
     private static final String DATABASE_NAME = "RMS";
@@ -75,6 +75,14 @@ public class DBHandler extends SQLiteOpenHelper{
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_DEVICES_LOG);
         onCreate(db);
     }
+
+    @Override
+    public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion){
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_DEVICES_LOOKUPS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_DEVICES_LOG);
+        onCreate(db);
+    }
+
 
     public boolean clearAllData()
     {

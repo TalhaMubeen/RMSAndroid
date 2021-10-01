@@ -34,6 +34,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.cardview.widget.CardView;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
@@ -366,7 +367,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 rmsDeviceCardView = inflater.inflate(R.layout.gridview_monitoring_item, parent, false);
             }
 
-            RelativeLayout sensor_card_view = (RelativeLayout) rmsDeviceCardView.findViewById(R.id.sensor_card_view);
+            CardView sensor_card_view = (CardView) rmsDeviceCardView.findViewById(R.id.sensor_card_view);
             sensor_card_view.setOnClickListener((View v) -> {
                 Intent intent = new Intent(context, GraphViewActivity.class);
                 intent.putExtra("MAC", item.getMacID());

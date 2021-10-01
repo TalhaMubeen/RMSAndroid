@@ -42,7 +42,7 @@ public class TextViewTimeCounter extends androidx.appcompat.widget.AppCompatText
         mHandler = new Handler();
         colorView = view;
         mPart2 = part2;
-       // convertDatesToMinutes(mStartTime, mTimeNow);
+        convertDatesToMinutes(mStartTime, mTimeNow);
         mHandler.postDelayed(r, delay);
     }
     public void updateStartTime(SensorNode data){

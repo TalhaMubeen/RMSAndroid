@@ -24,6 +24,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.innv.rmsgateway.BleManager;
+import com.innv.rmsgateway.classes.ProfileManager;
 import com.innv.rmsgateway.data.BleDevice;
 import com.innv.rmsgateway.data.NodeDataManager;
 import com.innv.rmsgateway.sensornode.SensorNode;
@@ -36,20 +37,14 @@ public class SensorNodeAdapter extends BaseAdapter {
     private final Context context;
     LayoutInflater inflater;
     private final List<String> bleDeviceList;
-    ArrayList<String> profileList;
+    List<String> profileList;
 
     //constructor function
     public SensorNodeAdapter(Context context) {
         this.context = context;
         inflater = LayoutInflater.from(context);
         bleDeviceList = new ArrayList<>();
-        profileList = new ArrayList<>();
-
-        //Adding dummy profiles here
-        profileList.add("Default");
-        profileList.add("Freezer");
-        profileList.add("Fridge");
-
+        profileList = ProfileManager.getAllProfilesName();
     }
 
     private boolean isDeviceAdded(String device){
@@ -62,11 +57,13 @@ public class SensorNodeAdapter extends BaseAdapter {
     }
 
     //add node
-    public void addDevice(String bleDevice) {
+    public boolean addDevice(String bleDevice) {
         Log.d(TAG,"add ble devices into list");
         if(!isDeviceAdded(bleDevice)) {
             bleDeviceList.add(bleDevice);
+            return true;
         }
+        return false;
     }
     public void addDevices(List<String> list){
         clear();
@@ -147,7 +144,7 @@ public class SensorNodeAdapter extends BaseAdapter {
                         add_checkbox.setChecked(true);
                         node_name.setEnabled(false);
                         String profileSelected = sp_profile.getSelectedItem().toString();
-                        NodeDataManager.AddNodeToDB(node_name.getText().toString(), tv_address.getText().toString(),profileSelected);
+                        NodeDataManager.AddNodeToDB(node_name.getText().toString(), tv_address.getText().toString(),ProfileManager.getProfile(profileSelected));
 
                     }else{
                         Toast.makeText(context, "Please enter node name", Toast.LENGTH_SHORT).show();

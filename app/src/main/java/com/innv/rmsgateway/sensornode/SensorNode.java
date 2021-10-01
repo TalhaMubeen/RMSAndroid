@@ -5,6 +5,8 @@ import android.se.omapi.Session;
 import android.util.Log;
 
 import com.innv.rmsgateway.R;
+import com.innv.rmsgateway.classes.Profile;
+import com.innv.rmsgateway.classes.ProfileManager;
 import com.innv.rmsgateway.data.Globals;
 import com.innv.rmsgateway.data.IConvertHelper;
 import com.innv.rmsgateway.data.StaticListItem;
@@ -51,15 +53,19 @@ public class  SensorNode implements IConvertHelper {
 
     private String lastUpdated;
 
-    public String getProfileName() {
-        return profileName;
+    public Profile getProfile() {
+        return profile;
     }
 
-    public void setProfileName(String profileName) {
-        this.profileName = profileName;
+    public void setProfile(JSONObject prof) {
+        this.profile = new Profile(prof);
     }
 
-    private String profileName;
+    public void setProfile(Profile prof) {
+        this.profile = prof;
+    }
+
+    private Profile profile = ProfileManager.DefaultProfile;
 
 
     static final String DATEFORMAT = "yyyy-MM-dd HH:mm:ss";
@@ -171,7 +177,7 @@ public class  SensorNode implements IConvertHelper {
                       int timeAtWakeup, int timeSinceWakeup, int timeSlot,
                       boolean timeSynced, double temperature, int humidity,
                       double batteryVoltage, double rssi, boolean isPreChecked,
-                      String profile) {
+                      Profile profile) {
         this.macID = macID;
         this.name = name;
         this.advertisingTime = advertisingTime;
@@ -184,7 +190,9 @@ public class  SensorNode implements IConvertHelper {
         this.batteryVoltage = batteryVoltage;
         this.rssi = rssi;
         this.isPreChecked = isPreChecked;
-        this.profileName = profile;
+        if(profile != null) {
+            this.profile = profile;
+        }
 
     }
 
@@ -293,7 +301,11 @@ public class  SensorNode implements IConvertHelper {
             setPreChecked(jsonObject.optBoolean("isPreChecked"));
             setPreChecked(jsonObject.optBoolean("isPreChecked"));
             lastUpdated = jsonObject.optString("LastUpdateTime");
-            setProfileName(jsonObject.optString("ProfileName"));
+            try {
+                setProfile(jsonObject.optJSONObject("Profile"));
+            }catch (Exception e){
+                setProfile(ProfileManager.DefaultProfile);
+            }
         } catch (Exception e) {
             Log.e(TAG, e.toString());
             return false;
@@ -319,7 +331,11 @@ public class  SensorNode implements IConvertHelper {
             setRssi(jsonObject.optDouble("rssi"));
             setPreChecked(jsonObject.optBoolean("isPreChecked"));
             lastUpdated = jsonObject.optString("LastUpdateTime");
-            setProfileName(jsonObject.optString("ProfileName"));
+            try {
+                setProfile(jsonObject.optJSONObject("Profile"));
+            }catch (Exception e){
+                setProfile(ProfileManager.DefaultProfile);
+            }
             return true;
 
         } catch (JSONException e) {
@@ -346,7 +362,7 @@ public class  SensorNode implements IConvertHelper {
             jo.put("rssi", getRssi());
             jo.put("isPreChecked", isPreChecked());
             jo.put("LastUpdateTime", getLastUpdatedOn());
-            jo.put("ProfileName", getProfileName());
+            jo.put("Profile", this.profile.getJsonObject());
         } catch (Exception e) {
             Log.e(TAG, e.toString());
             jo = null;

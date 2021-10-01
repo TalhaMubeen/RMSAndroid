@@ -135,8 +135,9 @@ public class ScanActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
 
-        mDeviceAdapter.addDevice(device.getMac());
-        mDeviceAdapter.notifyDataSetChanged();
+        if(mDeviceAdapter.addDevice(device.getMac())) {
+            mDeviceAdapter.notifyDataSetChanged();
+        }
     }
 
     private void addDevice(String mac){
@@ -148,8 +149,9 @@ public class ScanActivity extends AppCompatActivity implements View.OnClickListe
             }
         }
 
-        mDeviceAdapter.addDevice(mac);
-        mDeviceAdapter.notifyDataSetChanged();
+        if(mDeviceAdapter.addDevice(mac)) {
+            mDeviceAdapter.notifyDataSetChanged();
+        }
     }
 
 

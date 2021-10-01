@@ -1,56 +1,126 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:descendantFocusability="blocksDescendants"
-    android:layout_width="wrap_content"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:gravity="center">
+    android:background="#add8e6"
+    >
 
-    <LinearLayout
+    <androidx.cardview.widget.CardView
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_toLeftOf="@+id/add_checkbox">
+        android:layout_margin="5dp"
+        android:layout_toLeftOf="@+id/add_checkbox"
+        >
 
         <LinearLayout
             android:id="@+id/ll_details"
             android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_marginTop="1dp"
-            android:gravity="bottom">
+            android:layout_height="wrap_content"
+            >
 
-            <TextView
-                android:textAppearance="@style/TextAppearance.AppCompat.Large"
-                android:id="@+id/editTV_name"
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="20dp"
+                >
+
+                <TextView
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="7dp"
+                    android:text="NODE NAME"
+                    android:textColor="@color/black"
+                    android:singleLine="true"/>
+
+                <TextView
+                    android:id="@+id/editTV_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:text="TEST 1"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="NODE NAME"
-                android:layout_marginStart="5dp"
-                android:singleLine="true"/>
+                android:gravity="center">
 
-            <TextView
-                android:textAppearance="@style/TextAppearance.AppCompat.Small"
-                android:id="@+id/tv_address"
+                <TextView
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="7dp"
+                    android:text="MAC ADDRESS "
+                    android:textColor="@color/black"
+                    android:singleLine="true"/>
+
+
+                <TextView
+                    android:id="@+id/tv_address"
+                    android:layout_width="match_parent"
+                    android:layout_height="20dp"
+                    android:textSize="15sp"
+                    android:gravity="center"
+                    android:text="00:00:00:00"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    />
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_marginStart="5dp"
-                android:text="MAC ADDRESS HERE"
-                android:textColor="@color/black"
-                android:singleLine="true"/>
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="5dp"
+                android:gravity="center">
+
+                <TextView
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="7dp"
+                    android:text="Selected Profile"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:textColor="@color/black"
+                    android:singleLine="true"/>
+
+                <TextView
+                    android:id="@+id/tv_profile"
+                    android:layout_width="match_parent"
+                    android:layout_height="20dp"
+                    android:textSize="15sp"
+                    android:gravity="center"
+                    android:text="Default"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    />
+
+            </LinearLayout>
+
         </LinearLayout>
 
-    </LinearLayout>
+    </androidx.cardview.widget.CardView>
 
     <CheckBox
         android:id="@+id/add_checkbox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp"
         android:layout_alignParentEnd="true"
-        android:focusable="false"
+        android:buttonTint="@color/black"
+        android:layout_marginTop="25dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp"
         android:clickable="false"
-        />
+        android:focusable="false" />
 
 
 </RelativeLayout>

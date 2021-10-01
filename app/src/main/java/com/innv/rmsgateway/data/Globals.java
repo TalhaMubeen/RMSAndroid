@@ -2,6 +2,8 @@ package com.innv.rmsgateway.data;
 
 import android.content.Context;
 
+import com.innv.rmsgateway.classes.ProfileManager;
+
 import java.util.ResourceBundle;
 
 public class Globals {
@@ -14,5 +16,6 @@ public class Globals {
     public static void setDbContext(Context context) {
         dbContext = context;
         db=DBHandler.getInstance(context);
+        ProfileManager.init();
     }
 }

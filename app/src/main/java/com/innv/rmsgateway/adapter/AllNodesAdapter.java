@@ -113,6 +113,9 @@ public class AllNodesAdapter extends BaseAdapter {
         TextView tv_address = (TextView) nodeView.findViewById(R.id.tv_address);
         tv_address.setText(item.getMacID());
 
+        TextView tv_profile = (TextView) nodeView.findViewById(R.id.tv_profile);
+        tv_profile.setText(item.getProfile().getName());
+
         CheckBox add_checkbox = (CheckBox) nodeView.findViewById(R.id.add_checkbox);
         if(item.isPreChecked()){
             add_checkbox.setChecked(true);
