@@ -171,13 +171,11 @@ public class BLEBackgroundService extends Service {
             public void onScanning(BleDevice bleDevice) {
                 if(sensorDataDecoder.nodeValid(bleDevice)) { //Checking if the scanned node is really RMS node
 
-                    if(NodeDataManager.getNodeFromMac(bleDevice.getMac()) == null){
+                    if(NodeDataManager.getNodeFromMac(bleDevice.getMac()) == null &&
+                            onBLEUpdateCallbacks.keySet().contains("ScanActivity")) {
 
-                        for (String name : onBLEUpdateCallbacks.keySet()) {
-                            if(name.equals("ScanActivity")) {
-                                onBLEUpdateCallbacks.get(name).onBLEDeviceCallback(bleDevice);
-                            }
-                        }
+                        onBLEUpdateCallbacks.get("ScanActivity").onBLEDeviceCallback(bleDevice);
+
                     }
                     else {
                         int humidity = sensorDataDecoder.getHumidity(bleDevice);

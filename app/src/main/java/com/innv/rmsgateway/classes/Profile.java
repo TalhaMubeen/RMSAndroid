@@ -1,10 +1,7 @@
 package com.innv.rmsgateway.classes;
 import android.util.Log;
 
-import com.innv.rmsgateway.R;
-import com.innv.rmsgateway.data.Globals;
 import com.innv.rmsgateway.data.IConvertHelper;
-import com.innv.rmsgateway.data.StaticListItem;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -15,21 +12,17 @@ import static android.content.ContentValues.TAG;
 
 public class Profile implements IConvertHelper {
 
-    public double getTemperatureThreshold() {
-        return temperatureThreshold;
+    public double getLowTempThreshold() {
+        return lowTempThreshold;
     }
 
-    public void setTemperatureThreshold(double temperatureThreshold) {
-        this.temperatureThreshold = temperatureThreshold;
-    }
+    public void setLowTempThreshold(double lowTempThreshold) { this.lowTempThreshold = lowTempThreshold; }
 
     public int getHumidityThreshold() {
         return humidityThreshold;
     }
 
-    public void setHumidityThreshold(int humidityThreshold) {
-        this.humidityThreshold = humidityThreshold;
-    }
+    public void setHumidityThreshold(int humidityThreshold) { this.humidityThreshold = humidityThreshold; }
 
     public double getRssiThreshold() {
         return rssiThreshold;
@@ -65,7 +58,13 @@ public class Profile implements IConvertHelper {
     }
 
     private String name;
-    private double temperatureThreshold;
+    private double lowTempThreshold;
+
+    public double getHighTempThreshold() { return highTempThreshold; }
+
+    public void setHighTempThreshold(double highTempThreshold) { this.highTempThreshold = highTempThreshold; }
+
+    private double highTempThreshold;
     private int    humidityThreshold;
     private double rssiThreshold;
 
@@ -78,14 +77,16 @@ public class Profile implements IConvertHelper {
 
     public Profile(){
         this.name = "Default";
-        this.temperatureThreshold = 20;
+        this.lowTempThreshold = 10;
+        this.highTempThreshold = 20;
         this.humidityThreshold = 45;
         this.rssiThreshold = -80;
     }
 
-    public Profile(String profileName, double tempTH, double rssiTH, int humidityTH){
+    public Profile(String profileName, double lowtempTH, double highTempTh, double rssiTH, int humidityTH){
         this.name = profileName;
-        this.temperatureThreshold = tempTH;
+        this.lowTempThreshold = lowtempTH;
+        this.highTempThreshold = highTempTh;
         this.rssiThreshold = rssiTH;
         this.humidityThreshold = humidityTH;
     }
@@ -94,7 +95,8 @@ public class Profile implements IConvertHelper {
     public boolean parseJsonObject(JSONObject obj) {
         try {
             setName(obj.optString("Name"));
-            setTemperatureThreshold(obj.optDouble("TemperatureTh"));
+            setLowTempThreshold(obj.optDouble("LowTempTh"));
+            setHighTempThreshold(obj.optDouble("HighTempTh"));
             setRssiThreshold(obj.getDouble("RssiTh"));
             setHumidityThreshold(obj.getInt("HumidityTh"));
 
@@ -125,7 +127,8 @@ public class Profile implements IConvertHelper {
         JSONObject jo = new JSONObject();
         try {
             jo.put("Name", getName());
-            jo.put("TemperatureTh", getTemperatureThreshold());
+            jo.put("LowTempTh", getLowTempThreshold());
+            jo.put("HighTempTh", getHighTempThreshold());
             jo.put("RssiTh", getRssiThreshold());
             jo.put("HumidityTh", getHumidityThreshold());
 

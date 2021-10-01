@@ -62,26 +62,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static final int REQUEST_CODE_PERMISSION_LOCATION = 2;
     private static final int REQUEST_CODE_PERMISSION_BLUETOOTH = 3;
 
-    public static int COLOR_TEST_NOT_ACTIVE= Color.parseColor("darkgray");
+
     public static int NODE_ACTIVE = Color.parseColor("#FF00CC00");
     public static int NODE_INACTIVE =Color.parseColor("#FFFF0000");
-/*    private static Map<String, View> deviceViewList = new HashMap();*/
 
     private static boolean FirstRun = true;
 
-    private Button btn_scan;
     private ImageView ivAddDevices;
     private ListView gvDevices;
-
 
     // A reference to the service used to get BLE Updates
     @SuppressLint("StaticFieldLeak")
     private static BLEBackgroundService mService = null;
-    private SensorDataDecoder sensorDataDecoder;
     // Tracks the bound state of the service.
     private static boolean mBound = false;
     GridViewAdapter gv_adapter;
-    static boolean updatingTime = false;
     Map<String, SensorNode> precheckedNodes;
 
 
@@ -119,7 +114,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         Log.d(TAG,"Gateway App started");
-        sensorDataDecoder = new SensorDataDecoder();
         checkPermissions();
         Globals.setDbContext(getApplicationContext());
 

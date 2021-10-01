@@ -4,8 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ProfileManager {
-    public static Profile DefaultProfile = new Profile("Default",25.5,-87,50);
-    public static Profile FreezerProfile = new Profile("Freezer",0,-90,80);
+    public static Profile DefaultProfile = new Profile("Default",10,20,-87,50);
+    public static Profile FreezerProfile = new Profile("Freezer",-10, 5,-90,80);
 
     private static List<Profile> profileList = new ArrayList<>();
 

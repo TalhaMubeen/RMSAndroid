@@ -18,4 +18,9 @@ public class Globals {
         db=DBHandler.getInstance(context);
         ProfileManager.init();
     }
+
+
+
+
+
 }
