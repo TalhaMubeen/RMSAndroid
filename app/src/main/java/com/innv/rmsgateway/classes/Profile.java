@@ -5,12 +5,29 @@ import com.innv.rmsgateway.data.IConvertHelper;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 import static android.content.ContentValues.TAG;
 
 public class Profile implements IConvertHelper {
+    public String getName() { return name; }
+
+    public void setName(String name) { this.name = name; }
+
+    public int getLowHumidityThreshold() { return lowHumidityThreshold; }
+
+    public void setLowHumidityThreshold(int lowHumidityThreshold) { this.lowHumidityThreshold = lowHumidityThreshold; }
+
+    public int getHighHumidityThreshold() { return highHumidityThreshold; }
+
+    public void setHighHumidityThreshold(int highHumidityThreshold) { this.highHumidityThreshold = highHumidityThreshold; }
 
     public double getLowTempThreshold() {
         return lowTempThreshold;
@@ -18,11 +35,9 @@ public class Profile implements IConvertHelper {
 
     public void setLowTempThreshold(double lowTempThreshold) { this.lowTempThreshold = lowTempThreshold; }
 
-    public int getHumidityThreshold() {
-        return humidityThreshold;
-    }
+    public double getHighTempThreshold() { return highTempThreshold; }
 
-    public void setHumidityThreshold(int humidityThreshold) { this.humidityThreshold = humidityThreshold; }
+    public void setHighTempThreshold(double highTempThreshold) { this.highTempThreshold = highTempThreshold; }
 
     public double getRssiThreshold() {
         return rssiThreshold;
@@ -32,44 +47,20 @@ public class Profile implements IConvertHelper {
         this.rssiThreshold = rssiThreshold;
     }
 
+    public List<DefrostTimeProfile> getDefrostProfile() { return defrostProfile; }
 
-    public void addDefrostStartProfile(DefrostTimeProfile cycle){
-        defrostStartTime.add(cycle);
-    }
+    public void addDefrostProfile(DefrostTimeProfile cycle){ defrostProfile.add(cycle); }
 
-    public void addDefrostEndProfile(DefrostTimeProfile cycle){
-        defrostEndTime.add(cycle);
-    }
+    public void setDefrostProfile(List<DefrostTimeProfile> defrostProfile) { this.defrostProfile = defrostProfile; }
 
-    public List<DefrostTimeProfile> getDefrostStartTimeProfiles(){
-        return defrostStartTime;
-    }
-
-    public List<DefrostTimeProfile> getDefrostEndTimeProfiles(){
-        return defrostEndTime;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
 
     private String name;
     private double lowTempThreshold;
-
-    public double getHighTempThreshold() { return highTempThreshold; }
-
-    public void setHighTempThreshold(double highTempThreshold) { this.highTempThreshold = highTempThreshold; }
-
     private double highTempThreshold;
-    private int    humidityThreshold;
+    private int    lowHumidityThreshold;
+    private int    highHumidityThreshold;
     private double rssiThreshold;
-
-    private List<DefrostTimeProfile> defrostStartTime = new ArrayList<>();
-    private List<DefrostTimeProfile> defrostEndTime = new ArrayList<>();
+    private List<DefrostTimeProfile> defrostProfile = new ArrayList<>();
 
     public Profile(JSONObject obj){
         parseJsonObject(obj);
@@ -79,16 +70,18 @@ public class Profile implements IConvertHelper {
         this.name = "Default";
         this.lowTempThreshold = 10;
         this.highTempThreshold = 20;
-        this.humidityThreshold = 45;
+        this.lowHumidityThreshold = 30;
+        this.highHumidityThreshold = 50;
         this.rssiThreshold = -80;
     }
 
-    public Profile(String profileName, double lowtempTH, double highTempTh, double rssiTH, int humidityTH){
+    public Profile(String profileName, double lowtempTH, double highTempTh, double rssiTH, int lowHumidityTH, int highHumidityTH){
         this.name = profileName;
         this.lowTempThreshold = lowtempTH;
         this.highTempThreshold = highTempTh;
         this.rssiThreshold = rssiTH;
-        this.humidityThreshold = humidityTH;
+        this.lowHumidityThreshold = lowHumidityTH;
+        this.highHumidityThreshold = highHumidityTH;
     }
 
     @Override
@@ -98,19 +91,13 @@ public class Profile implements IConvertHelper {
             setLowTempThreshold(obj.optDouble("LowTempTh"));
             setHighTempThreshold(obj.optDouble("HighTempTh"));
             setRssiThreshold(obj.getDouble("RssiTh"));
-            setHumidityThreshold(obj.getInt("HumidityTh"));
+            setLowHumidityThreshold(obj.getInt("LowHumidityTh"));
+            setHighHumidityThreshold(obj.getInt("HighHumidityTh"));
 
-            JSONArray jaStart = obj.optJSONArray("DefrostStartProfile");
-            if(jaStart !=null && jaStart.length()>0){
-                for(int i = 0; i< jaStart.length(); i++){
-                    addDefrostStartProfile(new DefrostTimeProfile(jaStart.getJSONObject(i)));
-                }
-            }
-
-            JSONArray jaEnd = obj.optJSONArray("DefrostEndProfile");
-            if(jaEnd !=null && jaEnd.length()>0){
-                for(int i = 0; i< jaEnd.length(); i++){
-                    addDefrostEndProfile(new DefrostTimeProfile(jaEnd.getJSONObject(i)));
+            JSONArray jaProf = obj.optJSONArray("DefrostProfile");
+            if(jaProf !=null && jaProf.length()>0){
+                for(int i = 0; i< jaProf.length(); i++){
+                    addDefrostProfile(new DefrostTimeProfile(jaProf.getJSONObject(i)));
                 }
             }
 
@@ -130,19 +117,15 @@ public class Profile implements IConvertHelper {
             jo.put("LowTempTh", getLowTempThreshold());
             jo.put("HighTempTh", getHighTempThreshold());
             jo.put("RssiTh", getRssiThreshold());
-            jo.put("HumidityTh", getHumidityThreshold());
+            jo.put("LowHumidityTh", getLowHumidityThreshold());
+            jo.put("HighHumidityTh", getHighHumidityThreshold());
 
-            JSONArray jaStart = new JSONArray();
-            for(DefrostTimeProfile profile : getDefrostStartTimeProfiles()){
-                jaStart.put(profile.getJsonObject());
+            JSONArray jaProf = new JSONArray();
+            for(DefrostTimeProfile profile : getDefrostProfile()){
+                jaProf.put(profile.getJsonObject());
             }
-            jo.put("DefrostStartProfile", jaStart);
+            jo.put("DefrostProfile", jaProf);
 
-            JSONArray jaEnd = new JSONArray();
-            for(DefrostTimeProfile profile : getDefrostEndTimeProfiles()){
-                jaEnd.put(profile.getJsonObject());
-            }
-            jo.put("DefrostEndProfile", jaEnd);
 
         } catch (Exception e) {
             Log.e(TAG, e.toString());
@@ -150,25 +133,71 @@ public class Profile implements IConvertHelper {
         return jo;
     }
 
+
     static public class DefrostTimeProfile implements IConvertHelper {
-        public int getHour() {
-            return hour;
+        public int getStartHour() {
+            return startHour;
         }
 
-        public void setHour(int hour) {
-            this.hour = hour;
+        public void setStartHour(int hour) {
+            this.startHour = hour;
         }
 
-        public int getMinute() {
-            return minute;
+        public int getStartMinute() {
+            return startMinute;
         }
 
-        public void setMinute(int minute) {
-            this.minute = minute;
+        public void setStartMinute(int startMinute) {
+            this.startMinute = startMinute;
         }
 
-        int hour =0;
-        int minute =0;
+        public int getEndHour() {
+            return endHour;
+        }
+
+        public void setEndHour(int endHour) {
+            this.endHour = endHour;
+        }
+
+        public int getEndMinute() {
+            return endMinute;
+        }
+
+        public void setEndMinute(int endMinute) {
+            this.endMinute = endMinute;
+        }
+
+
+        int startHour =0;
+        int startMinute =0;
+        int endHour = 0;
+        int endMinute = 0;
+
+        public Date parseDate(String date) {
+
+            final String inputFormat = "HH:mm";
+            SimpleDateFormat inputParser = new SimpleDateFormat(inputFormat, Locale.getDefault());
+            try {
+                return inputParser.parse(date);
+            } catch (java.text.ParseException e) {
+                return new Date(0);
+            }
+        }
+
+        public Boolean isTimeInBetween(String date){
+            Date current = parseDate(date);
+            Date dateCompareOne = parseDate(Integer.toString(startHour) + ":" + Integer.toString(startMinute));
+            Date dateCompareTwo = parseDate(Integer.toString(endHour) + ":" + Integer.toString(endMinute));
+
+            boolean ret = false;
+
+            if (dateCompareTwo.before(current) && dateCompareOne.after(current)) {
+                //your logic
+                ret = true;
+            }
+            return ret;
+
+        }
 
         public DefrostTimeProfile(JSONObject jsonObject){
             parseJsonObject(jsonObject);
@@ -177,8 +206,11 @@ public class Profile implements IConvertHelper {
         @Override
         public boolean parseJsonObject(JSONObject jsonObject) {
             try {
-                setHour(jsonObject.optInt("Hour"));
-                setMinute(jsonObject.optInt("Minute"));
+                setStartHour(jsonObject.optInt("StartHour"));
+                setStartMinute(jsonObject.optInt("StartMinute"));
+                setEndHour(jsonObject.optInt("EndHour"));
+                setEndMinute(jsonObject.optInt("EndMinute"));
+
 
             } catch (Exception e) {
                 Log.e(TAG, e.toString());
@@ -192,8 +224,10 @@ public class Profile implements IConvertHelper {
         public JSONObject getJsonObject() {
             JSONObject jo = new JSONObject();
             try {
-                jo.put("Hour", getHour());
-                jo.put("Minute", getMinute());
+                jo.put("StartHour", getStartHour());
+                jo.put("StartMinute", getStartMinute());
+                jo.put("EndHour", getEndHour());
+                jo.put("EndMinute",getEndMinute());
 
             } catch (Exception e) {
                 Log.e(TAG, e.toString());

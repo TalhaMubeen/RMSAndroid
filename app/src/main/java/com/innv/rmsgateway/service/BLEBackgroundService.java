@@ -31,6 +31,7 @@ import org.w3c.dom.Node;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -171,19 +172,24 @@ public class BLEBackgroundService extends Service {
             public void onScanning(BleDevice bleDevice) {
                 if(sensorDataDecoder.nodeValid(bleDevice)) { //Checking if the scanned node is really RMS node
 
-                    if(NodeDataManager.getNodeFromMac(bleDevice.getMac()) == null &&
-                            onBLEUpdateCallbacks.keySet().contains("ScanActivity")) {
-
-                        onBLEUpdateCallbacks.get("ScanActivity").onBLEDeviceCallback(bleDevice);
-
+                    SensorNode node = NodeDataManager.getAllNodeFromMac(bleDevice.getMac());
+                    if( node == null) {
+                        if(onBLEUpdateCallbacks.containsKey("ScanActivity")) {
+                            onBLEUpdateCallbacks.get("ScanActivity").onBLEDeviceCallback(bleDevice);
+                        }
                     }
-                    else {
+                    else if(node.isPreChecked()) {
                         int humidity = sensorDataDecoder.getHumidity(bleDevice);
                         double temp = sensorDataDecoder.getTemperature(bleDevice);
-                        String mac = bleDevice.getMac();
+                        //String mac = bleDevice.getMac();
                         int rssi = bleDevice.getRssi();
 
-                        NodeDataManager.SaveSensorNodeData(mac, temp, humidity, rssi);
+                        node.setHumidity(humidity);
+                        node.setTemperature(temp);
+                        node.setRssi(rssi);
+                        node.setLastUpdatedOn(new Date());
+
+                        NodeDataManager.UpdateNodeData(node, true);
 
                         for (String name : onBLEUpdateCallbacks.keySet()) {
                             onBLEUpdateCallbacks.get(name).onBLEDeviceCallback(bleDevice);

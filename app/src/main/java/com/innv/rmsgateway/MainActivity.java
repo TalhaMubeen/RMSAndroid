@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private static boolean FirstRun = true;
 
     private ImageView ivAddDevices;
-    private ListView gvDevices;
+    private GridView gvDevices;
 
     // A reference to the service used to get BLE Updates
     @SuppressLint("StaticFieldLeak")
@@ -125,7 +125,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         NodeDataManager.init();
 
-
         if (!mBound) {
             bindService(new Intent(MainActivity.this, BLEBackgroundService.class), mServiceConnection,
                     Context.BIND_AUTO_CREATE);
@@ -147,7 +146,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         List<SensorNode> list = NodeDataManager.getPreCheckedNodes();
         gv_adapter = new GridViewAdapter(this, list);
-        gvDevices = (ListView) findViewById(R.id.gv_devices);
+        gvDevices = (GridView) findViewById(R.id.gv_devices);
         gvDevices.setAdapter(gv_adapter);
 
     }
@@ -269,7 +268,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void onPermissionGranted(String permission) {
         switch (permission) {
             case Manifest.permission.ACCESS_FINE_LOCATION:
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !checkGPSIsOpen()) {
+                if (!checkGPSIsOpen()) {
                     new AlertDialog.Builder(this)
                             .setTitle(R.string.notifyTitle)
                             .setMessage(R.string.gpsNotifyMsg)
@@ -292,6 +291,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             .setCancelable(false)
                             .show();
                 }
+                break;
+
+            case Manifest.permission.CAMERA:
+
                 break;
         }
     }
@@ -371,11 +374,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             TextView sensor_name = (TextView) rmsDeviceCardView.findViewById(R.id.sensor_name);
             sensor_name.setText(item.getName());
 
-            TextView sensor_bd_address = (TextView) rmsDeviceCardView.findViewById(R.id.sensor_bd_address);
+/*            TextView sensor_bd_address = (TextView) rmsDeviceCardView.findViewById(R.id.sensor_bd_address);
             sensor_bd_address.setText(item.getMacID());
+            sensor_bd_address.setVisibility(View.INVISIBLE);*/
 
             TextView temperature_value = (TextView) rmsDeviceCardView.findViewById(R.id.temperature_value);
-            temperature_value.setText(Double.toString(item.getTemperature()));
+            temperature_value.setText(Double.toString(item.getTemperature()) + "°c" );
 
             TextView humidity_value = (TextView) rmsDeviceCardView.findViewById(R.id.humidity_value);
             humidity_value.setText(Integer.toString(item.getHumidity()) + "%");

@@ -133,7 +133,7 @@ public class AllNodesAdapter extends BaseAdapter {
                     add_checkbox.setChecked(false);
                     item.setPreChecked(false);
                 }
-                NodeDataManager.SaveSensorNodeData(item);
+                NodeDataManager.UpdateNodeData(item, false);
             }
         });
         return nodeView;

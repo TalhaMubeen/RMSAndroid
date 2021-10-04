@@ -45,14 +45,14 @@
         android:layout_below="@+id/actionbar"
         android:layout_alignParentBottom="true">
 
-        <ListView
+        <GridView
             android:gravity="start"
             android:id="@+id/gv_devices"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:listSelector="@drawable/gridview_selector"
+
             android:horizontalSpacing="8dp"
-            android:verticalSpacing="8dp"
+            android:verticalSpacing="0dp"
             android:numColumns="1"
             android:layout_alignParentStart="true"/>
     </RelativeLayout>

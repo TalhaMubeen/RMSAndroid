@@ -1,54 +1,59 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<androidx.cardview.widget.CardView
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="80dp"
-    android:id="@+id/sensor_card_view"
-    android:layout_margin="5dp"
-    android:orientation="horizontal"
-    >
+    android:layout_height="wrap_content">
 
-    <RelativeLayout
+    <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:id="@+id/sensor_card_view"
+        android:layout_margin="3dp"
+        android:orientation="horizontal"
+        android:layout_height="wrap_content">
 
-        <LinearLayout
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:id="@+id/ll_temp">
 
-            <ImageView
-                android:id="@+id/temp_image"
-                android:layout_width="30dp"
-                android:layout_marginTop="13dp"
-                android:layout_height="60dp"
-                android:src="@drawable/temp_icon_red" />
-        </LinearLayout>
-
-        <LinearLayout
-            android:orientation="vertical"
+        <RelativeLayout
             android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/ll_temp">
+
+                <ImageView
+                    android:id="@+id/temp_image"
+                    android:layout_width="30dp"
+                    android:layout_marginTop="13dp"
+                    android:layout_height="60dp"
+                    android:src="@drawable/temp_icon_red"/>
+            </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/ll_sensor_details"
+            android:orientation="vertical"
+            android:layout_width="wrap_content"
+            android:layout_toEndOf="@+id/ll_temp"
             android:layout_toStartOf="@+id/ll_details"
-            android:layout_height="match_parent"
-            android:layout_marginStart="40dp"
-            >
+            android:layout_height="wrap_content">
 
             <TextView
                 android:textAppearance="@style/TextAppearance.AppCompat.Large"
                 android:id="@+id/sensor_name"
-                android:textStyle="bold"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="5dp"
+                android:layout_marginTop="7dp"
                 android:ellipsize="end"
                 android:maxLines="1"
                 android:layout_marginEnd="30dp"
                 android:text="Sensor  "
+                android:textStyle="bold"
                 android:textColor="@color/innv_navy"/>
-
+<!--
             <TextView
-                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                android:textAppearance="@style/TextAppearance.AppCompat.Small"
                 android:id="@+id/sensor_bd_address"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -57,19 +62,19 @@
                 android:text="00:00:00:00:00:00"
                 android:maxLength="17"
                 android:ellipsize="end"
-                android:textStyle="bold"
-                android:textColor="@color/black" />
+                android:textColor="@color/black" />-->
 
             <LinearLayout
                 android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
                 android:gravity="start"
                 android:layout_marginStart="3dp"
-                android:layout_gravity="center">
+                android:layout_gravity="start">
 
                 <TextView
-                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Large"
                     android:layout_gravity="center"
                     android:id="@+id/temperature_value"
                     android:layout_width="wrap_content"
@@ -82,16 +87,16 @@
 
                 <ImageView
                     android:id="@+id/humidity_image"
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
-                    android:layout_marginStart="5dp"
-                    android:layout_gravity="center"
-                    android:alpha="0.9"
-                    android:src="@drawable/humidity_icon" />
+                    android:layout_width="22dp"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="end"
+                    android:src="@drawable/humidity"
+                    android:adjustViewBounds="true"
+                    android:padding="3dp" />
 
 
                 <TextView
-                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Large"
                     android:id="@+id/humidity_value"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -103,23 +108,24 @@
 
                 <ImageView
                     android:id="@+id/rssi"
-                    android:layout_width="30dp"
-                    android:layout_height="25dp"
-                    android:layout_marginStart="5dp"
+                    android:layout_width="25dp"
+                    android:layout_height="match_parent"
                     android:layout_gravity="center"
                     android:src="@drawable/rssi" />
 
                 <TextView
                     android:textAppearance="@style/TextAppearance.AppCompat.Small"
                     android:id="@+id/sensor_rssi"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
                     android:maxLines="1"
-                    android:layout_marginEnd="15dp"
-                    android:text="-99.6666 dBm"
+                    android:layout_marginEnd="1dp"
+                    android:text="-99.66 dBm"
                     android:layout_gravity="center"
-                    android:textColor="@color/black"
-                    android:textStyle="bold" />
+                    android:layout_marginStart="2dp"
+                    android:gravity="start|center_vertical"
+                    android:textColor="@color/black" />
+
             </LinearLayout>
 
         </LinearLayout>
@@ -129,36 +135,37 @@
             android:id="@+id/ll_details"
             android:orientation="vertical"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_alignParentEnd="true">
 
-        <View
-            android:id="@+id/colorNA"
-            android:layout_width="15dp"
-            android:layout_height="15dp"
-            android:background="@drawable/circle_gray"
-            android:layout_marginTop="10dp"
-            android:layout_gravity="end"
-            android:layout_marginEnd="10dp"
-            android:layout_marginBottom="10dp"
-            />
+            <View
+                android:id="@+id/colorNA"
+                android:layout_width="15dp"
+                android:layout_height="15dp"
+                android:background="@drawable/circle_gray"
+                android:layout_marginTop="10dp"
+                android:layout_gravity="end"
+                android:layout_marginEnd="10dp"
+                android:layout_marginBottom="10dp" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="Last Update"
-            android:textStyle="bold" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="Last Update"
+                android:textStyle="bold" />
 
-        <com.innv.rmsgateway.adapter.TextViewTimeCounter
-            android:id="@+id/tv_last_updated"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="-min -s ago"
-            android:textStyle="bold" />
+            <com.innv.rmsgateway.adapter.TextViewTimeCounter
+                android:id="@+id/tv_last_updated"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:text="-min -s ago"
+                android:textStyle="bold" />
         </LinearLayout>
 
-    </RelativeLayout>
+        </RelativeLayout>
 
-</androidx.cardview.widget.CardView>
+    </androidx.cardview.widget.CardView>
+
+</RelativeLayout>

@@ -32,23 +32,26 @@ public class RealtimeTemperature extends GraphBase{
     public void initGraph(GraphView graph, String mac) {
 
         TreeMap<Date, Double> tempData = NodeDataManager.getTemerature(mac);
-
-        graph.getViewport().setXAxisBoundsManual(true);
-        graph.getViewport().setMinX(tempData.firstEntry().getKey().getTime());
-        graph.getViewport().setMaxX(tempData.lastEntry().getKey().getTime());
-
-        graph.getGridLabelRenderer().setLabelVerticalWidth(100);
-
-        // first mSeries is a line
         mSeries = new LineGraphSeries<>();
-        mSeries.setDrawDataPoints(true);
-        mSeries.setDrawBackground(true);
+        graph.getViewport().setXAxisBoundsManual(true);
 
-        for(Date key : tempData.keySet()){
-            try {
-                mSeries.appendData(new DataPoint(key, tempData.get(key)), true, 1000);
-            }catch (Exception e){
+        if(tempData.size() > 0) {
+            graph.getViewport().setMinX(tempData.firstEntry().getKey().getTime());
+            graph.getViewport().setMaxX(tempData.lastEntry().getKey().getTime());
 
+            graph.getGridLabelRenderer().setLabelVerticalWidth(100);
+
+            // first mSeries is a line
+
+            mSeries.setDrawDataPoints(true);
+            mSeries.setDrawBackground(true);
+
+            for (Date key : tempData.keySet()) {
+                try {
+                    mSeries.appendData(new DataPoint(key, tempData.get(key)), true, 1000);
+                } catch (Exception e) {
+
+                }
             }
         }
 

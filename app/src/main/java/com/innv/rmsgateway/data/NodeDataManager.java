@@ -3,6 +3,7 @@ package com.innv.rmsgateway.data;
 import android.widget.ListView;
 
 import com.innv.rmsgateway.R;
+import com.innv.rmsgateway.classes.NotificationManager;
 import com.innv.rmsgateway.classes.Profile;
 import com.innv.rmsgateway.classes.ProfileManager;
 import com.innv.rmsgateway.sensornode.SensorNode;
@@ -19,7 +20,7 @@ import java.util.TreeMap;
 public class NodeDataManager {
 
 
-    static Map<String, List<SensorNode>> allNodesData = new HashMap<>();
+    static TreeMap<String, List<SensorNode>> allNodesData = new TreeMap<>();
 
     public static boolean isStopUpdates() {
         return stopUpdates;
@@ -92,8 +93,8 @@ public class NodeDataManager {
     }
 
 
-    public static void SaveSensorNodeData(String mac, double temp,int humidity, int rssi){
-        SensorNode node = getNodeFromMac(mac);
+/*    public static void SaveSensorNodeData(String mac, double temp,int humidity, int rssi){
+        SensorNode node = getPrecheckedNodeFromMac(mac);
         if(node != null){
             node.setLastUpdatedOn(new Date());
             node.setTemperature(temp);
@@ -103,11 +104,20 @@ public class NodeDataManager {
             SaveSensorNodeData(node);
             LogSensorNodeData(node);
         }
+    }*/
+
+    public static void UpdateNodeData(SensorNode node, boolean logdata){
+        if(node != null){
+            SaveSensorNodeData(node);
+            if(logdata) {
+                LogSensorNodeData(node);
+            }
+        }
     }
 
 
-    public static SensorNode getNodeFromMac(String mac){
-        for(SensorNode node : allNodesData.get("All")){
+    public static SensorNode getPrecheckedNodeFromMac(String mac){
+        for(SensorNode node : getPreCheckedNodes()){
             if(node.getMacID().equals(mac)){
                 return node;
             }
@@ -116,7 +126,17 @@ public class NodeDataManager {
     }
 
 
-    public static void SaveSensorNodeData(SensorNode node, boolean... forceUpdate){
+    public static SensorNode getAllNodeFromMac(String mac){
+        for(SensorNode node : getAllNodesLst()){
+            if(node.getMacID().equals(mac)){
+                return node;
+            }
+        }
+        return null;
+    }
+
+
+    private static void SaveSensorNodeData(SensorNode node, boolean... forceUpdate){
         if(forceUpdate.length == 0) {
             if (stopUpdates)
                 return;
