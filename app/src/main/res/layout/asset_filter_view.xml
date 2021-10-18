@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+<RelativeLayout
+
+-->
+
+<!--    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_weight="1"
+    android:layout_margin="10dp">-->
+
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/filter"
+    android:layout_height="wrap_content"
+    android:layout_width="100dp"
+    android:layout_margin="7dp"
+    android:backgroundTint="@color/card_background_color_lite"
+    app:cardCornerRadius="7dp"
+    android:orientation="vertical"
+    >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:orientation="horizontal"
+        android:weightSum="1">
+
+        <View
+            android:id="@+id/viewFilterColor"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_margin="10dp"
+            android:background="@drawable/circle_gray"
+            android:layout_gravity="center_vertical" />
+
+        <TextView
+            android:id="@+id/tvFilterText"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Normal"
+            android:layout_gravity="center_vertical"
+            android:layout_weight="1"
+            android:layout_marginEnd="7dp"
+            android:textSize="14dp"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/selected_filter"
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:weightSum="1"
+        android:background="@color/card_background_color_lite"
+        android:orientation="horizontal" />
+
+</androidx.cardview.widget.CardView>
+
+<!--
+</RelativeLayout>-->

@@ -1,49 +1,69 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+
+    android:layout_width="wrap_content"
     android:layout_height="wrap_content"
+    android:id="@+id/rl_scanning"
     android:background="#add8e6"
-    android:gravity="center"
-    >
+    android:layout_margin="3dp">
 
     <androidx.cardview.widget.CardView
-        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="5dp"
-        android:layout_toLeftOf="@+id/add_checkbox"
-        >
+        android:layout_margin="3dp">
 
         <LinearLayout
             android:id="@+id/ll_details"
             android:orientation="vertical"
+            android:gravity="center"
+
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            >
+            android:layout_height="wrap_content">
 
             <LinearLayout
                 android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                >
+                android:gravity="center">
 
-<!--                <TextView
+                <TextView
                     android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                     android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="2dp"
+                    android:text="MAC ADDRESS "
+                    android:textColor="@color/black"
+                    android:singleLine="true"/>
+
+
+                <TextView
+                    android:id="@+id/tv_address"
+                    android:layout_width="match_parent"
+                    android:layout_marginStart="8dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="bottom"
-                    android:layout_marginBottom="3dp"
-                    android:layout_marginStart="7dp"
-                    android:text="NODE NAME"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                    android:text="00:00:00:00"
                     android:textColor="@color/black"
-                    android:singleLine="true"/>-->
+                    android:ellipsize="end"
+                    android:maxLines="1" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_gravity="center"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
 
                     android:layout_height="wrap_content">
                     <EditText
+                        android:textAppearance="@style/TextAppearance.AppCompat.Small"
                         android:layout_gravity="top"
                         android:id="@+id/editTV_name"
                         android:layout_width="match_parent"
@@ -54,51 +74,21 @@
                         />
                 </com.google.android.material.textfield.TextInputLayout>
 
-
             </LinearLayout>
 
             <LinearLayout
                 android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="3dp"
                 android:gravity="center">
 
                 <TextView
                     android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                     android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-                    android:layout_marginStart="7dp"
-                    android:text="MAC ADDRESS "
-                    android:textColor="@color/black"
-                    android:singleLine="true"/>
-
-
-                <TextView
-                    android:id="@+id/tv_address"
-                    android:layout_width="match_parent"
-                    android:layout_marginStart="8dp"
-                    android:layout_height="20dp"
-                    android:layout_gravity="bottom"
-                    android:textSize="15sp"
-                    android:text="00:00:00:00"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                    />
-            </LinearLayout>
-
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="5dp"
-                android:gravity="center">
-
-                <TextView
-                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginStart="7dp"
-                    android:layout_marginEnd="5dp"
+                    android:layout_marginStart="2dp"
+                    android:layout_marginEnd="4dp"
                     android:text="Select Profile"
                     android:layout_gravity="center"
                     android:gravity="center"
@@ -106,30 +96,161 @@
                     android:singleLine="true"/>
 
                 <Spinner
-                    android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                     android:id="@+id/sp_profile"
+
                     android:layout_width="match_parent"
                     android:layout_marginStart="25dp"
-                    android:layout_height="20dp"
+                    android:layout_height="wrap_content"
                     />
 
             </LinearLayout>
 
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:id="@+id/ll_profile_details"
+                android:layout_height="wrap_content">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_weight="1"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:hint="Min Temp"
+                    android:layout_height="match_parent">
+                    <EditText
+                        android:id="@+id/et_minTemp"
+                        android:inputType="numberDecimal|numberSigned"
+                        android:digits="-.0123456789"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="left" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_weight="1"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:layout_height="match_parent">
+                    <EditText
+                        android:hint="@string/max_temp"
+                        android:id="@+id/et_maxTemp"
+                        android:inputType="numberDecimal|numberSigned"
+                        android:digits="-.0123456789"
+                        android:gravity="left"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_weight="1"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:hint="Min Humidity"
+                    android:layout_height="match_parent">
+                    <EditText
+                        android:id="@+id/et_minHumidity"
+                        android:inputType="numberDecimal|numberSigned"
+                        android:digits="-.0123456789"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="left" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_weight="1"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                    android:hint="Max Humidity"
+                    android:layout_height="match_parent">
+                    <EditText
+                        android:id="@+id/et_maxHumidity"
+                        android:inputType="numberDecimal|numberSigned"
+                        android:digits="-.0123456789"
+                        android:gravity="left"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Small"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:gravity="center"
+                android:layout_height="wrap_content">
+
+               <TextView
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:text="Add Defrost Interval"
+                   android:hint="Not Mandatory"
+                   android:textColor="@color/black"
+                   android:layout_weight="1"
+                   android:textAppearance="@style/TextAppearance.AppCompat.Medium" />
+
+                <androidx.cardview.widget.CardView
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    app:cardCornerRadius="250dp"
+                    android:layout_margin="5dp"
+                    android:layout_gravity="center"
+                    >
+
+                    <ImageView
+                        android:id="@+id/iv_addDefrostInterval"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:src="@drawable/add2"
+                        android:scaleType="centerCrop"
+                        app:tint="#006991"
+                        />
+
+                </androidx.cardview.widget.CardView>
+
+            </LinearLayout>
+
+
+            <ListView
+                android:id="@+id/lv_defrostIntervals"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+<!--                android:divider="@android:color/background_light"-->
+
+
+
+
+
+            <CheckBox
+                android:id="@+id/add_checkbox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:buttonTint="@color/black"
+                android:text="Add"
+
+                android:gravity="center" />
+
+
+
+
         </LinearLayout>
 
+
+
+
     </androidx.cardview.widget.CardView>
-
-    <CheckBox
-        android:id="@+id/add_checkbox"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentEnd="true"
-        android:buttonTint="@color/black"
-        android:layout_marginTop="40dp"
-        android:layout_marginEnd="10dp"
-        android:layout_marginBottom="10dp"
-        android:clickable="false"
-        android:focusable="false" />
-
 
 </RelativeLayout>

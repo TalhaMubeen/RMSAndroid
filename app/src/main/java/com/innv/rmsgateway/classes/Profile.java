@@ -173,6 +173,36 @@ public class Profile implements IConvertHelper {
         int endHour = 0;
         int endMinute = 0;
 
+        public boolean isEmpty(){
+            boolean ret = false;
+            if(startHour == 0 && startMinute == 0 &&
+                    endHour == 0 && endMinute == 0){
+                ret = true;
+            }
+            return ret;
+        }
+
+        public boolean isOk(){
+            boolean ret = false;
+             if(startHour!=0 && endHour != 0){
+                 ret = true;
+             }
+
+             return ret;
+        }
+
+        public DefrostTimeProfile(){ }
+
+        public DefrostTimeProfile(int startHour, int startMinute, int endHour, int endMinute){
+
+            this.startHour = startHour;
+            this.startMinute = startMinute;
+            this.endHour = endHour;
+            this.endMinute = endMinute;
+
+        }
+
+
         public Date parseDate(String date) {
 
             final String inputFormat = "HH:mm";

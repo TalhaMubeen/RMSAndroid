@@ -42,12 +42,11 @@
             android:id="@+id/list_device"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:divider="@android:color/darker_gray"
-            android:dividerHeight="0.5dp"
-            android:paddingStart="5dp"
-            android:paddingEnd="5dp"
-            android:scrollbars="none" />
+            android:padding="2dp"
+            android:layout_margin="2dp"
+            android:divider="@android:color/background_light"
+            android:dividerHeight="5dp"
+            android:scrollbars="vertical" />
 
 
     </LinearLayout>

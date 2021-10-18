@@ -1,6 +1,5 @@
 package com.innv.rmsgateway.activity;
 
-import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -10,14 +9,9 @@ import android.widget.ListView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.innv.rmsgateway.MainActivity;
 import com.innv.rmsgateway.R;
 import com.innv.rmsgateway.adapter.AllNodesAdapter;
 import com.innv.rmsgateway.data.NodeDataManager;
-import com.innv.rmsgateway.sensornode.SensorNode;
-import com.innv.rmsgateway.service.BLEBackgroundService;
-
-import java.util.List;
 
 public class AddNodesActivity extends AppCompatActivity {
 
@@ -28,7 +22,6 @@ public class AddNodesActivity extends AppCompatActivity {
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
     }
-
 
     @Override
     protected void onResume() {

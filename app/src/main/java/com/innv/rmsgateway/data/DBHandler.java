@@ -6,14 +6,12 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.provider.BaseColumns;
 import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -28,9 +26,9 @@ public class DBHandler extends SQLiteOpenHelper{
     //TABLE NAME
     private static final String TABLE_DEVICES_LOOKUPS = "devicelookup";
     private static final String TABLE_DEVICES_LOG = "devicelog";
+    private static final String TABLE_DEVICES_ALERTS = "alertsdata";
 
-    public static synchronized DBHandler getInstance(Context context)
-    {
+    public static synchronized DBHandler getInstance(Context context) {
         // Use the application context, which will ensure that you
         // don't accidentally leak an Activity's context.
         // See this article for more information: http://bit.ly/6LRzfx
@@ -66,6 +64,18 @@ public class DBHandler extends SQLiteOpenHelper{
                 + " OPTPARAM1 TEXT,"
                 + "PRIMARY KEY(ORGCODE,LISTNAME,CODE, DATE, TIMESTAMP))";
         db.execSQL(CREATE_DYNLOGLOOKUP_TABLE);
+
+        String CREATE_ALERTS_TABLE="CREATE TABLE " + TABLE_DEVICES_ALERTS
+                + " ( ORGCODE TEXT NOT NULL,"
+                + " LISTNAME  NOT NULL,"
+                + " CODE TEXT  NOT NULL,"
+                + " DATE TEXT NOT NULL,"
+                + " TIMESTAMP TEXT NOT NULL,"
+                + " ALERTTYPE TEXT NOT NULL,"
+                + " ALERTSTATUS TEXT NOT NULL,"
+                + " OPTPARAM1 TEXT,"
+                + "PRIMARY KEY(ORGCODE,LISTNAME,CODE, ALERTTYPE))";
+        db.execSQL(CREATE_ALERTS_TABLE);
     }
 
     @Override
@@ -73,6 +83,7 @@ public class DBHandler extends SQLiteOpenHelper{
         // Drop older table if existed
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_DEVICES_LOOKUPS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_DEVICES_LOG);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_DEVICES_ALERTS);
         onCreate(db);
     }
 
@@ -80,16 +91,16 @@ public class DBHandler extends SQLiteOpenHelper{
     public void onDowngrade(SQLiteDatabase db, int oldVersion, int newVersion){
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_DEVICES_LOOKUPS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_DEVICES_LOG);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_DEVICES_ALERTS);
         onCreate(db);
     }
 
-
-    public boolean clearAllData()
-    {
+    public boolean clearAllData() {
         try {
             SQLiteDatabase db = this.getWritableDatabase();
             db.execSQL("DELETE FROM " + TABLE_DEVICES_LOOKUPS);
             db.execSQL("DELETE FROM " + TABLE_DEVICES_LOG);
+            db.execSQL("DELETE FROM " + TABLE_DEVICES_ALERTS);
         }catch (Exception e)
         {
             e.printStackTrace();
@@ -99,8 +110,7 @@ public class DBHandler extends SQLiteOpenHelper{
         return  true;
     }
 
-    public void RemoveList(String listName,String orgCode)
-    {
+    public void RemoveList(String listName,String orgCode) {
         SQLiteDatabase db=this.getWritableDatabase();
         String sql="Delete from " + TABLE_DEVICES_LOOKUPS +
                 " WHERE ORGCODE='" + orgCode +"' AND "+
@@ -108,8 +118,7 @@ public class DBHandler extends SQLiteOpenHelper{
         db.execSQL(sql);
     }
 
-    public void RemoveList(String listName,String orgCode,String code)
-    {
+    public void RemoveList(String listName,String orgCode,String code) {
         SQLiteDatabase db=this.getWritableDatabase();
         String sql="Delete from " + TABLE_DEVICES_LOOKUPS +
                 " WHERE ORGCODE='" + orgCode +"' AND "+
@@ -119,9 +128,7 @@ public class DBHandler extends SQLiteOpenHelper{
         db.execSQL(sql);
     }
 
-
-    public void RemoveLogs(String listName,String orgCode,String code)
-    {
+    public void RemoveLogs(String listName,String orgCode,String code) {
         SQLiteDatabase db=this.getWritableDatabase();
         String sql="Delete from " + TABLE_DEVICES_LOG +
                 " WHERE ORGCODE='" + orgCode +"' AND "+
@@ -131,9 +138,18 @@ public class DBHandler extends SQLiteOpenHelper{
         db.execSQL(sql);
     }
 
+    public void RemoveAlerts(String listName,String orgCode,String code) {
 
-    public int AddOrUpdateList(String listName,String orgCode, String code, StaticListItem array)
-    {
+        SQLiteDatabase db=this.getWritableDatabase();
+        String sql="Delete from " + TABLE_DEVICES_ALERTS +
+                " WHERE ORGCODE='" + orgCode +"' AND "+
+                " LISTNAME='" + listName +"' AND " +
+                "code='"+ code+"'";
+
+        db.execSQL(sql);
+    }
+
+    public int AddOrUpdateList(String listName,String orgCode, String code, StaticListItem array) {
         List<StaticListItem> items = getListItems(listName, orgCode, "", "code='" + code + "'");
         if(items.size()==1)
         {
@@ -144,7 +160,7 @@ public class DBHandler extends SQLiteOpenHelper{
         }
     }
 
-    public int AddSensorLogs(String listName, String orgCode, String code, String date, String timeStamp , StaticListItem data){
+    public int AddSensorNodeLogs(String listName, String orgCode, String code, String date, String timeStamp , StaticListItem data){
         SQLiteDatabase db=this.getWritableDatabase();
         int count=0;
 
@@ -164,8 +180,65 @@ public class DBHandler extends SQLiteOpenHelper{
         return count;
     }
 
+    public int AddSensorNodeAlerts(String listName, String orgCode, String code, String date, String timeStamp, String type, String status, StaticListItem data){
+        SQLiteDatabase db=this.getWritableDatabase();
+        int count=0;
 
-    public List<StaticListItem> getSensorLogs(String listName , String orgCode , String code, String date)
+        try {
+            ContentValues values = new ContentValues();
+            values.put("ORGCODE", orgCode);
+            values.put("LISTNAME", listName);
+            values.put("CODE", code);
+            values.put("DATE", date);
+            values.put("TIMESTAMP", timeStamp);
+            values.put("ALERTTYPE", type);
+            values.put("ALERTSTATUS", status);
+            values.put("OPTPARAM1", data.getOptParam1());
+            db.insert(TABLE_DEVICES_ALERTS, null, values);
+            count++;
+        } catch (Exception e) {
+
+        }
+        return count;
+    }
+
+    public int UpdateSensorNodeAlerts(String listName,String orgCode, String code, String type, String alertStatus, StaticListItem data) {
+        SQLiteDatabase db=this.getWritableDatabase();
+        int count=0;
+        String optParam1=replaceSingleQoute(data.getOptParam1());
+
+        try {
+            String sql="UPDATE " + TABLE_DEVICES_ALERTS + " SET "
+                    + " ALERTSTATUS='" + alertStatus +"'"
+                    + ", OPTPARAM1='" + optParam1 +"'"
+                    +" WHERE ORGCODE='" + orgCode
+                    +"' AND LISTNAME='" + listName
+                    +"' AND CODE='" + code
+                    +"' AND ALERTTYPE='" + type +"'";
+            db.execSQL(sql);
+            count++;
+        }
+        catch (Exception e)
+        {
+            Log.e("UpdateList","Error:"+listName+":"+data.getCode());
+
+        }
+
+        return count;
+
+    }
+
+/*    public int AddOrUpdateNodeAlerts(String listName, String orgCode, String code,
+                                     String date, String timeStamp, String type, String alertStatus, StaticListItem data) {
+       // List<StaticListItem> items = getSensorNodeAlerts(listName, orgCode, code, prevType + code + "'");
+        if(alertStatus.length() > 0) {
+            return UpdateSensorNodeAlerts(listName, orgCode, code, type, alertStatus, data);
+        }else {
+            return AddSensorNodeAlerts(listName, orgCode, code, date, timeStamp, type, data);
+        }
+    }*/
+
+    public List<StaticListItem> getSensorNodeLogs(String listName, String orgCode, String code, String date)
     {
         List<StaticListItem> items=new ArrayList<StaticListItem>();
         String sql="SELECT * FROM  " + TABLE_DEVICES_LOG +
@@ -200,6 +273,46 @@ public class DBHandler extends SQLiteOpenHelper{
         return items;
     }
 
+    public List<StaticListItem> GetSensorNodeAlerts(String listName, String orgCode, String code, String type, String startDay, String endDay) {
+        List<StaticListItem> items=new ArrayList<StaticListItem>();
+        String sql="SELECT * FROM  " + TABLE_DEVICES_ALERTS +
+                " WHERE LISTNAME='" + listName +
+                "' AND " + " ORGCODE = '" + orgCode +"'";
+
+        if(!code.isEmpty()) {
+            sql += " AND code = '" + code + "'";
+        }
+
+        if(!type.isEmpty()) {
+            sql += " AND ALERTTYPE='" + type + "'";
+        }
+
+        if(!startDay.isEmpty() && !endDay.isEmpty()){
+            sql += " BETWEEN '" + startDay + "' AND '" + endDay + "'";
+        }
+
+        try {
+            SQLiteDatabase db=this.getReadableDatabase();
+            Cursor cursor= db.rawQuery(sql,null);
+            if(cursor.moveToFirst()) {
+                do{
+                    StaticListItem item = new StaticListItem();
+                    item.setOrgCode(cursor.getString(0));
+                    item.setListName(cursor.getString(1));
+                    item.setCode(cursor.getString(2));
+                    item.setDate(cursor.getString(3));
+                    item.setTimeStamp(cursor.getString(4));
+/*                    item.setAlertType(cursor.getString(5));*/
+                    item.setOptParam1(cursor.getString(7));
+                    items.add(item);
+
+                }while(cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return items;
+    }
 
     public int AddList(String listName,String orgCode, StaticListItem array)
     {

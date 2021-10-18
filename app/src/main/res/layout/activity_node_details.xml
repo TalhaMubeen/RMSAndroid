@@ -44,7 +44,7 @@
 
         </LinearLayout>
         <View
-            android:background="@color/white_tran"
+            android:background="@color/white"
             android:layout_width="match_parent"
             android:layout_height="1dp"/>
     </LinearLayout>
@@ -63,7 +63,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true">
         <View
-            android:background="@color/white_tran"
+            android:background="@color/white"
             android:layout_width="match_parent"
             android:layout_height="1dp"/>
 

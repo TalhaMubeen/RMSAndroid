@@ -1,10 +1,10 @@
 package com.innv.rmsgateway.sensornode;
 import android.annotation.SuppressLint;
-import android.content.Context;
-import android.se.omapi.Session;
 import android.util.Log;
 
 import com.innv.rmsgateway.R;
+import com.innv.rmsgateway.classes.AlertData;
+import com.innv.rmsgateway.classes.AlertManager;
 import com.innv.rmsgateway.classes.Profile;
 import com.innv.rmsgateway.classes.ProfileManager;
 import com.innv.rmsgateway.data.Globals;
@@ -17,6 +17,7 @@ import org.json.JSONObject;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
@@ -28,13 +29,13 @@ import static android.content.ContentValues.TAG;
  *
  */
 
-
+@SuppressLint("SimpleDateFormat")
 public class  SensorNode implements IConvertHelper {
 
     private String macID;
 
     public String getName() {
-        return name;
+        name = name.toUpperCase(); return name;
     }
 
     public void setName(String name) {
@@ -50,8 +51,36 @@ public class  SensorNode implements IConvertHelper {
     private double temperature;
     private int humidity;
     private double batteryVoltage;
-
     private String lastUpdated;
+/*    private Boolean warningStatus = false;
+    private Boolean alertStatus = false;*/
+/*    private String warningTime;
+    private String AlertTime;*/
+
+
+/*    public int getAlertCode() { return alertCode; }
+
+    private void setAlertCode(int alertCode) { this.alertCode = alertCode; }
+
+    public String getWarningTime() { return warningTime; }
+
+    public void setWarningTime(String warningTime) { this.warningTime = warningTime; }
+
+    public String getAlertTime() { return AlertTime; }
+
+    public void setAlertTime(String alertTime) { AlertTime = alertTime; }*/
+
+/*    public Boolean getWarningStatus() { return warningStatus; }
+
+    public void setWarningStatus(Boolean warningStatus) { this.warningStatus = warningStatus; }
+
+    public Boolean getAlertStatus() { return alertStatus; }
+
+    public void setAlertStatus(Boolean alertStatus) {
+        this.alertStatus = alertStatus;
+    }*/
+
+    public List<AlertData> getAlertsList (){ return AlertManager.getAlertList(getMacID()); }
 
     public Profile getProfile() {
         return profile;
@@ -61,19 +90,16 @@ public class  SensorNode implements IConvertHelper {
         this.profile = new Profile(prof);
     }
 
-    public void setProfile(Profile prof) {
-        this.profile = prof;
-    }
+    public void setProfile(Profile prof) { this.profile = prof; }
 
     private Profile profile = ProfileManager.DefaultProfile;
 
-
-    static final String DATEFORMAT = "yyyy-MM-dd HH:mm:ss";
+    public static final String DATEFORMAT = "yyyy-MM-dd HH:mm:ss";
     public static String defaultDateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS";
 
     public static Date getUTCdatetimeFromString(String dateValue) {
         try {
-            final SimpleDateFormat sdf = new SimpleDateFormat(DATEFORMAT);
+             final SimpleDateFormat sdf = new SimpleDateFormat(DATEFORMAT);
             sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
             Date dt = sdf.parse(dateValue);
             return dt;
@@ -103,7 +129,7 @@ public class  SensorNode implements IConvertHelper {
     }*/
 
     public Date ConvertToDate(String dateValue) {
-        @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("MMM-dd-yyyy");
+       SimpleDateFormat sdf = new SimpleDateFormat("MMM-dd-yyyy");
         try {
             Date d = sdf.parse(dateValue);
             return d;
@@ -163,15 +189,13 @@ public class  SensorNode implements IConvertHelper {
 
     private double rssi;
 
+    public SensorNode(){}
 
-    public SensorNode() {
-
-    }
+    public SensorNode(JSONObject obj) { parseJsonObject(obj); }
 
     public SensorNode(String mac, String profile){
         this.macID = mac;
     }
-
 
     public SensorNode(String macID, String name, String advertisingTime,
                       int timeAtWakeup, int timeSinceWakeup, int timeSlot,
@@ -223,9 +247,7 @@ public class  SensorNode implements IConvertHelper {
         return advertisingTime;
     }
 
-    public void setAdvertisingTime(String advertisingTime) {
-        this.advertisingTime = advertisingTime;
-    }
+    public void setAdvertisingTime(String advertisingTime) { this.advertisingTime = advertisingTime; }
 
     public int getTimeAtWakeup() {
         return timeAtWakeup;
@@ -259,9 +281,7 @@ public class  SensorNode implements IConvertHelper {
         this.timeSynced = timeSynced;
     }
 
-    public double getTemperature() {
-        return temperature;
-    }
+    public double getTemperature() { return temperature; }
 
     public void setTemperature(double temp) {
         this.temperature = temp;
@@ -285,7 +305,6 @@ public class  SensorNode implements IConvertHelper {
 
     @Override
     public boolean parseJsonObject(JSONObject jsonObject) {
-
         try {
             setMacID(jsonObject.optString("macID"));
             setName(jsonObject.optString("name"));
@@ -306,6 +325,9 @@ public class  SensorNode implements IConvertHelper {
             }catch (Exception e){
                 setProfile(ProfileManager.DefaultProfile);
             }
+
+/*            setWarningStatus(jsonObject.optBoolean("WarningStatus"));
+            setAlertStatus(jsonObject.optBoolean("AlertStatus"));*/
         } catch (Exception e) {
             Log.e(TAG, e.toString());
             return false;
@@ -317,27 +339,9 @@ public class  SensorNode implements IConvertHelper {
     public Boolean parseListItem(StaticListItem item) {
         try {
             JSONObject jsonObject = new JSONObject(item.getOptParam1());
-
-            setMacID(jsonObject.optString("macID"));
-            setName(jsonObject.optString("name"));
-            setAdvertisingTime(jsonObject.optString("advertisingTime"));
-            setTimeAtWakeup(jsonObject.optInt("timeAtWakeup"));
-            setTimeSinceWakeup(jsonObject.optInt("timeSinceWakeup"));
-            setTimeSlot(jsonObject.optInt("timeSlot"));
-            setTimeSynced(jsonObject.optBoolean("timeSynced"));
-            setTemperature(jsonObject.optDouble("temperature"));
-            setHumidity(jsonObject.optInt("humidity"));
-            setBatteryVoltage(jsonObject.optDouble("batteryVoltage"));
-            setRssi(jsonObject.optDouble("rssi"));
-            setPreChecked(jsonObject.optBoolean("isPreChecked"));
-            lastUpdated = jsonObject.optString("LastUpdateTime");
-            try {
-                setProfile(jsonObject.optJSONObject("Profile"));
-            }catch (Exception e){
-                setProfile(ProfileManager.DefaultProfile);
+            if(parseJsonObject(jsonObject)) {
+                return true;
             }
-            return true;
-
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -349,6 +353,7 @@ public class  SensorNode implements IConvertHelper {
     public JSONObject getJsonObject() {
         JSONObject jo = new JSONObject();
         try {
+
             jo.put("macID", getMacID());
             jo.put("name", getName());
             jo.put("advertisingTime", getAdvertisingTime());
@@ -363,6 +368,9 @@ public class  SensorNode implements IConvertHelper {
             jo.put("isPreChecked", isPreChecked());
             jo.put("LastUpdateTime", getLastUpdatedOn());
             jo.put("Profile", this.profile.getJsonObject());
+/*            jo.put("WarningStatus", getWarningStatus());
+            jo.put("AlertStatus", getAlertStatus());*/
+
         } catch (Exception e) {
             Log.e(TAG, e.toString());
             jo = null;
@@ -370,8 +378,6 @@ public class  SensorNode implements IConvertHelper {
 
         return jo;
     }
-
-
 }
 
 /**

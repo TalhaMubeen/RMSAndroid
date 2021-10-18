@@ -1,9 +1,9 @@
 package com.innv.rmsgateway.data;
 
-import android.widget.ListView;
-
 import com.innv.rmsgateway.R;
-import com.innv.rmsgateway.classes.NotificationManager;
+import com.innv.rmsgateway.classes.AlertData;
+import com.innv.rmsgateway.classes.AlertManager;
+import com.innv.rmsgateway.classes.AlertTypes;
 import com.innv.rmsgateway.classes.Profile;
 import com.innv.rmsgateway.classes.ProfileManager;
 import com.innv.rmsgateway.sensornode.SensorNode;
@@ -11,10 +11,8 @@ import com.innv.rmsgateway.sensornode.SensorNode;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.TreeMap;
 
 public class NodeDataManager {
@@ -50,6 +48,10 @@ public class NodeDataManager {
             }
         }
 
+
+        //Loading Alerts Data
+        AlertManager.parseListItems(getAllAlertList());
+
     }
 
     public static void AddDummyDatainDB(){
@@ -70,6 +72,7 @@ public class NodeDataManager {
 
 
     public static void AddNodeToDB(String name, String macAddress, Profile profile){
+        name = name.toUpperCase();
         SensorNode sn1 = new SensorNode(
                 macAddress, name, "0:00am", 0,
                 0, 0, true, 0.0,
@@ -92,7 +95,6 @@ public class NodeDataManager {
         return  dataSaved;
     }
 
-
 /*    public static void SaveSensorNodeData(String mac, double temp,int humidity, int rssi){
         SensorNode node = getPrecheckedNodeFromMac(mac);
         if(node != null){
@@ -109,6 +111,7 @@ public class NodeDataManager {
     public static void UpdateNodeData(SensorNode node, boolean logdata){
         if(node != null){
             SaveSensorNodeData(node);
+
             if(logdata) {
                 LogSensorNodeData(node);
             }
@@ -148,7 +151,7 @@ public class NodeDataManager {
         if(forceUpdate.length > 0) {
             SimpleDateFormat sdf = new SimpleDateFormat("MMM-dd-yyyy", Locale.getDefault());
             String dateToday = sdf.format(new Date());
-            Globals.db.AddSensorLogs(Globals.dbContext.getString(R.string.RMS_DEVICES), Globals.orgCode, node.getMacID(), dateToday, node.getLastUpdatedOn(), item);
+            Globals.db.AddSensorNodeLogs(Globals.dbContext.getString(R.string.RMS_DEVICES), Globals.orgCode, node.getMacID(), dateToday, node.getLastUpdatedOn(), item);
         }
 
         AddorUpdateData(node);
@@ -192,7 +195,7 @@ public class NodeDataManager {
         String dateToday = sdf.format(new Date());
 
         StaticListItem item = node.getDataAsStaticListItem();
-        Globals.db.AddSensorLogs(
+        Globals.db.AddSensorNodeLogs(
                 Globals.dbContext.getString(R.string.RMS_DEVICES),
                 Globals.orgCode,
                 node.getMacID(),
@@ -226,19 +229,75 @@ public class NodeDataManager {
         SimpleDateFormat sdf = new SimpleDateFormat("MMM-dd-yyyy", Locale.getDefault());
         String dateToday = sdf.format(new Date());
 
-        List<StaticListItem> dataSaved =  Globals.db.getSensorLogs(Globals.dbContext.getString(R.string.RMS_DEVICES), Globals.orgCode, mac, dateToday);
+        List<StaticListItem> dataSaved =  Globals.db.getSensorNodeLogs(Globals.dbContext.getString(R.string.RMS_DEVICES), Globals.orgCode, mac, dateToday);
 
 
         return  dataSaved;
+    }
+
+    public static List<StaticListItem> getTodaysAlertList(){
+        SimpleDateFormat sdf = new SimpleDateFormat("MMM-dd-yyyy", Locale.getDefault());
+        String dateToday = sdf.format(new Date());
+
+        List<StaticListItem> alertsLsit = Globals.db.GetSensorNodeAlerts(
+                Globals.dbContext.getString(R.string.RMS_DEVICES),
+                Globals.orgCode,
+                "",
+                "",
+                dateToday,
+                dateToday);
+        return alertsLsit;
+    }
+
+    public static List<StaticListItem> getAllAlertList(){
+        List<StaticListItem> alertsLsit = Globals.db.GetSensorNodeAlerts(
+                Globals.dbContext.getString(R.string.RMS_DEVICES),
+                Globals.orgCode,
+                "",
+                "",
+                "",
+                "");
+        return alertsLsit;
     }
 
 
     public static void RemoveNode(SensorNode node){
         Globals.db.RemoveList(Globals.dbContext.getString(R.string.RMS_DEVICES),Globals.orgCode, node.getMacID());
         Globals.db.RemoveLogs(Globals.dbContext.getString(R.string.RMS_DEVICES),Globals.orgCode, node.getMacID());
+        Globals.db.RemoveAlerts(Globals.dbContext.getString(R.string.RMS_DEVICES),Globals.orgCode, node.getMacID());
 
         allNodesData.clear();
         init();
+    }
+
+
+    //Alerts data handling
+
+    public static void SaveAlertData(AlertData data){
+
+        if(data.getAlertDay().isEmpty()) {
+            SimpleDateFormat sdf = new SimpleDateFormat("MMM-dd-yyyy", Locale.getDefault());
+            String dateToday = sdf.format(new Date());
+            data.setAlertDay(dateToday);
+
+            Globals.db.AddSensorNodeAlerts(
+                    Globals.dbContext.getString(R.string.RMS_DEVICES),
+                    Globals.orgCode,
+                    data.getNodeMacAddress(),
+                    data.getAlertDay(),
+                    data.getAlertStartTimeString(),
+                    data.getTypeString(),
+                    data.getStatusString(),
+                    data.getDataAsStaticListItem());
+        }else{
+            Globals.db.UpdateSensorNodeAlerts(
+                    Globals.dbContext.getString(R.string.RMS_DEVICES),
+                    Globals.orgCode,
+                    data.getNodeMacAddress(),
+                    data.getTypeString(),
+                    data.getStatusString(),
+                    data.getDataAsStaticListItem());
+        }
     }
 
 }

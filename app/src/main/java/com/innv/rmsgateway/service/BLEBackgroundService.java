@@ -1,8 +1,6 @@
 package com.innv.rmsgateway.service;
 
-import android.app.ActivityManager;
 import android.app.Service;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Binder;
@@ -10,32 +8,23 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
 import android.util.Log;
-import android.view.View;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 import com.innv.rmsgateway.BleManager;
-import com.innv.rmsgateway.R;
 import com.innv.rmsgateway.callback.BleScanCallback;
+import com.innv.rmsgateway.classes.AlertManager;
 import com.innv.rmsgateway.data.BleDevice;
 import com.innv.rmsgateway.data.NodeDataManager;
 import com.innv.rmsgateway.scan.BleScanRuleConfig;
 import com.innv.rmsgateway.sensornode.SensorDataDecoder;
 import com.innv.rmsgateway.sensornode.SensorNode;
 
-import org.w3c.dom.Node;
-
-import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 public class BLEBackgroundService extends Service {
 
@@ -190,6 +179,7 @@ public class BLEBackgroundService extends Service {
                         node.setLastUpdatedOn(new Date());
 
                         NodeDataManager.UpdateNodeData(node, true);
+                        AlertManager.onSensorNodeDataRcvd(node);
 
                         for (String name : onBLEUpdateCallbacks.keySet()) {
                             onBLEUpdateCallbacks.get(name).onBLEDeviceCallback(bleDevice);

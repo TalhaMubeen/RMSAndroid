@@ -1,19 +1,17 @@
-package com.innv.rmsgateway.adapter;
+package com.innv.rmsgateway.classes;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.content.res.ColorStateList;
 import android.os.Handler;
-import android.util.AttributeSet;
 import android.view.View;
 
-import com.innv.rmsgateway.MainActivity;
+import com.innv.rmsgateway.AssetsActivity;
 import com.innv.rmsgateway.sensornode.SensorNode;
 
-import java.util.Locale;
+import java.util.List;
 
 
-public class TextViewTimeCounter extends androidx.appcompat.widget.AppCompatTextView {
+public class UpdateCounter/* extends androidx.appcompat.widget.AppCompatTextView*/ {
     private long mStartTime = 0;
     private long mTimeNow = 0;
     private long mDelay = 0;
@@ -21,22 +19,27 @@ public class TextViewTimeCounter extends androidx.appcompat.widget.AppCompatText
     private String mPart2 = "";
     private Handler mHandler;
     private View colorView;
+    private List<AlertData> alerts;
+    private String mac;
 
-    public TextViewTimeCounter(Context context) {
+/*    public TextViewTimeCounter(Context context) {
         super(context, null, 0);
-    }
+    }*/
 
+/*
     public TextViewTimeCounter(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
+*/
 
-    public TextViewTimeCounter(Context context, AttributeSet attrs, int defStyle) {
+/*    public TextViewTimeCounter(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
-    }
+    }*/
 
     public void startTimer(SensorNode data, View view, long delay, String part1, String part2) {
-
-        mStartTime = data.getLastUpdatedDate().getTime();// System.currentTimeMillis();
+        alerts = data.getAlertsList();
+        mac = data.getMacID();
+        mStartTime = data.getLastUpdatedDate().getTime();
         mTimeNow = System.currentTimeMillis();
         mDelay = delay;
         mHandler = new Handler();
@@ -44,8 +47,10 @@ public class TextViewTimeCounter extends androidx.appcompat.widget.AppCompatText
         mPart2 = part2;
         convertDatesToMinutes(mStartTime, mTimeNow);
         mHandler.postDelayed(r, delay);
+
     }
     public void updateStartTime(SensorNode data){
+        alerts = data.getAlertsList();
         mStartTime = data.getLastUpdatedDate().getTime();
     }
 
@@ -59,7 +64,7 @@ public class TextViewTimeCounter extends androidx.appcompat.widget.AppCompatText
     }
 
     public boolean isTimerRunning() {
-        return mHandler == null ? false : true;
+        return mHandler != null;
     }
 
 
@@ -85,13 +90,25 @@ public class TextViewTimeCounter extends androidx.appcompat.widget.AppCompatText
         long minute = (secs / (1000 * 60)) % 60;
         long hour = (secs / (1000 * 60 * 60)) % 24;
         long days = (secs / (1000 * 60 * 60 * 24));
+
         if (minute >= 6 || hour > 0 || days > 0) {
-            colorView.setBackgroundTintList(ColorStateList.valueOf(MainActivity.NODE_INACTIVE));
+            colorView.setBackgroundTintList(ColorStateList.valueOf(AssetsActivity.INACTIVE));
+            AlertManager.setAlertStatus(mac, AlertData.AlertStatus.Offline);
         } else {
-            colorView.setBackgroundTintList(ColorStateList.valueOf(MainActivity.NODE_ACTIVE));
+
+            int color = AssetsActivity.NORMAL;
+            for (AlertData alert : alerts) {
+                if (alert.getStatus().equals(AlertData.AlertStatus.Alert)) {
+                    color = AssetsActivity.ALERT;
+                    break;
+                } else if (alert.getStatus().equals(AlertData.AlertStatus.Warning)) {
+                    color = AssetsActivity.WARNING;
+                }
+            }
+            colorView.setBackgroundTintList(ColorStateList.valueOf(color));
         }
 
-        if(days>0){
+/*        if(days>0){
             String time = String.format(Locale.getDefault(), "%2d days", days);
             setText(time + mPart2);
         }else {
@@ -105,6 +122,6 @@ public class TextViewTimeCounter extends androidx.appcompat.widget.AppCompatText
 
             time += String.format(Locale.getDefault(), " %2ds", second);
             setText(mPart1 + time + mPart2);
-        }
+        }*/
     }
 }

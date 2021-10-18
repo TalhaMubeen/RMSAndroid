@@ -21,7 +21,7 @@
         android:layout_marginLeft="20dp"
         android:layout_toRightOf="@+id/temp_image"
         android:text="Sensor Node"
-        android:textColor="@color/innv_navy"
+        android:textColor="@color/color_offline"
         android:textSize="15dp"
         android:textStyle="bold" />
 

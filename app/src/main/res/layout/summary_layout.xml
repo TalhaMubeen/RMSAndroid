@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/color_alert"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/my_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:elevation="4dp"
+        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
+        app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+
+        <TextView
+            android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="20dp"
+            android:textColor="#fff"
+            android:text="Summary View"
+            />
+
+    </androidx.appcompat.widget.Toolbar>
+
+    <LinearLayout
+        android:layout_marginTop="4dp"
+        android:layout_width="match_parent"
+        android:layout_weight="1"
+        android:orientation="horizontal"
+        android:background="@color/card_background_color_lite"
+        android:layout_height="match_parent">
+
+        <GridView
+            android:id="@+id/gv_rms_categories"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:horizontalSpacing="20dp"
+            android:verticalSpacing="20dp"
+            android:layout_margin="10dp"
+            android:numColumns="2"
+            android:scrollbarAlwaysDrawHorizontalTrack="true"
+            android:scrollbars="horizontal" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_marginTop="1dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal"
+        android:background="@color/card_background_color_lite"
+        android:layout_weight="1.1"
+        android:baselineAligned="false">
+
+        <LinearLayout
+            android:layout_marginEnd="3dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="2"
+            android:orientation="vertical"
+            android:background="@android:color/darker_gray"
+
+            tools:ignore="NestedWeights">
+
+            <LinearLayout
+                android:layout_margin="5dp"
+                android:layout_width="match_parent"
+                android:orientation="vertical"
+                android:background="@color/white"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/rms_icon"
+                    android:adjustViewBounds="true"
+                    android:scaleType="fitCenter"
+                     android:paddingLeft="20dp"
+                    android:paddingRight="20dp"
+                    android:paddingTop="20dp" />
+
+                <TextView
+                    android:gravity="top"
+                    android:layout_width="wrap_content"
+                    android:layout_gravity="top|center"
+                    android:layout_height="wrap_content"
+                    android:text="RMS"
+                    android:textSize="30sp"
+                    android:maxLines="1"
+                    android:textColor="@color/color_alert"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_reports"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:layout_height="wrap_content"
+                android:background="@color/color_dark_grey">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/reports"
+                    android:adjustViewBounds="true"
+                    android:scaleType="fitCenter"
+                    android:paddingRight="10dp"
+                    android:paddingLeft="10dp"
+                    android:layout_gravity="bottom|center"
+                    android:layout_weight="2"
+                    tools:ignore="NestedWeights"
+                    android:background="@color/white"
+                    android:layout_marginBottom="5dp" />
+
+                    <TextView
+                        android:gravity="center"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:text="Reports"
+                        android:background="@color/color_offline"
+                        android:textSize="15sp"
+                        android:maxLines="1"
+                        android:textColor="@color/white"
+                        android:layout_weight = "1"
+                        android:layout_marginBottom="5dp" />
+
+                </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_assets"
+                android:background="@color/color_dark_grey"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                     android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/defrost_icon"
+                    android:adjustViewBounds="true"
+                    android:scaleType="fitCenter"
+                    android:paddingRight="10dp"
+                    android:paddingLeft="10dp"
+                    android:layout_gravity="bottom|center"
+                    android:layout_weight="2"
+                    tools:ignore="NestedWeights"
+                    android:background="@color/white"
+                    android:layout_marginBottom="5dp"/>
+
+                <TextView
+                    android:gravity="center"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="Assets"
+                    android:background="@color/color_normal"
+                    android:textSize="15sp"
+                    android:maxLines="1"
+                    android:textColor="@color/white"
+                    android:layout_weight = "1"
+                    android:layout_marginBottom="5dp"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_settings"
+                android:background="@color/color_dark_grey"
+                android:layout_margin="5dp"
+                android:layout_weight="1"
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:layout_height="wrap_content">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/settings"
+                    android:adjustViewBounds="true"
+                    android:scaleType="fitCenter"
+                    android:paddingRight="10dp"
+                    android:paddingLeft="10dp"
+                    android:layout_gravity="bottom|center"
+                    android:layout_weight="2"
+                    tools:ignore="NestedWeights"
+                    android:background="@color/white"
+                    android:layout_marginBottom="5dp"/>
+
+                <TextView
+                    android:gravity="center"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="Settings"
+                    android:background="@color/color_defrost"
+                    android:textSize="15sp"
+                    android:maxLines="1"
+                    android:textColor="@color/white"
+                    android:layout_weight = "1"
+                    android:layout_marginBottom="5dp"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:background="@android:color/white"
+            android:layout_marginStart="2dp"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1">
+
+            <GridView
+                android:id="@+id/gv_alerts"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:horizontalSpacing="10dp"
+                android:verticalSpacing="5dp"
+                android:numColumns="2"
+                />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

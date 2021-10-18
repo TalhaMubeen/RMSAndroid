@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">RMS Sensor Logger</string>
-    <string name="rms_sensors">RMS Sensor Monitoring</string>
+    <string name="rms_sensors">RMS Assets Monitoring</string>
 
     <string name="notifyTitle">Prompt</string>
     <string name="gpsNotifyMsg">Current mobile phone scanning Bluetooth needs to open the positioning function</string>
@@ -46,5 +46,13 @@
     <string name="monitor_node">Monitor Node</string>
     <string name="scanning_nodes">Scanning RMS Nodes</string>
     <string name="confirmation">Delete RMS Node</string>
+    <string name="max_temp">Max Temp</string>
+    <string name="normal">Normal</string>
+    <string name="warning">Warning</string>
+    <string name="alert">Alert</string>
+    <string name="offline">Offline</string>
+    <string name="all">All</string>
+    <string name="defrost">Defrost</string>
+    <string name="comfail">Com. Fail</string>
 
 </resources>

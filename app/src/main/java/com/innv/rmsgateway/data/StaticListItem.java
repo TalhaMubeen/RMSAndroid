@@ -49,6 +49,17 @@ public class StaticListItem implements Serializable {
     }
 
     private String timeStamp;
+
+    public String getAlertType() {
+        return alertType;
+    }
+
+    public void setAlertType(String alertType) {
+        this.alertType = alertType;
+    }
+
+    private String alertType;
+
     private int status = 0;
     private boolean holdCode = false;
 

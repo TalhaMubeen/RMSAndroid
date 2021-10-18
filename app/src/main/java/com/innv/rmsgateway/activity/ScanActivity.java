@@ -14,6 +14,7 @@ import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.GridView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
@@ -114,7 +115,7 @@ public class ScanActivity extends AppCompatActivity implements View.OnClickListe
         mDeviceAdapter = new SensorNodeAdapter(this);
         mDeviceAdapter.addDevices(BLEBackgroundService.getScannedBLEDeviceList());
 
-        ListView listView_device = (ListView) findViewById(R.id.list_device);
+        GridView listView_device = (GridView) findViewById(R.id.list_device);
         listView_device.setAdapter(mDeviceAdapter);
 
         Animation rotationAnimation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate);
