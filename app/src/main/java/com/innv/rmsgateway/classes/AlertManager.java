@@ -62,11 +62,16 @@ public class AlertManager {
         }
     }*/
 
-    public static  int getAlertsCount(String mac){
-        List<AlertData> ret = getAlertList(mac);
+    public static  int getAlertsCount(String mac, AlertData.NodeState status){
+        List<AlertData> ret = null;
+        if(mac.equals("All")){
+            ret = getAllNodesAlertList();
+        }else{
+            ret = getAlertList(mac);
+        }
         int count = 0;
         for(AlertData data : ret){
-            if(data.getStatus().equals(AlertData.AlertStatus.Alert)) {
+            if(data.getStatus().equals(status)) {
                 count++;
             }
         }
@@ -145,15 +150,15 @@ public class AlertManager {
                         if (nodesAlertList.get(i).getNodeMacAddress().equals(data.getMacID())) {
                             if (nodesAlertList.get(i).getType().equals(alertType)) {
 
-                                if(nodesAlertList.get(i).getStatus().equals(AlertData.AlertStatus.Offline)){
-                                    nodesAlertList.get(i).setStatus(AlertData.AlertStatus.Normal);
+                                if(nodesAlertList.get(i).getStatus().equals(AlertData.NodeState.Offline)){
+                                    nodesAlertList.get(i).setStatus(AlertData.NodeState.Normal);
                                 }
 
                                 switch (nodesAlertList.get(i).getStatus()) {
                                     case Alert:
                                         break;
                                     case Normal:
-                                        nodesAlertList.get(i).setStatus(AlertData.AlertStatus.Warning);
+                                        nodesAlertList.get(i).setStatus(AlertData.NodeState.Warning);
                                         break;
                                     case Warning:
                                         long start = nodesAlertList.get(i).getAlertStartTime().getTime();
@@ -164,8 +169,8 @@ public class AlertManager {
                                         }
                                         long minute = (elapsedSec / (1000 * 60)) % 60;
                                         if (minute >= 10) {
-                                            AlertData.AlertStatus status = nodesAlertList.get(i).getStatus();
-                                            nodesAlertList.get(i).setStatus(AlertData.AlertStatus.Alert);
+                                            AlertData.NodeState status = nodesAlertList.get(i).getStatus();
+                                            nodesAlertList.get(i).setStatus(AlertData.NodeState.Alert);
                                             NodeDataManager.SaveAlertData(nodesAlertList.get(i)); // Adding alert into db as Warning -> Alert
 /*                                            node.setWarningStatus(false);
                                             node.setAlertStatus(true);*/
@@ -182,7 +187,7 @@ public class AlertManager {
                     }
 
                     if (!alertExists) {
-                        AlertData alert = new AlertData(data.getMacID(), alertType, AlertData.AlertStatus.Warning, new Date());
+                        AlertData alert = new AlertData(data.getMacID(), alertType, AlertData.NodeState.Warning, new Date());
                         nodesAlertList.add(alert);
                         NodeDataManager.SaveAlertData(alert);
 /*                        if (!node.getAlertStatus()) {
@@ -198,14 +203,16 @@ public class AlertManager {
             if (updateData) {
               //  List<AlertData> alerts = getAlertList(data.getMacID());
                // NodeDataManager.UpdateNodeData(node, false);
-                alertCallback.updateData();
+                if(alertCallback!= null) {
+                    alertCallback.updateData();
+                }
             }
 
         }
         else{//Save alert end here
             for (int i = 0; i < nodesAlertList.size(); i++) {
                 if (nodesAlertList.get(i).getNodeMacAddress().equals(data.getMacID())) {
-                    nodesAlertList.get(i).setStatus(AlertData.AlertStatus.Normal);
+                    nodesAlertList.get(i).setStatus(AlertData.NodeState.Normal);
                     nodesAlertList.get(i).setAlertEndTime(new Date());
 
                     AlertData alertData  = nodesAlertList.get(i);
@@ -261,7 +268,7 @@ public class AlertManager {
         return retAlertTypess;
     }
 
-    public static void setAlertStatus(String mac, AlertData.AlertStatus offline) {
+    public static void setAlertStatus(String mac, AlertData.NodeState offline) {
 
         for (int i = 0; i < nodesAlertList.size(); i++) {
             if(nodesAlertList.get(i).getNodeMacAddress().equals(mac) &&

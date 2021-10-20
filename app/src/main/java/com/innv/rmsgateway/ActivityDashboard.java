@@ -32,6 +32,8 @@ import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import com.innv.rmsgateway.classes.AlertData;
+import com.innv.rmsgateway.classes.AlertManager;
 import com.innv.rmsgateway.data.BleDevice;
 import com.innv.rmsgateway.data.Globals;
 import com.innv.rmsgateway.data.NodeDataManager;
@@ -154,12 +156,16 @@ public class ActivityDashboard extends AppCompatActivity implements OnBLEDeviceC
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(ActivityDashboard.this, AssetsActivity.class);
+                    intent.putExtra("Filter", 0); //All Nodes
+                    intent.putExtra("ShowOne", false);
                     startActivity(intent);
                 }
             });
 
             LinearLayout ll_settings = (LinearLayout) findViewById(R.id.ll_settings);
 
+        }else{
+            gv_alertsAdapter.notifyDataSetChanged();
         }
 
     }
@@ -303,39 +309,52 @@ public class ActivityDashboard extends AppCompatActivity implements OnBLEDeviceC
             ImageView iv_alert_icon = (ImageView) alert_view.findViewById(R.id.iv_alert_icon);
             LinearLayout ll_bg_color = (LinearLayout) alert_view.findViewById(R.id.ll_bg_color);
             TextView tv_alert_title = (TextView) alert_view.findViewById(R.id.tv_alert_title);
-
+            int alertsCount;
             switch (position) {
                 case 0 :
+                    alertsCount = AlertManager.getAlertsCount("All", AlertData.NodeState.Alert);
+                    tv_total_nodes_count.setText(Integer.toString(alertsCount));
                     iv_alert_icon.setBackgroundResource(R.drawable.alert);
                     ll_bg_color.setBackgroundColor(ContextCompat.getColor(context, R.color.color_alert));
                     tv_total_nodes_count.setTextColor(ContextCompat.getColor(context, R.color.color_alert));
                     break;
 
                 case 1:
+                    alertsCount = AlertManager.getAlertsCount("All", AlertData.NodeState.Warning);
+                    tv_total_nodes_count.setText(Integer.toString(alertsCount));
                     iv_alert_icon.setBackgroundResource(R.drawable.warning);
                     ll_bg_color.setBackgroundColor(ContextCompat.getColor(context, R.color.color_warning));
                     tv_total_nodes_count.setTextColor(ContextCompat.getColor(context, R.color.color_warning));
                     break;
 
                 case 2:
+                    alertsCount = AlertManager.getAlertsCount("All", AlertData.NodeState.Normal);
+                    tv_total_nodes_count.setText(Integer.toString(alertsCount));
                     iv_alert_icon.setBackgroundResource(R.drawable.ok_icon);
                     ll_bg_color.setBackgroundColor(ContextCompat.getColor(context, R.color.color_normal));
                     tv_total_nodes_count.setTextColor(ContextCompat.getColor(context, R.color.color_normal));
                     break;
 
                 case 3:
+/*                    alertsCount = AlertManager.getAlertsCount("All", AlertData.AlertStatus.Alert);*/
+                    tv_total_nodes_count.setText(Integer.toString(0));
+
                     iv_alert_icon.setBackgroundResource(R.drawable.defrost_icon_white);
                     ll_bg_color.setBackgroundColor(ContextCompat.getColor(context, R.color.color_defrost));
                     tv_total_nodes_count.setTextColor(ContextCompat.getColor(context, R.color.color_defrost));
                     break;
 
                 case 4:
+                    alertsCount = AlertManager.getAlertsCount("All", AlertData.NodeState.Offline);
+                    tv_total_nodes_count.setText(Integer.toString(alertsCount));
                     iv_alert_icon.setBackgroundResource(R.drawable.offline_icon_white);
                     ll_bg_color.setBackgroundColor(ContextCompat.getColor(context, R.color.color_offline));
                     tv_total_nodes_count.setTextColor(ContextCompat.getColor(context, R.color.color_offline));
                     break;
 
                 case 5:
+/*                    alertsCount = AlertManager.getAlertsCount("All", AlertData.AlertStatus.Alert);*/
+                    tv_total_nodes_count.setText(Integer.toString(0));
                     iv_alert_icon.setBackgroundResource(R.drawable.offline_icon_white);
                     ll_bg_color.setBackgroundColor(ContextCompat.getColor(context, R.color.color_dark_grey));
                     tv_total_nodes_count.setTextColor(ContextCompat.getColor(context, R.color.color_dark_grey));
@@ -344,6 +363,19 @@ public class ActivityDashboard extends AppCompatActivity implements OnBLEDeviceC
                 default:
                     break;
             }
+
+            if(position != 3 && position != 5) {
+
+                ll_bg_color.setOnClickListener(new View.OnClickListener() {
+                    public void onClick(View v) {
+                        Intent intent = new Intent(ActivityDashboard.this, AssetsActivity.class);
+                        intent.putExtra("Filter", position + 1);
+                        intent.putExtra("ShowOne", true);
+                        startActivity(intent);
+                    }
+                });
+            }
+
             tv_alert_title.setText((int)getItem(position));
 
             return alert_view;

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">RMS Sensor Logger</string>
+    <string name="app_name">RMS</string>
     <string name="rms_sensors">RMS Assets Monitoring</string>
 
     <string name="notifyTitle">Prompt</string>

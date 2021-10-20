@@ -1,6 +1,5 @@
 package com.innv.rmsgateway.classes;
 
-import android.annotation.SuppressLint;
 import android.util.Log;
 
 import com.innv.rmsgateway.R;
@@ -21,11 +20,13 @@ import static android.content.ContentValues.TAG;
 
 public class AlertData implements IConvertHelper {
 
-    public enum AlertStatus implements Serializable {
-        Normal,
-        Warning,
+    public enum NodeState implements Serializable {
         Alert,
+        Warning,
+        Normal,
+        Defrost,
         Offline,
+        ComFailure,
     }
 
     public StaticListItem getDataAsStaticListItem() {
@@ -46,7 +47,7 @@ public class AlertData implements IConvertHelper {
     AlertTypes type;
     String alertStartTime = "";
     String alertEndTime = "";
-    AlertStatus status;
+    NodeState status;
     String alertDay = "";
     String nodeMacAddress = "";
 
@@ -66,11 +67,11 @@ public class AlertData implements IConvertHelper {
         this.nodeMacAddress = nodeMacAddress;
     }
 
-    public AlertStatus getStatus() { return status; }
+    public NodeState getStatus() { return status; }
 
     public String getStatusString() { return status.name(); }
 
-    public void setStatus(AlertStatus status) { this.status = status; }
+    public void setStatus(NodeState status) { this.status = status; }
 
     public String getTypeString() { return type.name(); }
 
@@ -135,7 +136,7 @@ public class AlertData implements IConvertHelper {
         parseJsonObject(obj);
     }
 
-    public AlertData(String mac, AlertTypes type, AlertStatus status,  Date alertStartTime) {
+    public AlertData(String mac, AlertTypes type, NodeState status, Date alertStartTime) {
         this.nodeMacAddress = mac;
         this.type = type;
         this.status = status;
@@ -149,7 +150,7 @@ public class AlertData implements IConvertHelper {
             setType(AlertTypes.valueOf(jsonObject.optString("AlertTypes")));
             setAlertStartTimeString(jsonObject.optString(("AlertStartTime")));
             setAlertEndTimeString(jsonObject.optString(("AlertEndTime")));
-            setStatus(AlertStatus.valueOf(jsonObject.optString(("AlertStatus"))));
+            setStatus(NodeState.valueOf(jsonObject.optString(("AlertStatus"))));
             setAlertDay(jsonObject.optString(("AlertDay")));
         } catch (Exception e) {
             Log.e(TAG, e.toString());

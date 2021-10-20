@@ -52,6 +52,7 @@ public class UpdateCounter/* extends androidx.appcompat.widget.AppCompatTextView
     public void updateStartTime(SensorNode data){
         alerts = data.getAlertsList();
         mStartTime = data.getLastUpdatedDate().getTime();
+        convertDatesToMinutes(mStartTime, mTimeNow);
     }
 
 
@@ -93,15 +94,15 @@ public class UpdateCounter/* extends androidx.appcompat.widget.AppCompatTextView
 
         if (minute >= 6 || hour > 0 || days > 0) {
             colorView.setBackgroundTintList(ColorStateList.valueOf(AssetsActivity.INACTIVE));
-            AlertManager.setAlertStatus(mac, AlertData.AlertStatus.Offline);
+            AlertManager.setAlertStatus(mac, AlertData.NodeState.Offline);
         } else {
 
             int color = AssetsActivity.NORMAL;
             for (AlertData alert : alerts) {
-                if (alert.getStatus().equals(AlertData.AlertStatus.Alert)) {
+                if (alert.getStatus().equals(AlertData.NodeState.Alert)) {
                     color = AssetsActivity.ALERT;
                     break;
-                } else if (alert.getStatus().equals(AlertData.AlertStatus.Warning)) {
+                } else if (alert.getStatus().equals(AlertData.NodeState.Warning)) {
                     color = AssetsActivity.WARNING;
                 }
             }

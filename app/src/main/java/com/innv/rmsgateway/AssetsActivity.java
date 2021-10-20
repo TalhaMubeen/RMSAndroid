@@ -25,7 +25,6 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.innv.rmsgateway.activity.AddNodesActivity;
-import com.innv.rmsgateway.activity.GraphViewActivity;
 import com.innv.rmsgateway.classes.AlertData;
 import com.innv.rmsgateway.classes.AlertManager;
 import com.innv.rmsgateway.classes.Profile;
@@ -64,6 +63,10 @@ public class AssetsActivity extends AppCompatActivity implements View.OnClickLis
     // A reference to the service used to get BLE Updates
 
     GridViewAdapter gv_adapter;
+
+
+    static boolean showOne = false;
+    RecyclerView rvAssetFilters;
     AssetFiltersAdapter assets_adapter;
     Map<String, SensorNode> precheckedNodes;
 
@@ -72,9 +75,9 @@ public class AssetsActivity extends AppCompatActivity implements View.OnClickLis
 
     private final int[] FilterLable = new int[]{
             R.string.all,
-            R.string.normal,
-            R.string.warning,
             R.string.alert,
+            R.string.warning,
+            R.string.normal,
             R.string.offline,
     };
 
@@ -86,6 +89,16 @@ public class AssetsActivity extends AppCompatActivity implements View.OnClickLis
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        Intent intent = getIntent();
+        int filter = intent.getIntExtra("Filter", 0);
+        showOne = intent.getBooleanExtra("ShowOne", false);
+        if(filter > 3){
+            filter = filter - 1;
+        }
+
+        selectedFilterPosition = filter;
+        selectedText = getString(FilterLable[selectedFilterPosition]);
+
 
         AlertManager.setNotificationAlertCallback(this);
 
@@ -102,17 +115,11 @@ public class AssetsActivity extends AppCompatActivity implements View.OnClickLis
         UpdatePreCheckedNodes();
 
         assets_adapter = new AssetFiltersAdapter(this);
-        RecyclerView rvAssetFilters = findViewById(R.id.rvAssetFilters);
+        rvAssetFilters = findViewById(R.id.rvAssetFilters);
         rvAssetFilters.setAdapter(assets_adapter);
 
-        if(gv_adapter == null) {
-            List<SensorNode> list = NodeDataManager.getPreCheckedNodes();
-            gv_adapter = new GridViewAdapter(this, list);
-            gvDevices = (GridView) findViewById(R.id.gv_devices);
-            gvDevices.setAdapter(gv_adapter);
-        }else{
-            updateData();
-        }
+        updateData();
+
 
     }
 
@@ -124,21 +131,30 @@ public class AssetsActivity extends AppCompatActivity implements View.OnClickLis
         }
     }
 
+    private void stopUIUpdates(){
+        for (String key : counterList.keySet()) {
+            Objects.requireNonNull(counterList.get(key)).stopTimer();
+        }
+    }
+
     @Override
     protected void onStop() {
         super.onStop();
         BLEBackgroundService.removeBLEUpdateListener(this.getClass().getSimpleName());
+        stopUIUpdates();
     }
 
     @Override
     protected void onPause(){
         super.onPause();
+        stopUIUpdates();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         BLEBackgroundService.removeBLEUpdateListener(this.getClass().getSimpleName());
+        stopUIUpdates();
     }
 
     @Override
@@ -146,6 +162,7 @@ public class AssetsActivity extends AppCompatActivity implements View.OnClickLis
         switch(keyCode){
             case KeyEvent.KEYCODE_BACK:
                 BLEBackgroundService.removeBLEUpdateListener(this.getClass().getSimpleName());
+                stopUIUpdates();
                 finish();
                 return true;
         }
@@ -174,10 +191,9 @@ public class AssetsActivity extends AppCompatActivity implements View.OnClickLis
         List<AlertData> alerts =  new ArrayList<>(AlertManager.getAllNodesAlertList());
 
         switch (selectedFilterPosition) {
+            //Generic logic to deal with every kind of filter
             case 0 : //ALL
                 break;
-
-                //Generic logic to deal with every kind of filter
             case 1: //Normal
             case 2: //Warning
             case 3: //Alert
@@ -203,10 +219,16 @@ public class AssetsActivity extends AppCompatActivity implements View.OnClickLis
                 break;
         }
 
-        gv_adapter.UpdateListData(dataList);
-        gv_adapter.notifyDataSetChanged();
+        if(gv_adapter == null){
+            gv_adapter = new GridViewAdapter(this, dataList);
+            gvDevices = (GridView) findViewById(R.id.gv_devices);
+            gvDevices.setAdapter(gv_adapter);
+        }else {
 
+            gv_adapter.UpdateListData(dataList);
+            gv_adapter.notifyDataSetChanged();
 
+        }
        // assets_adapter.notifyDataSetChanged();
     }
 
@@ -228,6 +250,7 @@ public class AssetsActivity extends AppCompatActivity implements View.OnClickLis
         }
 
         public void UpdateListData(List<SensorNode> list){
+            mRMSDevices.clear();
             mRMSDevices = list;
         }
 
@@ -261,11 +284,11 @@ public class AssetsActivity extends AppCompatActivity implements View.OnClickLis
             }
 
             CardView sensor_card_view = (CardView) rmsDeviceCardView.findViewById(R.id.sensor_card_view);
-            sensor_card_view.setOnClickListener((View v) -> {
+/*            sensor_card_view.setOnClickListener((View v) -> {
                 Intent intent = new Intent(context, GraphViewActivity.class);
                 intent.putExtra("MAC", item.getMacID());
                 context.startActivity(intent);
-            });
+            });*/
 
             TextView sensor_name = (TextView) rmsDeviceCardView.findViewById(R.id.sensor_name);
             sensor_name.setText(item.getName());
@@ -296,7 +319,7 @@ public class AssetsActivity extends AppCompatActivity implements View.OnClickLis
             TextView sensor_rssi = (TextView) rmsDeviceCardView.findViewById(R.id.sensor_rssi);
             sensor_rssi.setText(Double.toString(SensorDataDecoder.round(item.getRssi(), 1))/* + " dbm"*/);
 
-            int alertsCount = AlertManager.getAlertsCount(item.getMacID());
+            int alertsCount = AlertManager.getAlertsCount(item.getMacID(), AlertData.NodeState.Alert);
 
             TextView tv_alerts = (TextView) rmsDeviceCardView.findViewById(R.id.tv_alerts);
             tv_alerts.setText(Integer.toString(alertsCount));
@@ -305,13 +328,14 @@ public class AssetsActivity extends AppCompatActivity implements View.OnClickLis
             }
 
             if(counterList.containsKey(item.getMacID())){
-                Objects.requireNonNull(counterList.get(item.getMacID())).updateStartTime(item);
-            }else{
-                View colorView = (View) rmsDeviceCardView.findViewById(R.id.colorNA);
-                UpdateCounter counter = new UpdateCounter();
-                counter.startTimer(item, colorView,  1000, "", " ago");
-                counterList.put(item.getMacID(), counter);
+                Objects.requireNonNull(counterList.get(item.getMacID())).stopTimer();
             }
+
+            View colorView = (View) rmsDeviceCardView.findViewById(R.id.colorNA);
+            UpdateCounter counter = new UpdateCounter();
+            counter.startTimer(item, colorView,  1000, "", " ago");
+            counterList.put(item.getMacID(), counter);
+
 
 /*
             TextViewTimeCounter tv_last_updated = (TextViewTimeCounter) rmsDeviceCardView.findViewById(R.id.tv_last_updated);
@@ -354,15 +378,19 @@ public class AssetsActivity extends AppCompatActivity implements View.OnClickLis
                     @Override
                     public void onClick(View v) {
 
-                        for(AssetFiltersAdapter.MyViewHolder holder : viewList){
-                            LinearLayout selection = holder.selected_filter;
-                            selection.setBackgroundColor(ContextCompat.getColor(_context,R.color.card_background_color_lite));
-                        }
+                        if(!showOne) {
 
-                        selectedFilterPosition = getAdapterPosition();
-                        selected_filter.setBackgroundColor(ContextCompat.getColor(_context,R.color.color_defrost));
-                        selectedText = tvFilterText.getText().toString();
-                        updateData();
+                            for (AssetFiltersAdapter.MyViewHolder holder : viewList) {
+                                LinearLayout selection = holder.selected_filter;
+                                selection.setBackgroundColor(ContextCompat.getColor(_context, R.color.card_background_color_lite));
+                            }
+
+                            selectedFilterPosition = getAdapterPosition();
+                            selected_filter.setBackgroundColor(ContextCompat.getColor(_context, R.color.color_defrost));
+                            selectedText = tvFilterText.getText().toString();
+                            rvAssetFilters.scrollToPosition(selectedFilterPosition);
+                            updateData();
+                        }
                     }
                 });
             }
@@ -383,6 +411,9 @@ public class AssetsActivity extends AppCompatActivity implements View.OnClickLis
 
         @Override
         public void onBindViewHolder(AssetFiltersAdapter.MyViewHolder holder, int position) {
+            if(showOne){
+                position = selectedFilterPosition;
+            }
             TextView tvFilterText = holder.tvFilterText;
             tvFilterText.setText(this._context.getResources().getString(FilterLable[position]));
             View viewFilterColor = holder.viewFilterColor;
@@ -392,13 +423,13 @@ public class AssetsActivity extends AppCompatActivity implements View.OnClickLis
                     viewFilterColor.setBackgroundTintList(ColorStateList.valueOf(Color.GRAY));
                     break;
                 case 1:
-                    viewFilterColor.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(_context, R.color.color_normal)));
+                    viewFilterColor.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(_context, R.color.color_alert)));
                     break;
                 case 2:
                     viewFilterColor.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(_context, R.color.color_warning)));
                     break;
                 case 3:
-                    viewFilterColor.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(_context, R.color.color_alert)));
+                    viewFilterColor.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(_context, R.color.color_normal)));
                     break;
                 case 4:
                     viewFilterColor.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(_context, R.color.color_offline)));
@@ -419,7 +450,7 @@ public class AssetsActivity extends AppCompatActivity implements View.OnClickLis
 
         @Override
         public int getItemCount() {
-            return FilterLable.length;
+            return showOne? 1 : FilterLable.length;
         }
     }
 
