@@ -3,7 +3,6 @@ package com.innv.rmsgateway.bluetooth;
 import android.bluetooth.BluetoothDevice;
 import android.os.Build;
 
-import com.innv.rmsgateway.BleManager;
 import com.innv.rmsgateway.data.BleDevice;
 import com.innv.rmsgateway.utils.BleLruHashMap;
 

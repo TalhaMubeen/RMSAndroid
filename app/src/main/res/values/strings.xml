@@ -43,7 +43,7 @@
     <string name="button_ok">OK</string>
     <string name="scan_rms_node">Scan RMS Node</string>
     <string name="rms_node_details">RMS Node Details</string>
-    <string name="monitor_node">Monitor Node</string>
+    <string name="monitor_node">Manage RMS Nodes</string>
     <string name="scanning_nodes">Scanning RMS Nodes</string>
     <string name="confirmation">Delete RMS Node</string>
     <string name="max_temp">Max Temp</string>
@@ -53,6 +53,6 @@
     <string name="offline">Offline</string>
     <string name="all">All</string>
     <string name="defrost">Defrost</string>
-    <string name="comfail">Com. Fail</string>
+    <string name="comfail">Com.Fail</string>
 
 </resources>

@@ -17,7 +17,6 @@ import android.widget.TextView;
 
 import com.innv.rmsgateway.R;
 import com.innv.rmsgateway.classes.Profile;
-import com.innv.rmsgateway.data.Globals;
 import com.innv.rmsgateway.data.NodeDataManager;
 import com.innv.rmsgateway.data.StaticListItem;
 import com.innv.rmsgateway.sensornode.SensorNode;
@@ -150,6 +149,7 @@ public class AllNodesAdapter extends BaseAdapter {
                     item.setPreChecked(false);
                 }
                 NodeDataManager.UpdateNodeData(item, false);
+                NodeDataManager.updateAlertManager();
             }
         });
         return nodeView;

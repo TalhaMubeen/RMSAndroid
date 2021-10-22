@@ -1,4 +1,4 @@
-package com.innv.rmsgateway;
+package com.innv.rmsgateway.bluetooth;
 
 import android.annotation.TargetApi;
 import android.app.Application;
@@ -16,9 +16,6 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Looper;
 
-import com.innv.rmsgateway.bluetooth.BleBluetooth;
-import com.innv.rmsgateway.bluetooth.MultipleBluetoothController;
-import com.innv.rmsgateway.bluetooth.SplitWriter;
 import com.innv.rmsgateway.callback.BleGattCallback;
 import com.innv.rmsgateway.callback.BleIndicateCallback;
 import com.innv.rmsgateway.callback.BleMtuChangedCallback;

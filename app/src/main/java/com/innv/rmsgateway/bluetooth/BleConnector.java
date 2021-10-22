@@ -11,7 +11,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 
-import com.innv.rmsgateway.BleManager;
 import com.innv.rmsgateway.callback.BleIndicateCallback;
 import com.innv.rmsgateway.callback.BleMtuChangedCallback;
 import com.innv.rmsgateway.callback.BleNotifyCallback;

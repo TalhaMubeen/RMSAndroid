@@ -4,7 +4,7 @@ import android.util.Log;
 
 public final class BleLog {
 
-    public static boolean isPrint = true;
+    public static boolean isPrint = false;
     private static String defaultTag = "FastBle";
 
     public static void d(String msg) {

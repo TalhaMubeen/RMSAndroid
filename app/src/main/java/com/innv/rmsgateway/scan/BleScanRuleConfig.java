@@ -1,6 +1,6 @@
 package com.innv.rmsgateway.scan;
 
-import com.innv.rmsgateway.BleManager;
+import com.innv.rmsgateway.bluetooth.BleManager;
 
 import java.util.UUID;
 

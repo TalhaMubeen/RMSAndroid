@@ -162,11 +162,11 @@ public abstract class BleScanPresenter implements BluetoothAdapter.LeScanCallbac
                 }
             }
             if (!hasFound.get()) {
-                BleLog.i("device detected  ------"
+/*                BleLog.i("device detected  ------"
                         + "  name: " + bleDevice.getName()
                         + "  mac: " + bleDevice.getMac()
                         + "  Rssi: " + bleDevice.getRssi()
-                        + "  scanRecord: " + HexUtil.formatHexString(bleDevice.getScanRecord(), true));
+                        + "  scanRecord: " + HexUtil.formatHexString(bleDevice.getScanRecord(), true));*/
 
                 //mBleDeviceList.add(bleDevice);
                 mMainHandler.post(new Runnable() {

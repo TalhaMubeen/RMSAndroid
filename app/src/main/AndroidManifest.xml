@@ -52,12 +52,24 @@
             android:screenOrientation="portrait" />
 
         <activity
-            android:name=".AssetsActivity"
+            android:name=".activity.AssetsActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 
         <activity
+            android:name=".activity.SettingsActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+
+
+        <activity
             android:name=".activity.GraphViewActivity"
+            android:label="@string/rms_node_details"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+
+        <activity
+            android:name=".activity.TypeProfileActivity"
             android:label="@string/rms_node_details"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />

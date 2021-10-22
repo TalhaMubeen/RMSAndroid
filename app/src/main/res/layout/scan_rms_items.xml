@@ -5,11 +5,12 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:id="@+id/rl_scanning"
-    android:background="#add8e6"
-    android:layout_margin="3dp">
+    android:layout_margin="1dp"
+    android:background="@color/color_offline">
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
+        android:layout_marginTop="5dp"
         android:layout_height="wrap_content"
         android:layout_margin="3dp">
 
@@ -17,48 +18,35 @@
             android:id="@+id/ll_details"
             android:orientation="vertical"
             android:gravity="center"
-
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <LinearLayout
-                android:orientation="horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center">
-
-                <TextView
-                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:layout_marginStart="2dp"
-                    android:text="MAC ADDRESS "
-                    android:textColor="@color/black"
-                    android:singleLine="true"/>
-
-
-                <TextView
-                    android:id="@+id/tv_address"
-                    android:layout_width="match_parent"
-                    android:layout_marginStart="8dp"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="bottom"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                    android:text="00:00:00:00"
-                    android:textColor="@color/black"
-                    android:ellipsize="end"
-                    android:maxLines="1" />
-
-            </LinearLayout>
 
             <LinearLayout
+
                 android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/iv_profileIcon"
+                    android:layout_weight="5"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/rms_icon"
+                    android:adjustViewBounds="true"
+                    android:scaleType="centerCrop"
+                    android:maxWidth="60dip"
+                    android:padding="10dp"
+                    android:background="@drawable/bg_rounded"
+                    android:backgroundTint="@color/white"
+                    android:layout_gravity="center" />
+
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_gravity="center"
+                    android:layout_weight="1"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
 
                     android:layout_height="wrap_content">
@@ -68,7 +56,7 @@
                         android:id="@+id/editTV_name"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:hint="Input RMS Node Name"
+                        android:hint="Input Node Name"
                         android:ellipsize="end"
                         android:maxLines="1"
                         />
@@ -76,19 +64,61 @@
 
             </LinearLayout>
 
+
             <LinearLayout
                 android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="3dp"
+                android:padding="1dp"
+                android:layout_margin="1dp"
+                android:background="@drawable/dropdown_bg"
                 android:gravity="center">
 
                 <TextView
                     android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
+                    android:background="@color/white"
                     android:layout_height="match_parent"
                     android:layout_marginStart="2dp"
-                    android:layout_marginEnd="4dp"
+                    android:text="Mac Address"
+                    android:gravity="center"
+                    android:layout_weight="1.7"
+                    android:textColor="@color/black"
+                    android:singleLine="true"/>
+
+
+                <TextView
+                    android:background="@color/white"
+                    android:id="@+id/tv_address"
+                    android:layout_width="match_parent"
+                    android:layout_weight="1"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="bottom"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Large"
+                    android:text=""
+                    android:textColor="@color/black"
+                    android:ellipsize="end"
+                    android:maxLines="1" />
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="1dp"
+                android:layout_margin="1dp"
+                android:background="@drawable/dropdown_bg"
+                android:gravity="center">
+
+                <TextView
+                    android:background="@color/white"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="2dp"
+                    android:layout_weight="1.7"
                     android:text="Select Profile"
                     android:layout_gravity="center"
                     android:gravity="center"
@@ -96,17 +126,64 @@
                     android:singleLine="true"/>
 
                 <Spinner
-                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                     android:id="@+id/sp_profile"
-
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                    android:layout_weight="1"
                     android:layout_width="match_parent"
-                    android:layout_marginStart="25dp"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
+
+                    android:background="@android:drawable/btn_dropdown"
+                    android:layout_gravity="center"
+                    android:gravity="center"
                     />
 
             </LinearLayout>
 
             <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="1dp"
+                android:layout_margin="1dp"
+                android:background="@drawable/dropdown_bg"
+                android:gravity="center">
+
+                <TextView
+                    android:background="@color/white"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                    android:layout_width="match_parent"
+                    android:layout_weight="1.7"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="2dp"
+                    android:text="Defrost Cycle"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    android:textColor="@color/black"
+                    android:singleLine="true"/>
+
+                <Spinner
+                    android:id="@+id/sp_defrostProfile"
+                    android:background="@android:drawable/btn_dropdown"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                    android:layout_weight="1"
+
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_gravity="center"
+                    android:gravity="center"
+                    />
+
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btn_addNode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:buttonTint="@color/black"
+                android:text="Add Node"
+                android:gravity="center" />
+
+<!--            <LinearLayout
                 android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:id="@+id/ll_profile_details"
@@ -228,7 +305,7 @@
                 android:id="@+id/lv_defrostIntervals"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"/>
-<!--                android:divider="@android:color/background_light"-->
+&lt;!&ndash;                android:divider="@android:color/background_light"&ndash;&gt;
 
 
 
@@ -241,7 +318,7 @@
                 android:buttonTint="@color/black"
                 android:text="Add"
 
-                android:gravity="center" />
+                android:gravity="center" />-->
 
 
 

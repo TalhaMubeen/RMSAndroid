@@ -15,15 +15,11 @@ import android.os.IBinder;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.BaseAdapter;
 import android.widget.GridView;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -31,12 +27,19 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.GridLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
-import com.innv.rmsgateway.classes.AlertData;
+import com.innv.rmsgateway.activity.AssetsActivity;
+import com.innv.rmsgateway.activity.SettingsActivity;
+import com.innv.rmsgateway.adapter.AlertViewAdapter;
+import com.innv.rmsgateway.adapter.DeviceViewAdapter;
 import com.innv.rmsgateway.classes.AlertManager;
+import com.innv.rmsgateway.classes.Globals;
 import com.innv.rmsgateway.data.BleDevice;
-import com.innv.rmsgateway.data.Globals;
 import com.innv.rmsgateway.data.NodeDataManager;
+import com.innv.rmsgateway.interfaces.NotificationAlertsCallback;
 import com.innv.rmsgateway.sensornode.SensorNode;
 import com.innv.rmsgateway.service.BLEBackgroundService;
 import com.innv.rmsgateway.service.OnBLEDeviceCallback;
@@ -44,25 +47,18 @@ import com.innv.rmsgateway.service.OnBLEDeviceCallback;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ActivityDashboard extends AppCompatActivity implements OnBLEDeviceCallback {
+public class ActivityDashboard extends AppCompatActivity implements OnBLEDeviceCallback , NotificationAlertsCallback {
 
     private static final String TAG = "sensorScanner";
     private static final int REQUEST_CODE_OPEN_GPS = 1;
+    private static final int REQUEST_CODE_SETTINGS = 2;
     private static final int REQUEST_CODE_PERMISSION_LOCATION = 2;
     private static final int REQUEST_CODE_PERMISSION_BLUETOOTH = 3;
 
-    GridView gv_rms_categories, gv_alerts;
-    DeviceViewAdapter gv_adapter;
-    AlertsViewAdapter gv_alertsAdapter;
-
-    private final int[] AlertsLabel = new int[]{
-            R.string.alert,
-            R.string.warning,
-            R.string.normal,
-            R.string.defrost,
-            R.string.offline,
-            R.string.comfail,
-    };
+    RecyclerView rv_rms_categories;
+    GridView gv_alerts;
+    DeviceViewAdapter rv_CategoryAdapter;
+    AlertViewAdapter gv_alertsAdapter;
 
 
     @SuppressLint("StaticFieldLeak")
@@ -98,23 +94,37 @@ public class ActivityDashboard extends AppCompatActivity implements OnBLEDeviceC
 
 
     public void updateData() {
-
+        if(gv_alertsAdapter!= null) {
+            gv_alertsAdapter.notifyDataSetChanged();
+        }
+        if(rv_CategoryAdapter != null) {
+            rv_CategoryAdapter.update();
+            rv_CategoryAdapter.notifyDataSetChanged();
+        }
     }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.summary_layout);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
+        getSupportActionBar().setTitle("Summary View");
         checkPermissions();
 
         Globals.setDbContext(getApplicationContext());
-
-       // AlertManager.setNotificationAlertCallback(this);
+        AlertManager.setNotificationAlertCallback( this.getClass().getSimpleName() , this);
 
         NodeDataManager.init();
 
@@ -130,42 +140,54 @@ public class ActivityDashboard extends AppCompatActivity implements OnBLEDeviceC
         super.onResume();
 
         if (!mBound) {
-            bindService(new Intent(ActivityDashboard.this, BLEBackgroundService.class), mServiceConnection,
+            bindService(new Intent(ActivityDashboard.this, BLEBackgroundService.class),
+                    mServiceConnection,
                     Context.BIND_AUTO_CREATE);
         }
 
         BLEBackgroundService.addBLEUpdateListener(this.getClass().getSimpleName(), this);
 
-        if(gv_rms_categories == null) {
-            List<SensorNode> list = NodeDataManager.getPreCheckedNodes();
-            gv_rms_categories = (GridView) findViewById(R.id.gv_rms_categories);
-            gv_adapter = new DeviceViewAdapter(this, list);
-            gv_rms_categories.setAdapter(gv_adapter);
+        if(rv_rms_categories == null) {
 
+            rv_rms_categories = (RecyclerView) findViewById(R.id.rv_rms_categories);
+            GridLayoutManager horizontalLayoutManager =
+                    new GridLayoutManager(this, 2, GridLayoutManager.HORIZONTAL, false);
+            rv_rms_categories.setLayoutManager(horizontalLayoutManager);
 
+            rv_CategoryAdapter = new DeviceViewAdapter(this);
+            rv_rms_categories.setAdapter(rv_CategoryAdapter);
 
             gv_alerts = (GridView) findViewById(R.id.gv_alerts);
-            gv_alertsAdapter = new AlertsViewAdapter(this);
+            gv_alertsAdapter = new AlertViewAdapter(this);
             gv_alerts.setAdapter(gv_alertsAdapter);
 
             //Setting Callbacks here
             LinearLayout ll_reports = (LinearLayout) findViewById(R.id.ll_reports);
-
             LinearLayout ll_assets = (LinearLayout) findViewById(R.id.ll_assets);
             ll_assets.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Intent intent = new Intent(ActivityDashboard.this, AssetsActivity.class);
-                    intent.putExtra("Filter", 0); //All Nodes
+                    intent.putExtra("Position", -1); //All Nodes
                     intent.putExtra("ShowOne", false);
                     startActivity(intent);
                 }
             });
 
             LinearLayout ll_settings = (LinearLayout) findViewById(R.id.ll_settings);
+            ll_settings.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(ActivityDashboard.this, SettingsActivity.class);
+                    startActivity(intent);
+                }
+            });
 
         }else{
             gv_alertsAdapter.notifyDataSetChanged();
+
+            rv_CategoryAdapter.update();
+            rv_CategoryAdapter.notifyDataSetChanged();
         }
 
     }
@@ -205,183 +227,6 @@ public class ActivityDashboard extends AppCompatActivity implements OnBLEDeviceC
     @Override
     public void onBLEDeviceCallback(BleDevice device) {
         updateData();
-    }
-
-
-    static class DeviceViewAdapter extends BaseAdapter {
-
-        List<SensorNode> mRMSDevices= new ArrayList<>();
-        LayoutInflater inflater;
-        Context context;
-
-        public DeviceViewAdapter(Context ctx, List<SensorNode> list){
-            mRMSDevices = list;
-            inflater = LayoutInflater.from(ctx);
-            context = ctx;
-        }
-
-        public void UpdateListData(List<SensorNode> list){
-            mRMSDevices = list;
-        }
-
-
-        @Override
-        public int getCount() {
-            return 4;// mRMSDevices.size();
-        }
-
-        @Override
-        public SensorNode getItem(int position) {
-            return mRMSDevices.get(position);
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return position;// mRMSDevices.get(position).hashCode();
-        }
-
-
-        @SuppressLint("SetTextI18n")
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-
-            View rms_device = convertView;
-           // SensorNode item = getItem(position);
-           // Profile itemProf = item.getProfile();
-
-            if (rms_device == null) {
-                rms_device = inflater.inflate(R.layout.summary_category_item, parent, false);
-            }
-            TextView card_category_title = (TextView) rms_device.findViewById(R.id.card_category_title);
-            //card_category_title.setText(item.getName());
-
-            ImageView iv_device_profile_image = (ImageView) rms_device.findViewById(R.id.iv_device_profile_image);
-            //iv_device_profile_image
-
-            TextView tv_total_nodes_count = (TextView) rms_device.findViewById(R.id.tv_total_nodes_count);
-           // tv_total_nodes_count.setText(item.getName());
-
-
-
-
-            return rms_device;
-        }
-
-
-    }
-
-
-    class AlertsViewAdapter extends BaseAdapter {
-        LayoutInflater inflater;
-        Context context;
-
-        public AlertsViewAdapter(Context ctx){
-            inflater = LayoutInflater.from(ctx);
-            context = ctx;
-        }
-
-        @Override
-        public int getCount() {
-            return AlertsLabel.length;
-        }
-
-        @Override
-        public Object getItem(int position) {
-            return AlertsLabel[position];
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return position;
-        }
-
-
-        @SuppressLint("SetTextI18n")
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            View alert_view = convertView;
-
-            if (alert_view == null) {
-                alert_view = inflater.inflate(R.layout.summary_status_item, parent, false);
-            }
-            //Setting Alerts Here
-            TextView tv_total_nodes_count = (TextView) alert_view.findViewById(R.id.tv_total_nodes_count);
-            ImageView iv_alert_icon = (ImageView) alert_view.findViewById(R.id.iv_alert_icon);
-            LinearLayout ll_bg_color = (LinearLayout) alert_view.findViewById(R.id.ll_bg_color);
-            TextView tv_alert_title = (TextView) alert_view.findViewById(R.id.tv_alert_title);
-            int alertsCount;
-            switch (position) {
-                case 0 :
-                    alertsCount = AlertManager.getAlertsCount("All", AlertData.NodeState.Alert);
-                    tv_total_nodes_count.setText(Integer.toString(alertsCount));
-                    iv_alert_icon.setBackgroundResource(R.drawable.alert);
-                    ll_bg_color.setBackgroundColor(ContextCompat.getColor(context, R.color.color_alert));
-                    tv_total_nodes_count.setTextColor(ContextCompat.getColor(context, R.color.color_alert));
-                    break;
-
-                case 1:
-                    alertsCount = AlertManager.getAlertsCount("All", AlertData.NodeState.Warning);
-                    tv_total_nodes_count.setText(Integer.toString(alertsCount));
-                    iv_alert_icon.setBackgroundResource(R.drawable.warning);
-                    ll_bg_color.setBackgroundColor(ContextCompat.getColor(context, R.color.color_warning));
-                    tv_total_nodes_count.setTextColor(ContextCompat.getColor(context, R.color.color_warning));
-                    break;
-
-                case 2:
-                    alertsCount = AlertManager.getAlertsCount("All", AlertData.NodeState.Normal);
-                    tv_total_nodes_count.setText(Integer.toString(alertsCount));
-                    iv_alert_icon.setBackgroundResource(R.drawable.ok_icon);
-                    ll_bg_color.setBackgroundColor(ContextCompat.getColor(context, R.color.color_normal));
-                    tv_total_nodes_count.setTextColor(ContextCompat.getColor(context, R.color.color_normal));
-                    break;
-
-                case 3:
-/*                    alertsCount = AlertManager.getAlertsCount("All", AlertData.AlertStatus.Alert);*/
-                    tv_total_nodes_count.setText(Integer.toString(0));
-
-                    iv_alert_icon.setBackgroundResource(R.drawable.defrost_icon_white);
-                    ll_bg_color.setBackgroundColor(ContextCompat.getColor(context, R.color.color_defrost));
-                    tv_total_nodes_count.setTextColor(ContextCompat.getColor(context, R.color.color_defrost));
-                    break;
-
-                case 4:
-                    alertsCount = AlertManager.getAlertsCount("All", AlertData.NodeState.Offline);
-                    tv_total_nodes_count.setText(Integer.toString(alertsCount));
-                    iv_alert_icon.setBackgroundResource(R.drawable.offline_icon_white);
-                    ll_bg_color.setBackgroundColor(ContextCompat.getColor(context, R.color.color_offline));
-                    tv_total_nodes_count.setTextColor(ContextCompat.getColor(context, R.color.color_offline));
-                    break;
-
-                case 5:
-/*                    alertsCount = AlertManager.getAlertsCount("All", AlertData.AlertStatus.Alert);*/
-                    tv_total_nodes_count.setText(Integer.toString(0));
-                    iv_alert_icon.setBackgroundResource(R.drawable.offline_icon_white);
-                    ll_bg_color.setBackgroundColor(ContextCompat.getColor(context, R.color.color_dark_grey));
-                    tv_total_nodes_count.setTextColor(ContextCompat.getColor(context, R.color.color_dark_grey));
-                    break;
-
-                default:
-                    break;
-            }
-
-            if(position != 3 && position != 5) {
-
-                ll_bg_color.setOnClickListener(new View.OnClickListener() {
-                    public void onClick(View v) {
-                        Intent intent = new Intent(ActivityDashboard.this, AssetsActivity.class);
-                        intent.putExtra("Filter", position + 1);
-                        intent.putExtra("ShowOne", true);
-                        startActivity(intent);
-                    }
-                });
-            }
-
-            tv_alert_title.setText((int)getItem(position));
-
-            return alert_view;
-        }
-
-
     }
 
     private void checkPermissions() {
@@ -478,4 +323,5 @@ public class ActivityDashboard extends AppCompatActivity implements OnBLEDeviceC
             //done
         }
     }
+
 }

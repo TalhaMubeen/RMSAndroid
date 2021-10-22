@@ -14,7 +14,7 @@ import androidx.fragment.app.FragmentTransaction;
 import com.innv.rmsgateway.R;
 import com.innv.rmsgateway.comm.Observer;
 import com.innv.rmsgateway.comm.ObserverManager;
-import com.innv.rmsgateway.BleManager;
+import com.innv.rmsgateway.bluetooth.BleManager;
 
 import com.innv.rmsgateway.data.BleDevice;
 

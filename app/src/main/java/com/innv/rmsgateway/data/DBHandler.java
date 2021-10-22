@@ -8,6 +8,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import com.innv.rmsgateway.classes.Globals;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -18,7 +20,7 @@ import java.util.List;
 public class DBHandler extends SQLiteOpenHelper{
     // Database Version
     private static DBHandler sInstance;
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 5;
 
     // Database Name
     private static final String DATABASE_NAME = "RMS";
@@ -487,7 +489,7 @@ public class DBHandler extends SQLiteOpenHelper{
     public HashMap<String, String> getDeviceLookupList(String strListName)
     {
         String sql="SELECT CODE, DESCRIPTION FROM "+ TABLE_DEVICES_LOOKUPS
-                +" WHERE ORGCODE='"+Globals.orgCode+"' AND LISTNAME='"+ Globals.APPLICATION_LOOKUP_LIST_NAME
+                +" WHERE ORGCODE='"+ Globals.orgCode+"' AND LISTNAME='"+ Globals.APPLICATION_LOOKUP_LIST_NAME
                 +"' AND OPTPARAM2='"+  strListName +"'";
         SQLiteDatabase db=this.getReadableDatabase();
         Cursor cursor= db.rawQuery(sql,null);

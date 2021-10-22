@@ -6,7 +6,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
 
-import com.innv.rmsgateway.BleManager;
+import com.innv.rmsgateway.bluetooth.BleManager;
 import com.innv.rmsgateway.callback.BleScanAndConnectCallback;
 import com.innv.rmsgateway.callback.BleScanCallback;
 import com.innv.rmsgateway.callback.BleScanPresenterImp;

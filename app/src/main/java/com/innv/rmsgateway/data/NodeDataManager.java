@@ -1,11 +1,13 @@
 package com.innv.rmsgateway.data;
 
+import android.util.Log;
+
 import com.innv.rmsgateway.R;
 import com.innv.rmsgateway.classes.AlertData;
 import com.innv.rmsgateway.classes.AlertManager;
-import com.innv.rmsgateway.classes.AlertTypes;
+import com.innv.rmsgateway.classes.DefrostProfile;
+import com.innv.rmsgateway.classes.Globals;
 import com.innv.rmsgateway.classes.Profile;
-import com.innv.rmsgateway.classes.ProfileManager;
 import com.innv.rmsgateway.sensornode.SensorNode;
 
 import java.text.SimpleDateFormat;
@@ -48,14 +50,30 @@ public class NodeDataManager {
             }
         }
 
-
         //Loading Alerts Data
-        AlertManager.parseListItems(getAllAlertList());
-
+        updateAlertManager();
     }
 
+    public static void updateAlertManager(){
+        List<StaticListItem> alertList = getAlertList();
+        List<SensorNode> data = getPreCheckedNodes();
+
+        List<StaticListItem> retAlerts = new ArrayList<>();
+
+        for(StaticListItem item : alertList){
+            if(data.stream().anyMatch(x -> x.getMacID().equals(item.getCode()))){
+                retAlerts.add(item);
+            }else{
+                Log.i("DATAMANAGER", "Not Found");
+            }
+        }
+
+        AlertManager.parseListItems(retAlerts);
+    }
+
+
     public static void AddDummyDatainDB(){
-        SensorNode sn1 = new SensorNode("11:11:11:11","Dummy 1", "2:45am", 4, 6, 1,true,22.5,40,13.5, -99.6, true, ProfileManager.DefaultProfile);
+      /*  SensorNode sn1 = new SensorNode("11:11:11:11","Dummy 1", "2:45am", 4, 6, 1,true,22.5,40,13.5, -99.6, true, ProfileManager.DefaultProfile);
         SensorNode sn2 = new SensorNode("12:12:12:12","Dummy 2", "3:45am", 5, 6, 1,false,22.5,40,13.5, -99.6, true, ProfileManager.DefaultProfile);
         SensorNode sn3 = new SensorNode("13:13:13:13","Dummy 3", "4:45am", 6, 6, 1,true,22.5,40,13.5, -99.6, false, ProfileManager.DefaultProfile);
         SensorNode sn4 = new SensorNode("14:14:14:14","Dummy 4", "5:45am", 7, 6, 1,false,22.5,40,13.5, -99.6, true, ProfileManager.DefaultProfile);
@@ -67,16 +85,16 @@ public class NodeDataManager {
         SaveSensorNodeData(sn3);
         SaveSensorNodeData(sn4);
         SaveSensorNodeData(sn5);
-        SaveSensorNodeData(sn6);
+        SaveSensorNodeData(sn6);*/
     }
 
 
-    public static void AddNodeToDB(String name, String macAddress, Profile profile){
+    public static void AddNodeToDB(String name, String macAddress, Profile profile, DefrostProfile defrostProfile){
         name = name.toUpperCase();
         SensorNode sn1 = new SensorNode(
                 macAddress, name, "0:00am", 0,
                 0, 0, true, 0.0,
-                0, 0.0, 0.0, true, profile);
+                0, 0.0, 0.0, true, profile, defrostProfile);
 
         sn1.setLastUpdatedOn(new Date());
         SaveSensorNodeData(sn1);
@@ -94,19 +112,6 @@ public class NodeDataManager {
         List<StaticListItem> dataSaved =  Globals.db.getListItems(Globals.dbContext.getString(R.string.RMS_DEVICES), Globals.orgCode, "");
         return  dataSaved;
     }
-
-/*    public static void SaveSensorNodeData(String mac, double temp,int humidity, int rssi){
-        SensorNode node = getPrecheckedNodeFromMac(mac);
-        if(node != null){
-            node.setLastUpdatedOn(new Date());
-            node.setTemperature(temp);
-            node.setHumidity(humidity);
-            node.setRssi(rssi);
-
-            SaveSensorNodeData(node);
-            LogSensorNodeData(node);
-        }
-    }*/
 
     public static void UpdateNodeData(SensorNode node, boolean logdata){
         if(node != null){
@@ -249,7 +254,7 @@ public class NodeDataManager {
         return alertsLsit;
     }
 
-    public static List<StaticListItem> getAllAlertList(){
+    public static List<StaticListItem> getAlertList(){
         List<StaticListItem> alertsLsit = Globals.db.GetSensorNodeAlerts(
                 Globals.dbContext.getString(R.string.RMS_DEVICES),
                 Globals.orgCode,
@@ -266,6 +271,7 @@ public class NodeDataManager {
         Globals.db.RemoveLogs(Globals.dbContext.getString(R.string.RMS_DEVICES),Globals.orgCode, node.getMacID());
         Globals.db.RemoveAlerts(Globals.dbContext.getString(R.string.RMS_DEVICES),Globals.orgCode, node.getMacID());
 
+        updateAlertManager();
         allNodesData.clear();
         init();
     }

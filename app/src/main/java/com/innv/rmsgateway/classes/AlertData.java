@@ -3,14 +3,12 @@ package com.innv.rmsgateway.classes;
 import android.util.Log;
 
 import com.innv.rmsgateway.R;
-import com.innv.rmsgateway.data.Globals;
 import com.innv.rmsgateway.data.IConvertHelper;
 import com.innv.rmsgateway.data.StaticListItem;
 import com.innv.rmsgateway.sensornode.SensorNode;
 
 import org.json.JSONObject;
 
-import java.io.Serializable;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -20,13 +18,30 @@ import static android.content.ContentValues.TAG;
 
 public class AlertData implements IConvertHelper {
 
-    public enum NodeState implements Serializable {
-        Alert,
-        Warning,
-        Normal,
-        Defrost,
-        Offline,
-        ComFailure,
+
+    AlertType type;
+    NodeState nodeState;
+    String alertStartTime = "";
+    String alertEndTime = "";
+    String alertDay = "";
+    String nodeMacAddress = "";
+    double temperature;
+    int humidity;
+
+    public double getTemperature() {
+        return temperature;
+    }
+
+    public void setTemperature(double temperature) {
+        this.temperature = temperature;
+    }
+
+    public int getHumidity() {
+        return humidity;
+    }
+
+    public void setHumidity(int humidity) {
+        this.humidity = humidity;
     }
 
     public StaticListItem getDataAsStaticListItem() {
@@ -44,13 +59,6 @@ public class AlertData implements IConvertHelper {
         return null;
     }
 
-    AlertTypes type;
-    String alertStartTime = "";
-    String alertEndTime = "";
-    NodeState status;
-    String alertDay = "";
-    String nodeMacAddress = "";
-
     public String getAlertDay() {
         return alertDay;
     }
@@ -67,17 +75,17 @@ public class AlertData implements IConvertHelper {
         this.nodeMacAddress = nodeMacAddress;
     }
 
-    public NodeState getStatus() { return status; }
+    public NodeState getNodeState() { return nodeState; }
 
-    public String getStatusString() { return status.name(); }
+    public String getStatusString() { return nodeState.name(); }
 
-    public void setStatus(NodeState status) { this.status = status; }
+    public void setNodeState(NodeState nodeState) { this.nodeState = nodeState; }
 
     public String getTypeString() { return type.name(); }
 
-    public AlertTypes getType() { return type; }
+    public AlertType getType() { return type; }
 
-    public void setType(AlertTypes type) {
+    public void setType(AlertType type) {
         this.type = type;
     }
 
@@ -136,22 +144,26 @@ public class AlertData implements IConvertHelper {
         parseJsonObject(obj);
     }
 
-    public AlertData(String mac, AlertTypes type, NodeState status, Date alertStartTime) {
-        this.nodeMacAddress = mac;
-        this.type = type;
-        this.status = status;
+    public AlertData(String mac, AlertType type, NodeState status, Date alertStartTime, double temperature, int humidity) {
+        setNodeMacAddress(mac);
+        setType(type);
+        setNodeState(status);
         setAlertStartTime(alertStartTime);
+        setTemperature(temperature);
+        setHumidity(humidity);
     }
 
     @Override
     public boolean parseJsonObject(JSONObject jsonObject) {
         try {
             setNodeMacAddress(jsonObject.optString(("NodeMacAddress")));
-            setType(AlertTypes.valueOf(jsonObject.optString("AlertTypes")));
+            setType(AlertType.valueOf(jsonObject.optString("AlertTypes")));
             setAlertStartTimeString(jsonObject.optString(("AlertStartTime")));
             setAlertEndTimeString(jsonObject.optString(("AlertEndTime")));
-            setStatus(NodeState.valueOf(jsonObject.optString(("AlertStatus"))));
+            setNodeState(NodeState.valueOf(jsonObject.optString(("AlertStatus"))));
             setAlertDay(jsonObject.optString(("AlertDay")));
+            setTemperature(jsonObject.optDouble("Temperature"));
+            setHumidity(jsonObject.optInt("Humidity"));
         } catch (Exception e) {
             Log.e(TAG, e.toString());
             return false;
@@ -170,7 +182,8 @@ public class AlertData implements IConvertHelper {
             jo.put("AlertEndTime", getAlertEndTimeString());
             jo.put("AlertStatus", getStatusString());
             jo.put("AlertDay", getAlertDay());
-
+            jo.put("Temperature", getTemperature());
+            jo.put("Humidity", getHumidity());
         } catch (Exception e) {
             Log.e(TAG, e.toString());
         }

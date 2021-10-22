@@ -4,7 +4,6 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Message;
 
-import com.innv.rmsgateway.BleManager;
 import com.innv.rmsgateway.callback.BleWriteCallback;
 import com.innv.rmsgateway.data.BleMsg;
 import com.innv.rmsgateway.exception.BleException;

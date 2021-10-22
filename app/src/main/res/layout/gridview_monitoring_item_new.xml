@@ -23,7 +23,7 @@
                     android:id="@+id/colorNA"
                     android:layout_width="20dp"
                     android:layout_height="match_parent"
-                    android:background="@color/color_normal"
+                    android:background="@color/color_dark_grey"
                     android:orientation="horizontal"/>
 
 
@@ -67,7 +67,7 @@
                                 android:id="@+id/sensor_name"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:text="Deep Freezer">
+                                android:text="">
                             </TextView>
 
                             <TextView
@@ -75,8 +75,7 @@
                                 android:id="@+id/sensor_subTitle"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:gravity="top"
-                                android:text="Deep Freezer">
+                                android:gravity="top">
                             </TextView>
                         </LinearLayout>
 
@@ -137,7 +136,7 @@
                                     android:gravity="center"
                                     android:layout_marginBottom="10dp"
                                     android:textColor="@color/color_normal"
-                                    android:text="-10"/>
+                                    android:text="-"/>
 
                             </LinearLayout>
                         </androidx.cardview.widget.CardView>
@@ -171,7 +170,7 @@
                                     android:gravity="center"
                                     android:layout_marginBottom="10dp"
                                     android:textColor="@color/color_normal"
-                                    android:text="-10"/>
+                                    android:text="-"/>
 
                             </LinearLayout>
                         </androidx.cardview.widget.CardView>
@@ -208,7 +207,7 @@
                                     android:gravity="center"
                                     android:layout_marginBottom="10dp"
                                     android:textColor="@color/color_defrost"
-                                    android:text="-10"/>
+                                    android:text="-"/>
 
                             </LinearLayout>
                         </androidx.cardview.widget.CardView>

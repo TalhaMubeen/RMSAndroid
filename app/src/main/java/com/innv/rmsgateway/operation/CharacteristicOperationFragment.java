@@ -16,7 +16,7 @@ import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 
-import com.innv.rmsgateway.BleManager;
+import com.innv.rmsgateway.bluetooth.BleManager;
 import com.innv.rmsgateway.R;
 import com.innv.rmsgateway.callback.BleIndicateCallback;
 import com.innv.rmsgateway.callback.BleNotifyCallback;

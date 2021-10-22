@@ -11,7 +11,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import com.innv.rmsgateway.BleManager;
+import com.innv.rmsgateway.bluetooth.BleManager;
 import com.innv.rmsgateway.callback.BleScanCallback;
 import com.innv.rmsgateway.classes.AlertManager;
 import com.innv.rmsgateway.data.BleDevice;

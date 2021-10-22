@@ -8,7 +8,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <androidx.appcompat.widget.Toolbar
+<!--    <androidx.appcompat.widget.Toolbar
         android:id="@+id/my_toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
@@ -27,7 +27,7 @@
             android:text="Summary View"
             />
 
-    </androidx.appcompat.widget.Toolbar>
+    </androidx.appcompat.widget.Toolbar>-->
 
     <LinearLayout
         android:layout_marginTop="4dp"
@@ -37,14 +37,11 @@
         android:background="@color/card_background_color_lite"
         android:layout_height="match_parent">
 
-        <GridView
-            android:id="@+id/gv_rms_categories"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_rms_categories"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:horizontalSpacing="20dp"
-            android:verticalSpacing="20dp"
             android:layout_margin="10dp"
-            android:numColumns="2"
             android:scrollbarAlwaysDrawHorizontalTrack="true"
             android:scrollbars="horizontal" />
 
@@ -146,7 +143,7 @@
                 <ImageView
                      android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:src="@drawable/defrost_icon"
+                    android:src="@drawable/chiller_icon"
                     android:adjustViewBounds="true"
                     android:scaleType="fitCenter"
                     android:paddingRight="10dp"

@@ -19,7 +19,7 @@ import androidx.fragment.app.Fragment;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.innv.rmsgateway.BleManager;
+import com.innv.rmsgateway.bluetooth.BleManager;
 import com.innv.rmsgateway.R;
 import com.innv.rmsgateway.data.BleDevice;
 

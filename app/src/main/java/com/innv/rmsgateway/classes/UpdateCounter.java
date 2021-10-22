@@ -5,7 +5,6 @@ import android.content.res.ColorStateList;
 import android.os.Handler;
 import android.view.View;
 
-import com.innv.rmsgateway.AssetsActivity;
 import com.innv.rmsgateway.sensornode.SensorNode;
 
 import java.util.List;
@@ -93,17 +92,17 @@ public class UpdateCounter/* extends androidx.appcompat.widget.AppCompatTextView
         long days = (secs / (1000 * 60 * 60 * 24));
 
         if (minute >= 6 || hour > 0 || days > 0) {
-            colorView.setBackgroundTintList(ColorStateList.valueOf(AssetsActivity.INACTIVE));
-            AlertManager.setAlertStatus(mac, AlertData.NodeState.Offline);
+            colorView.setBackgroundTintList(ColorStateList.valueOf(Globals.INACTIVE));
+            AlertManager.setAlertStatus(mac, NodeState.Offline);
         } else {
 
-            int color = AssetsActivity.NORMAL;
+            int color = Globals.NORMAL;
             for (AlertData alert : alerts) {
-                if (alert.getStatus().equals(AlertData.NodeState.Alert)) {
-                    color = AssetsActivity.ALERT;
+                if (alert.getNodeState().equals(NodeState.Alert)) {
+                    color = Globals.ALERT;
                     break;
-                } else if (alert.getStatus().equals(AlertData.NodeState.Warning)) {
-                    color = AssetsActivity.WARNING;
+                } else if (alert.getNodeState().equals(NodeState.Warning)) {
+                    color = Globals.WARNING;
                 }
             }
             colorView.setBackgroundTintList(ColorStateList.valueOf(color));

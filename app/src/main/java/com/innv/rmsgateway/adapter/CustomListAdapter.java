@@ -14,6 +14,7 @@ import android.widget.TimePicker;
 
 import com.google.android.material.textfield.TextInputLayout;
 import com.innv.rmsgateway.R;
+import com.innv.rmsgateway.classes.DefrostProfile;
 import com.innv.rmsgateway.classes.Profile;
 
 import java.util.Calendar;
@@ -24,7 +25,7 @@ import java.util.Objects;
 
 public class CustomListAdapter extends BaseAdapter {
     private final Context context;
-    Map<Integer, Profile.DefrostTimeProfile> defrostProfileMap = new HashMap<>();
+    Map<Integer, DefrostProfile> defrostProfileMap = new HashMap<>();
 
     int count = 0;
 
@@ -35,12 +36,12 @@ public class CustomListAdapter extends BaseAdapter {
 
 
     public void addDefrostProfile() {
-        defrostProfileMap.put(count, new Profile.DefrostTimeProfile());
+        defrostProfileMap.put(count, new DefrostProfile());
         count++;
     }
 
-    public List<Profile.DefrostTimeProfile> getDefrostProfile() {
-        return (List<Profile.DefrostTimeProfile>) defrostProfileMap.values();
+    public List<DefrostProfile> getDefrostProfile() {
+        return (List<DefrostProfile>) defrostProfileMap.values();
     }
 
     @Override
@@ -49,7 +50,7 @@ public class CustomListAdapter extends BaseAdapter {
     }
 
     @Override
-    public Profile.DefrostTimeProfile getItem(int position) {
+    public DefrostProfile getItem(int position) {
         return defrostProfileMap.get(position);
     }
 
@@ -126,7 +127,7 @@ public class CustomListAdapter extends BaseAdapter {
             @SuppressLint("SetTextI18n")
             @Override
             public void onTimeSet(TimePicker timePicker, int selectedHour, int selectedMinute) {
-                Profile.DefrostTimeProfile prof = getItem(position);
+                DefrostProfile prof = getItem(position);
                 if (isStart) {
                     prof.setStartHour(selectedHour);
                     prof.setStartMinute(selectedMinute);
