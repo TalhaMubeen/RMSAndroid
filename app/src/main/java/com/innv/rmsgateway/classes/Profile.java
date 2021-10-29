@@ -17,20 +17,20 @@ public class Profile implements IConvertHelper {
 
     public int getProfileImageId(){
         int retVal;
-        switch (name){
-            case "IceCream":
+        switch (title){
+            case "Ice Cream":
                 retVal = R.drawable.icecream;
                 break;
 
-            case "FrozenFood":
+            case "Frozen Food":
                 retVal = R.drawable.meat;
                 break;
 
-            case "WalkinChiller":
+            case "Walk-in Chiller":
                 retVal = R.drawable.chiller_icon;
                 break;
 
-            case "FruitVegDrinksDairy":
+            case "Fruit, Veg, Cold Drinks & Dairy":
             default:
                 retVal = R.drawable.rms_icon;
                 break;
@@ -41,30 +41,26 @@ public class Profile implements IConvertHelper {
 
     public int getProfileColor(){
         int retVal;
-        switch (name){
-            case "IceCream":
+        switch (title){
+            case "Ice Cream":
                 retVal = R.color.color_normal;
                 break;
 
-            case "FrozenFood":
+            case "Frozen Food":
                 retVal = R.color.color_warning;
                 break;
 
-            case "WalkinChiller":
+            case "Walk-in Chiller":
                 retVal = R.color.color_defrost;
                 break;
 
-            case "FruitVegDrinksDairy":
+            case "Fruit, Veg, Cold Drinks & Dairy":
             default:
                 retVal = R.color.color_offline;
                 break;
         }
         return  retVal;
     }
-
-    public String getName() { return name; }
-
-    public void setName(String name) { this.name = name; }
 
     public int getLowHumidityThreshold() { return lowHumidityThreshold; }
 
@@ -75,14 +71,35 @@ public class Profile implements IConvertHelper {
     public void setHighHumidityThreshold(int highHumidityThreshold) { this.highHumidityThreshold = highHumidityThreshold; }
 
     public double getLowTempThreshold() {
+        if(!Globals.useCelsius) {
+            return Globals.CtoF(lowTempThreshold);
+        }
+
         return lowTempThreshold;
     }
 
-    public void setLowTempThreshold(double lowTempThreshold) { this.lowTempThreshold = lowTempThreshold; }
+    public void setLowTempThreshold(double lowTempThreshold) {
+        if(!Globals.useCelsius) {
+            this.lowTempThreshold = Globals.FtoC(lowTempThreshold);
+        }else {
+            this.lowTempThreshold = lowTempThreshold;
+        }
+    }
 
-    public double getHighTempThreshold() { return highTempThreshold; }
+    public double getHighTempThreshold() {
+        if(!Globals.useCelsius) {
+            return Globals.CtoF(highTempThreshold);
+        }
+        return highTempThreshold;
+    }
 
-    public void setHighTempThreshold(double highTempThreshold) { this.highTempThreshold = highTempThreshold; }
+    public void setHighTempThreshold(double highTempThreshold) {
+        if(!Globals.useCelsius) {
+            this.highTempThreshold = Globals.FtoC(highTempThreshold);
+        }else {
+            this.highTempThreshold = highTempThreshold;
+        }
+    }
 
     public double getRssiThreshold() {
         return rssiThreshold;
@@ -101,13 +118,52 @@ public class Profile implements IConvertHelper {
         this.title = title;
     }
 
-    private String name;
+    public int getPictureID() {
+        return pictureID;
+    }
+
+    public void setPictureID(int pictureID) {
+        this.pictureID = pictureID;
+    }
+
+  //  private String name;
     private String title;
     private double lowTempThreshold;
     private double highTempThreshold;
     private int    lowHumidityThreshold;
     private int    highHumidityThreshold;
     private double rssiThreshold;
+    private int warningToAlertTime;
+    private int pictureID;
+
+    public void set(Profile second){
+        this.lowTempThreshold =second.lowTempThreshold ;
+                this.highTempThreshold = second.highTempThreshold ;
+                this.lowHumidityThreshold = second.lowHumidityThreshold;
+                this.highHumidityThreshold = second.highHumidityThreshold;
+                this.warningToAlertTime =second.warningToAlertTime ;
+                this.pictureID = second.getPictureID();
+                this.title = second.title;
+    }
+
+    public Boolean isEqual(Profile second){
+
+        return this.lowTempThreshold == second.lowTempThreshold &&
+                this.highTempThreshold == second.highTempThreshold &&
+                this.lowHumidityThreshold == second.lowHumidityThreshold &&
+                this.highHumidityThreshold == second.highHumidityThreshold &&
+                this.warningToAlertTime == second.warningToAlertTime &&
+                this.getProfileImageId() == second.getProfileImageId() &&
+                this.title.equals(second.title);
+    }
+
+    public int getWarningToAlertTime() {
+        return warningToAlertTime;
+    }
+
+    public void setWarningToAlertTime(int warningToAlertTime) {
+        this.warningToAlertTime = warningToAlertTime;
+    }
 
 
     public Profile(JSONObject obj){
@@ -115,34 +171,36 @@ public class Profile implements IConvertHelper {
     }
 
     public Profile(){
-        this.name = "Default";
-        this.lowTempThreshold = 10;
-        this.highTempThreshold = 20;
-        this.lowHumidityThreshold = 30;
-        this.highHumidityThreshold = 50;
-        this.rssiThreshold = -80;
+        this.lowTempThreshold = 0;
+        this.highTempThreshold = 0;
+        this.lowHumidityThreshold = 0;
+        this.highHumidityThreshold = 0;
+        this.rssiThreshold = 0;
+        this.warningToAlertTime = 0;
+        this.pictureID =  R.drawable.rms_icon;
     }
 
-    public Profile(String profileName, String title, double lowtempTH, double highTempTh, double rssiTH, int lowHumidityTH, int highHumidityTH){
-        this.name = profileName;
+    public Profile(String title, double lowtempTH, double highTempTh, double rssiTH, int lowHumidityTH, int highHumidityTH, int alertTime){
         this.title = title;
         this.lowTempThreshold = lowtempTH;
         this.highTempThreshold = highTempTh;
         this.rssiThreshold = rssiTH;
         this.lowHumidityThreshold = lowHumidityTH;
         this.highHumidityThreshold = highHumidityTH;
+        this.warningToAlertTime = alertTime;
     }
 
     @Override
     public boolean parseJsonObject(JSONObject obj) {
         try {
-            setName(obj.optString("Name"));
             setTitle(obj.optString("Title"));
-            setLowTempThreshold(obj.optDouble("LowTempTh"));
-            setHighTempThreshold(obj.optDouble("HighTempTh"));
+            lowTempThreshold = obj.optDouble("LowTempTh");
+            highTempThreshold = obj.optDouble("HighTempTh");
             setRssiThreshold(obj.getDouble("RssiTh"));
             setLowHumidityThreshold(obj.getInt("LowHumidityTh"));
             setHighHumidityThreshold(obj.getInt("HighHumidityTh"));
+            setWarningToAlertTime(obj.getInt("Warn2AlertTime"));
+            setPictureID(obj.getInt("PictureID"));
 
             return true;
 
@@ -156,14 +214,14 @@ public class Profile implements IConvertHelper {
     public JSONObject getJsonObject() {
         JSONObject jo = new JSONObject();
         try {
-            jo.put("Name", getName());
-            jo.put("Title", getName());
-            jo.put("LowTempTh", getLowTempThreshold());
-            jo.put("HighTempTh", getHighTempThreshold());
+            jo.put("Title", getTitle());
+            jo.put("LowTempTh", lowTempThreshold);
+            jo.put("HighTempTh", highTempThreshold);
             jo.put("RssiTh", getRssiThreshold());
             jo.put("LowHumidityTh", getLowHumidityThreshold());
             jo.put("HighHumidityTh", getHighHumidityThreshold());
-
+            jo.put("Warn2AlertTime", getWarningToAlertTime());
+            jo.put("PictureID", getPictureID());
         } catch (Exception e) {
             Log.e(TAG, e.toString());
         }

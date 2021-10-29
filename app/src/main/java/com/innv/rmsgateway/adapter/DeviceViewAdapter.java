@@ -73,7 +73,7 @@ public class DeviceViewAdapter extends RecyclerView.Adapter<DeviceViewAdapter.My
     public void onBindViewHolder(@NonNull MyViewHolder holder, int position) {
 
         Profile profile = getItem(position);
-        List<SensorNode> collected = mRMSDevices.stream().filter(x -> x.getProfile().getName().equals(profile.getName())).collect(Collectors.toList());
+        List<SensorNode> collected = mRMSDevices.stream().filter(x -> x.getProfile().getTitle().equals(profile.getTitle())).collect(Collectors.toList());
         holder.card_category_title.setText(profile.getTitle());
         holder.iv_device_profile_image.setImageDrawable(ContextCompat.getDrawable(context, profile.getProfileImageId()));
         holder.ll_title_color.setBackgroundColor( ContextCompat.getColor(context, profile.getProfileColor()));

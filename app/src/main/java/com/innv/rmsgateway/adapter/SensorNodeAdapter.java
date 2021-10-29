@@ -12,8 +12,10 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Spinner;
@@ -28,6 +30,7 @@ import com.innv.rmsgateway.classes.DefrostProfileManager;
 import com.innv.rmsgateway.classes.Profile;
 import com.innv.rmsgateway.classes.ProfileManager;
 import com.innv.rmsgateway.data.NodeDataManager;
+import com.innv.rmsgateway.sensornode.SensorNode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,7 +44,6 @@ public class SensorNodeAdapter extends BaseAdapter {
     List<String> defrostProfileNames;
     Profile selectedProfile;
     DefrostProfile selectedDefrostProf;
-
     //constructor function
     public SensorNodeAdapter(Context context) {
         this.context = context;
@@ -123,19 +125,19 @@ public class SensorNodeAdapter extends BaseAdapter {
             nodeView = inflater.inflate(R.layout.scan_rms_items, parent, false);
         }
 
-        String macAddress = getItem(position);
-        EditText node_name = (EditText) nodeView.findViewById(R.id.editTV_name);
-
-        TextView tv_address = (TextView) nodeView.findViewById(R.id.tv_address);
-        tv_address.setText(macAddress);
-
+  //      LinearLayout ll_monitor_node = (LinearLayout) nodeView.findViewById(R.id.ll_monitor_node);
         Button btn_addNode = (Button) nodeView.findViewById(R.id.btn_addNode);
+/*        Button btn_updateNode = (Button) nodeView.findViewById(R.id.btn_updateNode);
+        CheckBox add_checkbox = (CheckBox) nodeView.findViewById(R.id.add_checkbox);*/
+
+        EditText node_name = (EditText) nodeView.findViewById(R.id.editTV_name);
+        TextView tv_address = (TextView) nodeView.findViewById(R.id.tv_address);
 
         // Drop down layout style - list view with radio button
         Spinner sp_profile = nodeView.findViewById(R.id.sp_profile);
-        ArrayAdapter<String> dataAdapter = new ArrayAdapter<String>(this.context, android.R.layout.simple_spinner_item, profileNameList);
-        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        sp_profile.setAdapter(dataAdapter);
+        ArrayAdapter<String> profileAdapter = new ArrayAdapter<String>(this.context, android.R.layout.simple_spinner_item, profileNameList);
+        profileAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        sp_profile.setAdapter(profileAdapter);
 
         // Drop down layout style - list view with radio button
         Spinner sp_defrostProfile = nodeView.findViewById(R.id.sp_defrostProfile);
@@ -143,16 +145,12 @@ public class SensorNodeAdapter extends BaseAdapter {
         defrostAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         sp_defrostProfile.setAdapter(defrostAdapter);
 
-
-        ImageView iv_profileIcon = nodeView.findViewById(R.id.iv_profileIcon);
-
-
         if(profileNameList.size() == 0){
             sp_profile.setEnabled(false);
         }
         else{
             selectedProfile = ProfileManager.IceCream;
-            int index = profileNameList.indexOf(selectedProfile.getName());
+            int index = profileNameList.indexOf(selectedProfile.getTitle());
             sp_profile.setSelection(index, false);
         }
 
@@ -163,6 +161,12 @@ public class SensorNodeAdapter extends BaseAdapter {
             int index = defrostProfileNames.indexOf(selectedDefrostProf.getName());
             sp_defrostProfile.setSelection(index, false);
         }
+
+
+        ImageView iv_profileIcon = nodeView.findViewById(R.id.iv_profileIcon);
+
+        String macAddress = getItem(position);
+        tv_address.setText(macAddress);
 
         sp_profile.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
@@ -194,28 +198,63 @@ public class SensorNodeAdapter extends BaseAdapter {
 
         });
 
+/*        if(updateNode){
+            btn_addNode.setVisibility(View.GONE);
+            ll_monitor_node.setVisibility(View.VISIBLE);
+            btn_updateNode.setVisibility(View.VISIBLE);
+
+            SensorNode node = NodeDataManager.getAllNodeFromMac(macAddress);
+            node_name.setText(node.getName());
+
+            add_checkbox.setChecked(node.isPreChecked());
+
+            selectedProfile = node.getProfile();
+            selectedDefrostProf = node.getDefrostProfile();
+            sp_profile.setSelection(profileAdapter.getPosition(selectedProfile.getTitle()));
+            sp_defrostProfile.setSelection(defrostAdapter.getPosition(selectedDefrostProf.getName()));
+
+            iv_profileIcon.setImageDrawable(ContextCompat.getDrawable(context, selectedProfile.getProfileImageId()));
+        }*/
 
         View finalNodeView = nodeView;
 
-/*        ImageView iv_addDefrostInterval = (ImageView) nodeView.findViewById(R.id.iv_addDefrostInterval);
-        iv_addDefrostInterval.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                if(lv_defrostIntervals == null){
-                    if(customListAdapter == null) { customListAdapter = new CustomListAdapter(context); }
+/*        btn_updateNode.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (node_name.getText().length() > 0 && node_name.isEnabled()){
+                    String profileSelected = sp_profile.getSelectedItem().toString();
+                    Profile prof = ProfileManager.getProfile(profileSelected);
 
-                    customListAdapter.addDefrostProfile();
-                    lv_defrostIntervals = (ListView) finalNodeView.findViewById(R.id.lv_defrostIntervals);
-                    lv_defrostIntervals.setAdapter(customListAdapter);
-                    setListViewHeightBasedOnChildren(lv_defrostIntervals);
+                    String defrostSelected = sp_defrostProfile.getSelectedItem().toString();
+                    DefrostProfile defrostProfile = DefrostProfileManager.getDefrostProfile(defrostSelected);
 
-                }else {
-                    customListAdapter.addDefrostProfile();
-                    customListAdapter.notifyDataSetChanged();
-                    setListViewHeightBasedOnChildren(lv_defrostIntervals);
+                    SensorNode node = NodeDataManager.getAllNodeFromMac(tv_address.getText().toString());
+
+                    node.setDefrostProfile(defrostProfile);
+                    node.setProfile(prof);
+
+                    node.setName(node_name.getText().toString());
+                    node.setPreChecked(add_checkbox.isSelected());
+
+                    try {
+
+                        btn_updateNode.setEnabled(false);
+                        node_name.setEnabled(false);
+                        NodeDataManager.UpdateNodeDetails(tv_address.getText().toString(),  node);
+                        Toast.makeText(context, node_name.getText() + " Updated Successfully", Toast.LENGTH_SHORT).show();
+                        setViewAndChildrenEnabled(finalNodeView, false);
+
+                    } catch (Exception e) {
+                        Toast.makeText(context, "Exception while updating node data", Toast.LENGTH_SHORT).show();
+                    }
+
+                }
+                else {
+                    Toast.makeText(context, "Please enter node name", Toast.LENGTH_SHORT).show();
+                    node_name.setEnabled(true);
                 }
             }
         });*/
-
 
 
         btn_addNode.setOnClickListener(new View.OnClickListener() {
@@ -230,22 +269,6 @@ public class SensorNodeAdapter extends BaseAdapter {
                     DefrostProfile defrostProfile = DefrostProfileManager.getDefrostProfile(defrostSelected);
 
                     try {
-
-/*
-                            if(customListAdapter!= null) {
-                                List<DefrostProfile> profiels = customListAdapter.getDefrostProfile();
-                                for (DefrostProfile defrost : profiels) {
-                                    if (defrost.isOk()) {
-                                        if (!defrost.isEmpty()) {
-                                            prof.addDefrostProfile(defrost);
-                                        }
-                                    } else {
-                                        Toast.makeText(context, "Invalid defrost interval!", Toast.LENGTH_SHORT).show();
-                                        return;
-                                    }
-                                }
-                            }
-*/
 
                         btn_addNode.setEnabled(false);
                         node_name.setEnabled(false);
@@ -267,6 +290,7 @@ public class SensorNodeAdapter extends BaseAdapter {
         return nodeView;
 
     }
+/*
 
     public static void setListViewHeightBasedOnChildren(ListView listView)
     {
@@ -298,6 +322,7 @@ public class SensorNodeAdapter extends BaseAdapter {
 
     }
 
+*/
 
     private static void setViewAndChildrenEnabled(View view, boolean enabled) {
         view.setEnabled(enabled);

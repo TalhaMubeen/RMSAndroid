@@ -1,9 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-
+    android:background="#eeeeee"
     android:orientation="vertical"
     android:layout_height="match_parent">
 
@@ -12,9 +10,9 @@
         android:layout_height="match_parent">
 
         <LinearLayout
-            android:background="#eeeeee"
+
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:layout_margin="5dp"
             android:orientation="vertical">
 
@@ -51,6 +49,7 @@
                 android:layout_height="60dp">
 
                 <TextView
+                    android:id="@+id/tv_selectProfileImage"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_weight="1"
@@ -82,6 +81,34 @@
                 android:layout_height="wrap_content">
 
                 <TextView
+                    android:id="@+id/tv_minTempLabel"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="start"
+                    android:text="Minimum Temperature (°C)" />
+
+                <EditText
+                    android:paddingStart="10dp"
+                    android:id="@+id/et_min_temp"
+                    android:inputType="numberDecimal|numberSigned"
+                    android:digits="-.0123456789"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:singleLine="true"
+                    android:textColor="@color/black"
+                    android:ellipsize="end" />
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_margin="10dp"
+                android:orientation="vertical"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:id="@+id/tv_maxTempLabel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="start"
@@ -110,13 +137,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="start"
-                    android:text="Minimum Temperature (°C)" />
+                    android:text="Minimum Humidity %" />
+
 
                 <EditText
                     android:paddingStart="10dp"
-                    android:id="@+id/et_min_temp"
+                    android:id="@+id/et_min_humidity"
                     android:inputType="numberDecimal|numberSigned"
-                    android:digits="-.0123456789"
+                    android:digits=".0123456789"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:singleLine="true"
@@ -124,7 +152,6 @@
                     android:ellipsize="end" />
 
             </LinearLayout>
-
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -138,14 +165,25 @@
                     android:gravity="start"
                     android:text="Maximum Humidity %" />
 
-                <Spinner
+                <EditText
+                    android:paddingStart="10dp"
+                    android:id="@+id/et_max_humidity"
+                    android:inputType="numberDecimal|numberSigned"
+                    android:digits="-.0123456789"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:singleLine="true"
+                    android:textColor="@color/black"
+                    android:ellipsize="end" />
+
+<!--                <Spinner
                     android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                     android:background="@android:drawable/btn_dropdown"
                     android:layout_gravity="center"
                     android:gravity="center"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:id="@+id/sp_max_humidity" />
+                    android:id="@+id/sp_max_humidity" />-->
 
             </LinearLayout>
 
@@ -159,31 +197,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:gravity="start"
-                    android:text="Minimum Humidity %" />
-
-                <Spinner
-                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
-                    android:background="@android:drawable/btn_dropdown"
-                    android:layout_gravity="center"
-                    android:gravity="center"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/sp_min_humidity" />
-
-            </LinearLayout>
-
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_margin="10dp"
-                android:orientation="vertical"
-                android:layout_height="wrap_content">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:gravity="start"
-                    android:text="Warning to Alert (Mins)" />
+                    android:text="Warning to Alert Time (Mins)" />
 
                 <Spinner
                     android:textAppearance="@style/TextAppearance.AppCompat.Medium"
@@ -200,10 +214,11 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:orientation="horizontal"
+                android:layout_marginTop="30dp"
                 android:layout_height="match_parent">
 
                 <Button
-
+                    android:id="@+id/btn_cancel"
                     android:layout_margin="28dp"
                     android:layout_weight="1"
                     android:layout_width="match_parent"
@@ -211,6 +226,7 @@
                     android:text="Cancel" />
 
                 <Button
+                    android:id="@+id/btn_save"
                     android:layout_margin="28dp"
                     android:layout_weight="1"
                     android:layout_width="match_parent"

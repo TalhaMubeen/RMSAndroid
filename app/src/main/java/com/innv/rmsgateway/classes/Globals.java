@@ -1,6 +1,8 @@
 package com.innv.rmsgateway.classes;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 
 import com.innv.rmsgateway.R;
@@ -8,10 +10,12 @@ import com.innv.rmsgateway.classes.DefrostProfile;
 import com.innv.rmsgateway.classes.DefrostProfileManager;
 import com.innv.rmsgateway.classes.ProfileManager;
 import com.innv.rmsgateway.data.DBHandler;
+import com.innv.rmsgateway.sensornode.SensorDataDecoder;
 
 import java.util.ResourceBundle;
 
 public class Globals {
+    private static final int MODE_PRIVATE = 0;
     public static String orgCode = "ps19";
     public static final String APPLICATION_LOOKUP_LIST_NAME = "ApplicationLookups";
     public static DBHandler db;
@@ -24,6 +28,18 @@ public class Globals {
     public static int WARNING = Color.parseColor("#F18F01");
     public static int BELOW_THRESHOLD = Color.parseColor("#41BBD9");
 
+    static SharedPreferences pref;
+
+    public static  double CtoF(double c){
+        double ret =  c*9/5+32;
+        return SensorDataDecoder.round(ret, 1);
+    }
+
+    public static double FtoC(double F){
+        double b=F-32;
+        double ret = b*5/9;
+        return SensorDataDecoder.round(ret, 1);
+    }
 
     public static final int[] AlertType = new int[]{
             R.string.all,
@@ -35,9 +51,20 @@ public class Globals {
             R.string.comfail,
     };
 
+    public static void storeSharedPref(){
+        @SuppressLint("CommitPrefEdits") SharedPreferences.Editor editor = pref.edit();
+        editor.putBoolean("isTempC", useCelsius);
+        editor.apply();
+    }
+
 
     public static void setDbContext(Context context) {
         dbContext = context;
+        pref = context.getSharedPreferences("RMS_SHARED_PREF", MODE_PRIVATE);
+
+
+        useCelsius = pref.getBoolean("isTempC", true);  // getting boolean
+
         db=DBHandler.getInstance(context);
         ProfileManager.init();
         DefrostProfileManager.init();

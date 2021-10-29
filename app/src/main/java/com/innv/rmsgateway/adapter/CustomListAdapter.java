@@ -69,8 +69,8 @@ public class CustomListAdapter extends BaseAdapter {
                     inflate(R.layout.defrost_child, parent, false);
         }
 
-        TextView intervalCount = (TextView) convertView.findViewById(R.id.intervalCount);
-        intervalCount.setText(Integer.toString(position + 1));
+/*        TextView intervalCount = (TextView) convertView.findViewById(R.id.intervalCount);
+        intervalCount.setText(Integer.toString(position + 1));*/
 
         EditText et_startInterval = (EditText) convertView.findViewById(R.id.et_startInterval);
         et_startInterval.setClickable(true);

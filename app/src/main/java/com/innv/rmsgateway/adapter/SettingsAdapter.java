@@ -17,6 +17,7 @@ import androidx.core.content.ContextCompat;
 import com.innv.rmsgateway.ActivityDashboard;
 import com.innv.rmsgateway.R;
 import com.innv.rmsgateway.activity.AddNodesActivity;
+import com.innv.rmsgateway.activity.DataGridViewActivity;
 import com.innv.rmsgateway.activity.TypeProfileActivity;
 import com.innv.rmsgateway.classes.Globals;
 import com.innv.rmsgateway.sensornode.SensorNode;
@@ -26,7 +27,7 @@ public class SettingsAdapter extends BaseAdapter {
     final String[] settingsList = new String[]{
       "Type Profiles",
       "Defrost Profiles",
-      "Asset Management",
+      "Assets Management",
       "Temperature Unit - "
     };
 
@@ -73,7 +74,8 @@ public class SettingsAdapter extends BaseAdapter {
                 ll_settings.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Intent intent = new Intent(context, TypeProfileActivity.class);
+                        Intent intent = new Intent(context, DataGridViewActivity.class);
+                        intent.putExtra("SettingType", "Profile");
                         context.startActivity(intent);
                     }
                 });
@@ -116,6 +118,7 @@ public class SettingsAdapter extends BaseAdapter {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
                                 Globals.useCelsius = which == 0;
+                                Globals.storeSharedPref();
                                 notifyDataSetChanged();
                             }
                         });

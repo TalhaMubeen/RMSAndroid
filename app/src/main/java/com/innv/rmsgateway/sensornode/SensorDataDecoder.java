@@ -1,6 +1,7 @@
 package com.innv.rmsgateway.sensornode;
 
 
+import com.innv.rmsgateway.classes.Globals;
 import com.innv.rmsgateway.data.BleDevice;
 
 import java.nio.ByteBuffer;
@@ -111,7 +112,6 @@ public class SensorDataDecoder {
         temp += sensorData[TEMPERATURE1_LOCATION];
         double ret = round((double)temp*0.01, 2);
         return  ret;
-
     }
 
     public static double round(double value, int places) {

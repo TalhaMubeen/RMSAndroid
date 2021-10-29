@@ -1,6 +1,7 @@
 package com.innv.rmsgateway.activity;
 
 import androidx.annotation.RequiresApi;
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
@@ -43,6 +44,10 @@ public class ScanActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_scan_nodes);
+
+        getSupportActionBar().hide();
+      //  getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         initView();
     }
 
@@ -106,8 +111,6 @@ public class ScanActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void initView() {
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
 
         iv_refresh = (ImageView) findViewById(R.id.iv_refresh);
         iv_refresh.setOnClickListener(this);

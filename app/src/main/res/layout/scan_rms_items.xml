@@ -119,7 +119,7 @@
                     android:layout_height="match_parent"
                     android:layout_marginStart="2dp"
                     android:layout_weight="1.7"
-                    android:text="Select Profile"
+                    android:text="Type Profile"
                     android:layout_gravity="center"
                     android:gravity="center"
                     android:textColor="@color/black"
@@ -155,7 +155,7 @@
                     android:layout_weight="1.7"
                     android:layout_height="match_parent"
                     android:layout_marginStart="2dp"
-                    android:text="Defrost Cycle"
+                    android:text="Defrost Profile"
                     android:layout_gravity="center"
                     android:gravity="center"
                     android:textColor="@color/black"
@@ -175,12 +175,55 @@
 
             </LinearLayout>
 
+
+            <LinearLayout
+                android:visibility="gone"
+                android:id="@+id/ll_monitor_node"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="1dp"
+                android:layout_margin="1dp"
+                android:background="@drawable/dropdown_bg"
+                android:gravity="center">
+
+                <TextView
+                    android:background="@color/white"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+                    android:layout_width="match_parent"
+                    android:layout_weight="5"
+                    android:layout_height="match_parent"
+                    android:layout_marginStart="20dp"
+                    android:text="Monitor Node"
+                    android:layout_gravity="center"
+                    android:gravity="start|center_vertical"
+                    android:textColor="@color/black"
+                    android:singleLine="true"/>
+
+                <CheckBox
+                    android:layout_weight=".1"
+                    android:id="@+id/add_checkbox"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:buttonTint="@color/black" />
+
+            </LinearLayout>
+
             <Button
                 android:id="@+id/btn_addNode"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:buttonTint="@color/black"
                 android:text="Add Node"
+                android:gravity="center" />
+
+            <Button
+                android:id="@+id/btn_updateNode"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:buttonTint="@color/black"
+                android:visibility="gone"
+                android:text="Update Node"
                 android:gravity="center" />
 
 <!--            <LinearLayout

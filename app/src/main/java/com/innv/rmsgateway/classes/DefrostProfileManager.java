@@ -21,6 +21,8 @@ public class DefrostProfileManager {
         defrostProfiles.add(defrostInterval3);
     }
 
+    public static List<DefrostProfile> getDefrostProfiles(){ return defrostProfiles;}
+
     public static DefrostProfile getDefrostProfile(String name){
         for(DefrostProfile profile: defrostProfiles){
             if(profile.getName().equals(name)){

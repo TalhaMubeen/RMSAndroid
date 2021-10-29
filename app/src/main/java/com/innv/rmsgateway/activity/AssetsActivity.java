@@ -217,7 +217,7 @@ public class AssetsActivity extends AppCompatActivity implements
         }
 
         if (gv_assetsAdapter == null) {
-            gv_assetsAdapter = new AssetsViewAdapter(this, dataList);
+            gv_assetsAdapter = new AssetsViewAdapter(this, dataList, false);
             gvDevices = (GridView) findViewById(R.id.gv_devices);
             gvDevices.setAdapter(gv_assetsAdapter);
         } else {

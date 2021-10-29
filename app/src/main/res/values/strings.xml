@@ -44,7 +44,7 @@
     <string name="scan_rms_node">Scan RMS Node</string>
     <string name="rms_node_details">RMS Node Details</string>
     <string name="monitor_node">Manage RMS Nodes</string>
-    <string name="scanning_nodes">Scanning RMS Nodes</string>
+    <string name="scanning_nodes">Adding Nodes</string>
     <string name="confirmation">Delete RMS Node</string>
     <string name="max_temp">Max Temp</string>
     <string name="normal">Normal</string>

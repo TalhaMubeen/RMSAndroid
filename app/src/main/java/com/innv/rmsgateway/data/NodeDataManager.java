@@ -8,6 +8,7 @@ import com.innv.rmsgateway.classes.AlertManager;
 import com.innv.rmsgateway.classes.DefrostProfile;
 import com.innv.rmsgateway.classes.Globals;
 import com.innv.rmsgateway.classes.Profile;
+import com.innv.rmsgateway.classes.ProfileManager;
 import com.innv.rmsgateway.sensornode.SensorNode;
 
 import java.text.SimpleDateFormat;
@@ -71,23 +72,33 @@ public class NodeDataManager {
         AlertManager.parseListItems(retAlerts);
     }
 
-
-    public static void AddDummyDatainDB(){
-      /*  SensorNode sn1 = new SensorNode("11:11:11:11","Dummy 1", "2:45am", 4, 6, 1,true,22.5,40,13.5, -99.6, true, ProfileManager.DefaultProfile);
-        SensorNode sn2 = new SensorNode("12:12:12:12","Dummy 2", "3:45am", 5, 6, 1,false,22.5,40,13.5, -99.6, true, ProfileManager.DefaultProfile);
-        SensorNode sn3 = new SensorNode("13:13:13:13","Dummy 3", "4:45am", 6, 6, 1,true,22.5,40,13.5, -99.6, false, ProfileManager.DefaultProfile);
-        SensorNode sn4 = new SensorNode("14:14:14:14","Dummy 4", "5:45am", 7, 6, 1,false,22.5,40,13.5, -99.6, true, ProfileManager.DefaultProfile);
-        SensorNode sn5 = new SensorNode("15:15:15:15","Dummy 5", "6:45am", 8, 6, 1,true,22.5,40,13.5, -99.6, true, ProfileManager.DefaultProfile);
-        SensorNode sn6 = new SensorNode("16:16:16:16","Dummy 6", "7:45am", 9, 6, 1,false,22.5,40,13.5, -99.6, false, ProfileManager.DefaultProfile);
-
-        SaveSensorNodeData(sn1);
-        SaveSensorNodeData(sn2);
-        SaveSensorNodeData(sn3);
-        SaveSensorNodeData(sn4);
-        SaveSensorNodeData(sn5);
-        SaveSensorNodeData(sn6);*/
+    public static List<StaticListItem> getAllProfilesList(){
+        List<StaticListItem> items =  Globals.db.getProfileList(Globals.dbContext.getString(R.string.RMS_DEVICES),Globals.orgCode, "");
+        return items;
     }
 
+    public static boolean AddorUpdateProfile(String title, Profile profile, boolean updateProfiles){
+        title = title.toUpperCase();
+
+        String opt1 = profile.getJsonObject().toString();
+        StaticListItem item = new StaticListItem(Globals.orgCode,
+                Globals.dbContext.getString(R.string.RMS_DEVICES),
+                "", title,
+                opt1, "");
+
+       if(Globals.db.AddorUpdateProfileList( Globals.dbContext.getString(R.string.RMS_DEVICES),Globals.orgCode, title, item)){
+           if(updateProfiles) {
+               ProfileManager.init();
+           }
+           return true;
+       }
+       return false;
+    }
+
+    public static void UpdateNodeDetails(String macAddress, SensorNode node){
+        node.setName(node.getName().toUpperCase());
+        SaveSensorNodeData(node);
+    }
 
     public static void AddNodeToDB(String name, String macAddress, Profile profile, DefrostProfile defrostProfile){
         name = name.toUpperCase();
@@ -135,6 +146,7 @@ public class NodeDataManager {
 
 
     public static SensorNode getAllNodeFromMac(String mac){
+
         for(SensorNode node : getAllNodesLst()){
             if(node.getMacID().equals(mac)){
                 return node;
@@ -160,7 +172,6 @@ public class NodeDataManager {
         }
 
         AddorUpdateData(node);
-
     }
 
     private static void AddorUpdateData(SensorNode data){
@@ -190,6 +201,8 @@ public class NodeDataManager {
             if(data.isPreChecked()){
                 allNodesData.get("Checked").add(data);
             }
+        }else{
+            updateAlertManager();
         }
     }
 
@@ -276,9 +289,7 @@ public class NodeDataManager {
         init();
     }
 
-
     //Alerts data handling
-
     public static void SaveAlertData(AlertData data){
 
         if(data.getAlertDay().isEmpty()) {

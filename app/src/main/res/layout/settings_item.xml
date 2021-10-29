@@ -23,8 +23,8 @@
             android:layout_gravity="center"
             android:adjustViewBounds="true"
             android:scaleType="centerCrop"
-            android:maxWidth="45dip"
-            android:padding="11dp"
+            android:maxWidth="50dip"
+            android:padding="12dp"
             android:src="@drawable/tem_unit_icon"
             android:layout_width="wrap_content"
             android:layout_height="65dp">

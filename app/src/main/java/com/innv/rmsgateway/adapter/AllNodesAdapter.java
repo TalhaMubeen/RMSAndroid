@@ -117,7 +117,7 @@ public class AllNodesAdapter extends BaseAdapter {
 
         TextView tv_profile = (TextView) nodeView.findViewById(R.id.tv_profile);
         Profile prof = item.getProfile();
-        tv_profile.setText(prof.getName());
+        tv_profile.setText(prof.getTitle());
 
 
         EditText et_maxTemp = (EditText) nodeView.findViewById(R.id.et_maxTemp);

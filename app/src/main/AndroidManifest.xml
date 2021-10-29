@@ -74,6 +74,12 @@
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 
+        <activity
+            android:name=".activity.DataGridViewActivity"
+            android:label="@string/rms_node_details"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+
         <service
             android:name=".service.BLEBackgroundService"
             android:enabled="true"

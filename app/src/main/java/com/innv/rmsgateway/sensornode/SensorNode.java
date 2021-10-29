@@ -31,7 +31,7 @@ import static android.content.ContentValues.TAG;
  */
 
 @SuppressLint("SimpleDateFormat")
-public class  SensorNode implements IConvertHelper {
+public class SensorNode implements IConvertHelper, Cloneable {
 
     private String macID;
 
@@ -294,11 +294,9 @@ public class  SensorNode implements IConvertHelper {
         this.timeSynced = timeSynced;
     }
 
-    public double getTemperature() { return temperature; }
+    public double getTemperature() { if(!Globals.useCelsius) { return Globals.CtoF(temperature); } return temperature; }
 
-    public void setTemperature(double temp) {
-        this.temperature = temp;
-    }
+    public void setTemperature(double temp) { this.temperature = temp; }
 
     public int getHumidity() {
         return humidity;
@@ -326,7 +324,7 @@ public class  SensorNode implements IConvertHelper {
             setTimeSinceWakeup(jsonObject.optInt("timeSinceWakeup"));
             setTimeSlot(jsonObject.optInt("timeSlot"));
             setTimeSynced(jsonObject.optBoolean("timeSynced"));
-            setTemperature(jsonObject.optDouble("temperature"));
+            temperature = jsonObject.optDouble("temperature");
             setHumidity(jsonObject.optInt("humidity"));
             setBatteryVoltage(jsonObject.optDouble("batteryVoltage"));
             setRssi(jsonObject.optDouble("rssi"));
@@ -377,7 +375,7 @@ public class  SensorNode implements IConvertHelper {
             jo.put("timeSinceWakeup", getTimeSinceWakeup());
             jo.put("timeSlot", getTimeSlot());
             jo.put("timeSynced", isTimeSynced());
-            jo.put("temperature", getTemperature());
+            jo.put("temperature", temperature);
             jo.put("humidity", getHumidity());
             jo.put("batteryVoltage", getBatteryVoltage());
             jo.put("rssi", getRssi());

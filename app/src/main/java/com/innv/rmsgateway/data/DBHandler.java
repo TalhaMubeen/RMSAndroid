@@ -20,7 +20,7 @@ import java.util.List;
 public class DBHandler extends SQLiteOpenHelper{
     // Database Version
     private static DBHandler sInstance;
-    private static final int DATABASE_VERSION = 5;
+    private static final int DATABASE_VERSION = 1;
 
     // Database Name
     private static final String DATABASE_NAME = "RMS";
@@ -29,6 +29,7 @@ public class DBHandler extends SQLiteOpenHelper{
     private static final String TABLE_DEVICES_LOOKUPS = "devicelookup";
     private static final String TABLE_DEVICES_LOG = "devicelog";
     private static final String TABLE_DEVICES_ALERTS = "alertsdata";
+    private static final String TABLE_RMS_PROFILES = "profileList";
 
     public static synchronized DBHandler getInstance(Context context) {
         // Use the application context, which will ensure that you
@@ -78,6 +79,14 @@ public class DBHandler extends SQLiteOpenHelper{
                 + " OPTPARAM1 TEXT,"
                 + "PRIMARY KEY(ORGCODE,LISTNAME,CODE, ALERTTYPE))";
         db.execSQL(CREATE_ALERTS_TABLE);
+
+        String CREATE_PROFILES_TABLE="CREATE TABLE " + TABLE_RMS_PROFILES
+                + " ( ORGCODE TEXT NOT NULL,"
+                + " LISTNAME  NOT NULL,"
+                + " TITLE TEXT NOT NULL,"
+                + " OPTPARAM1 TEXT,"
+                + "PRIMARY KEY(ORGCODE, LISTNAME, TITLE))";
+        db.execSQL(CREATE_PROFILES_TABLE);
     }
 
     @Override
@@ -86,6 +95,7 @@ public class DBHandler extends SQLiteOpenHelper{
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_DEVICES_LOOKUPS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_DEVICES_LOG);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_DEVICES_ALERTS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_RMS_PROFILES);
         onCreate(db);
     }
 
@@ -94,6 +104,7 @@ public class DBHandler extends SQLiteOpenHelper{
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_DEVICES_LOOKUPS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_DEVICES_LOG);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_DEVICES_ALERTS);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_RMS_PROFILES);
         onCreate(db);
     }
 
@@ -103,6 +114,7 @@ public class DBHandler extends SQLiteOpenHelper{
             db.execSQL("DELETE FROM " + TABLE_DEVICES_LOOKUPS);
             db.execSQL("DELETE FROM " + TABLE_DEVICES_LOG);
             db.execSQL("DELETE FROM " + TABLE_DEVICES_ALERTS);
+            db.execSQL("DELETE FROM " + TABLE_RMS_PROFILES);
         }catch (Exception e)
         {
             e.printStackTrace();
@@ -149,6 +161,84 @@ public class DBHandler extends SQLiteOpenHelper{
                 "code='"+ code+"'";
 
         db.execSQL(sql);
+    }
+
+    public List<StaticListItem> getProfileList(String listName, String orgCode, String title) {
+        List<StaticListItem> items = new ArrayList<StaticListItem>();
+        String sql = "SELECT * FROM  " + TABLE_RMS_PROFILES +
+                " WHERE LISTNAME='" + listName + "' AND " +
+                " ORGCODE = '" + orgCode + "'";
+
+        if (!title.isEmpty()) {
+            sql += " AND TITLE='" + title + "'";
+        }
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(sql, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                StaticListItem item = new StaticListItem();
+                item.setOrgCode(cursor.getString(0));
+                item.setListName(cursor.getString(1));
+                item.setDescription(cursor.getString(2));
+                item.setOptParam1(cursor.getString(3));
+                items.add(item);
+
+            } while (cursor.moveToNext());
+        }
+        return items;
+    }
+
+
+    private int UpdateProfile(String listName,String orgCode, String title, StaticListItem array) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        int count = 0;
+        String optParam1 = replaceSingleQoute(array.getOptParam1());
+
+        try {
+            String sql = "UPDATE " + TABLE_RMS_PROFILES + " SET "
+                    + " OPTPARAM1='" + optParam1 + "'"
+                    + " WHERE ORGCODE='" + orgCode + "' AND LISTNAME='" + listName + "' AND TITLE='" + title + "'";
+            db.execSQL(sql);
+            count++;
+        } catch (Exception e) {
+            Log.e("UpdateProfile", "Error:" + listName + ":" + array.getCode());
+
+        }
+
+        return count;
+    }
+
+    private int AddProfile(String listName,String orgCode, String title, StaticListItem array) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        int count = 0;
+
+        try {
+            ContentValues values = new ContentValues();
+            values.put("ORGCODE", orgCode);
+            values.put("LISTNAME", listName);
+            values.put("TITLE", title);
+            values.put("OPTPARAM1", array.getOptParam1());
+            db.insert(TABLE_RMS_PROFILES, null, values);
+            count++;
+        } catch (Exception e) {
+
+        }
+
+        return count;
+
+    }
+
+    public boolean AddorUpdateProfileList(String listName,String orgCode, String title, StaticListItem array){
+        List<StaticListItem> items = getProfileList(listName, orgCode, title);
+        if(items.size()==1)
+        {
+            return UpdateProfile(listName, orgCode, title, array) > 0;
+        }else
+        {
+            return AddProfile(listName, orgCode, title, array) > 0;
+        }
     }
 
     public int AddOrUpdateList(String listName,String orgCode, String code, StaticListItem array) {
