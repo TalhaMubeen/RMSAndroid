@@ -75,6 +75,12 @@
             android:screenOrientation="portrait" />
 
         <activity
+            android:name=".activity.DefrostProfileActivity"
+            android:label="@string/rms_node_details"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+
+        <activity
             android:name=".activity.DataGridViewActivity"
             android:label="@string/rms_node_details"
             android:launchMode="singleTask"

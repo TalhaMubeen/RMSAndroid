@@ -7,6 +7,7 @@ import com.innv.rmsgateway.classes.AlertData;
 import com.innv.rmsgateway.classes.AlertManager;
 import com.innv.rmsgateway.classes.AlertType;
 import com.innv.rmsgateway.classes.DefrostProfile;
+import com.innv.rmsgateway.classes.DefrostProfileManager;
 import com.innv.rmsgateway.classes.Globals;
 import com.innv.rmsgateway.classes.NodeState;
 import com.innv.rmsgateway.classes.Profile;
@@ -78,6 +79,12 @@ public class NodeDataManager {
         return items;
     }
 
+    public static List<StaticListItem> getAllDefrostProfilesList(){
+        List<StaticListItem> items =  Globals.db.getDefrostProfileList(Globals.dbContext.getString(R.string.RMS_DEVICES),
+                Globals.orgCode, "");
+        return items;
+    }
+
     public static boolean AddorUpdateProfile(String title, Profile profile, boolean updateProfiles){
 
         String opt1 = profile.getJsonObject().toString();
@@ -94,6 +101,25 @@ public class NodeDataManager {
        }
        return false;
     }
+
+    public static boolean AddorUpdateDefrostProfile(String title, DefrostProfile profile, boolean updateProfiles){
+
+        String opt1 = profile.getJsonObject().toString();
+        StaticListItem item = new StaticListItem(Globals.orgCode,
+                Globals.dbContext.getString(R.string.RMS_DEVICES),
+                "", title,
+                opt1, "");
+
+        if(Globals.db.AddorUpdateDefrostProfileList( Globals.dbContext.getString(R.string.RMS_DEVICES),Globals.orgCode, title, item)){
+            if(updateProfiles) {
+                DefrostProfileManager.init();
+            }
+            return true;
+        }
+        return false;
+    }
+
+
 
     public static void UpdateNodeDetails(String macAddress, SensorNode node){
         SaveSensorNodeData(node);

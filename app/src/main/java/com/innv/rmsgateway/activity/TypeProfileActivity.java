@@ -47,6 +47,7 @@ public class TypeProfileActivity extends AppCompatActivity {
     AlertDialog alertDialog;
     List<Integer> warn2AlertTimeList = new ArrayList<Integer>(Arrays.asList(0,5,10,20,30,60));
     String title ;
+    boolean updatingProfileInfo = false;
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -67,9 +68,11 @@ public class TypeProfileActivity extends AppCompatActivity {
         title = getIntent().getStringExtra("Title");
 
         if(!title.isEmpty()) {
+            updatingProfileInfo = true;
             getSupportActionBar().setTitle(title);
             selectedProfile = ProfileManager.getProfile(title);
         }else{
+            updatingProfileInfo = false;
             selectedProfile = null;
             getSupportActionBar().setTitle("Add Profile");
         }
@@ -81,12 +84,20 @@ public class TypeProfileActivity extends AppCompatActivity {
 
     private Boolean isDataChanged(boolean showAlerts) {
         try {
-            updatedDataProfile = new Profile();
+
 
             if(et_profile_name.getText().toString().isEmpty()){
                if(showAlerts) Toast.makeText(context, "Profile name can not be empty", Toast.LENGTH_SHORT).show();
                 return false;
             }
+            String profileTitle = Globals.capitalize(et_profile_name.getText().toString());
+            Profile prof = ProfileManager.getProfile(profileTitle);
+            if(prof!= null && showAlerts && !updatingProfileInfo) {
+                Toast.makeText(context, profileTitle + " already exists!", Toast.LENGTH_SHORT).show();
+                return false;
+            }
+
+            updatedDataProfile = new Profile();
             updatedDataProfile.setTitle(Globals.capitalize(et_profile_name.getText().toString()));
 
             if(et_min_temp.getText().toString().isEmpty()){
@@ -192,7 +203,14 @@ public class TypeProfileActivity extends AppCompatActivity {
                     //updatedDataProfile
 
                     if(NodeDataManager.AddorUpdateProfile(updatedDataProfile.getTitle(), updatedDataProfile, true)){
-                        Toast.makeText(context, "Profile " + updatedDataProfile.getTitle() + " added successfully", Toast.LENGTH_SHORT).show();
+                        String toastTitle = "Profile " + updatedDataProfile.getTitle();
+                        if(updatingProfileInfo){
+                            toastTitle +=   " updated successfully";
+                        }else{
+                            toastTitle +=   " added successfully";
+                        }
+
+                        Toast.makeText(context, toastTitle, Toast.LENGTH_SHORT).show();
                         finish();
                     }
                 }
@@ -213,8 +231,6 @@ public class TypeProfileActivity extends AppCompatActivity {
         });
 
     }
-
-
 
     private void showAlertifRequired() {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -260,6 +276,9 @@ public class TypeProfileActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
+        if(alertDialog != null){
+            alertDialog.dismiss();
+        }
     }
 
     @Override

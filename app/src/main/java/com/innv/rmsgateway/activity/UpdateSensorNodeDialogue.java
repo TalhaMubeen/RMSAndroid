@@ -78,16 +78,16 @@ public class UpdateSensorNodeDialogue {
         if (profileNameList.size() == 0) {
             sp_profile.setEnabled(false);
         } else {
-            selectedProfile = ProfileManager.IceCream;
-            int index = profileNameList.indexOf(selectedProfile.getTitle());
+            int index =0;
+            selectedProfile = ProfileManager.getProfile(profileNameList.get(index));
             sp_profile.setSelection(index, false);
         }
 
         if (defrostProfileNames.size() == 0) {
             sp_defrostProfile.setEnabled(false);
         } else {
-            selectedDefrostProf = DefrostProfileManager.None;
-            int index = defrostProfileNames.indexOf(selectedDefrostProf.getName());
+            int index =0;
+            selectedDefrostProf = DefrostProfileManager.getDefrostProfile(defrostProfileNames.get(index));
             sp_defrostProfile.setSelection(index, false);
         }
 
@@ -137,9 +137,13 @@ public class UpdateSensorNodeDialogue {
         add_checkbox.setChecked(node.isPreChecked());
 
         selectedProfile = ProfileManager.getProfile(node.getProfileTitle());
+
         selectedDefrostProf = DefrostProfileManager.getDefrostProfile(node.getDefrostProfileTitle());
         sp_profile.setSelection(profileAdapter.getPosition(selectedProfile.getTitle()));
-        sp_defrostProfile.setSelection(defrostAdapter.getPosition(selectedDefrostProf.getName()));
+
+        if(selectedDefrostProf != null) {
+            sp_defrostProfile.setSelection(defrostAdapter.getPosition(selectedDefrostProf.getName()));
+        }
 
         iv_profileIcon.setImageDrawable(ContextCompat.getDrawable(context, selectedProfile.getProfileImageId()));
 
@@ -148,7 +152,10 @@ public class UpdateSensorNodeDialogue {
             public void onClick(View view) {
                 if (node_name.getText().length() > 0 && node_name.isEnabled()) {
                     String profileSelected = sp_profile.getSelectedItem().toString();
-                    String defrostSelected = sp_defrostProfile.getSelectedItem().toString();
+                    String defrostSelected = "";
+                    if(defrostProfileNames.size() > 0) {
+                        defrostSelected = sp_defrostProfile.getSelectedItem().toString();
+                    }
 
                     SensorNode node = new SensorNode(
                             Objects.requireNonNull(
@@ -161,7 +168,6 @@ public class UpdateSensorNodeDialogue {
                     node.setPreChecked(add_checkbox.isChecked());
 
                     try {
-
                         btn_updateNode.setEnabled(false);
                         node_name.setEnabled(false);
                         NodeDataManager.UpdateNodeDetails(tv_address.getText().toString(), node);

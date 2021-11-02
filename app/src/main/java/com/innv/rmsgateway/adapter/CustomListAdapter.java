@@ -1,3 +1,4 @@
+/*
 package com.innv.rmsgateway.adapter;
 
 import android.annotation.SuppressLint;
@@ -69,8 +70,10 @@ public class CustomListAdapter extends BaseAdapter {
                     inflate(R.layout.defrost_child, parent, false);
         }
 
+*/
 /*        TextView intervalCount = (TextView) convertView.findViewById(R.id.intervalCount);
-        intervalCount.setText(Integer.toString(position + 1));*/
+        intervalCount.setText(Integer.toString(position + 1));*//*
+
 
         EditText et_startInterval = (EditText) convertView.findViewById(R.id.et_startInterval);
         et_startInterval.setClickable(true);
@@ -137,12 +140,14 @@ public class CustomListAdapter extends BaseAdapter {
                 }
                 editText.setText(selectedHour + ":" + selectedMinute);
 
+*/
 /*                if (!prof.isEmpty() && prof.isOk()) {
                     Objects.requireNonNull(profileMap.get(selectedNode)).addDefrostProfile(defrostTimeProfile);
-                }*/
+                }*//*
+
             }
         }, hour, minute, true);
         timePickerDialog.show();
     }
 
-}
+}*/

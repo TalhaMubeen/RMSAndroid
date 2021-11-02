@@ -80,6 +80,14 @@ public class SettingsAdapter extends BaseAdapter {
 
             case 1:
                 iv_settingType.setImageDrawable(ContextCompat.getDrawable(context,R.drawable.defrost_icon_black));
+                ll_settings.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(context, DataGridViewActivity.class);
+                        intent.putExtra("SettingType", "Defrost");
+                        context.startActivity(intent);
+                    }
+                });
                 break;
 
             case 2:

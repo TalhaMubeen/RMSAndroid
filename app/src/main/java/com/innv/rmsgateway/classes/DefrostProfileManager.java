@@ -1,24 +1,38 @@
 package com.innv.rmsgateway.classes;
 
+import com.innv.rmsgateway.data.NodeDataManager;
+import com.innv.rmsgateway.data.StaticListItem;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class DefrostProfileManager {
 
-    public static DefrostProfile None = new DefrostProfile("None",0,0,0,0);
-    public static DefrostProfile defrostInterval1 = new DefrostProfile("Defrost 11/12",11,0,12,0);
-    public static DefrostProfile defrostInterval2 = new DefrostProfile("Defrost 13/14",13,0,14,0);
-    public static DefrostProfile defrostInterval3 = new DefrostProfile("Defrost 15:30/16:30",15,30,16,30);
-
-
     private static List<DefrostProfile> defrostProfiles = new ArrayList<>();
 
     public static void init(){
+
         defrostProfiles.clear();
-        defrostProfiles.add(None);
-        defrostProfiles.add(defrostInterval1);
-        defrostProfiles.add(defrostInterval2);
-        defrostProfiles.add(defrostInterval3);
+        List<StaticListItem> profiles =  NodeDataManager.getAllDefrostProfilesList();
+
+        for(StaticListItem item : profiles){
+            JSONObject jsonObject = null;
+            try {
+                jsonObject = new JSONObject(item.getOptParam1());
+                DefrostProfile prof = new DefrostProfile();
+                if(prof.parseJsonObject(jsonObject)) {
+                    defrostProfiles.add(prof);
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+
     }
 
     public static List<DefrostProfile> getDefrostProfiles(){ return defrostProfiles;}

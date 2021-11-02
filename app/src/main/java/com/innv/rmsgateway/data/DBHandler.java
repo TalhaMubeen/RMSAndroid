@@ -30,6 +30,7 @@ public class DBHandler extends SQLiteOpenHelper{
     private static final String TABLE_DEVICES_LOG = "devicelog";
     private static final String TABLE_DEVICES_ALERTS = "alertsdata";
     private static final String TABLE_RMS_PROFILES = "profileList";
+    private static final String TABLE_RMS_DEFROST_PROFILES = "defrostProfileList";
 
     public static synchronized DBHandler getInstance(Context context) {
         // Use the application context, which will ensure that you
@@ -87,6 +88,14 @@ public class DBHandler extends SQLiteOpenHelper{
                 + " OPTPARAM1 TEXT,"
                 + "PRIMARY KEY(ORGCODE, LISTNAME, TITLE))";
         db.execSQL(CREATE_PROFILES_TABLE);
+
+        String CREATE_DEFROST_PROFILES_TABLE="CREATE TABLE " + TABLE_RMS_DEFROST_PROFILES
+                + " ( ORGCODE TEXT NOT NULL,"
+                + " LISTNAME  NOT NULL,"
+                + " TITLE TEXT NOT NULL,"
+                + " OPTPARAM1 TEXT,"
+                + "PRIMARY KEY(ORGCODE, LISTNAME, TITLE))";
+        db.execSQL(CREATE_DEFROST_PROFILES_TABLE);
     }
 
     @Override
@@ -96,6 +105,7 @@ public class DBHandler extends SQLiteOpenHelper{
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_DEVICES_LOG);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_DEVICES_ALERTS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_RMS_PROFILES);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_RMS_DEFROST_PROFILES);
         onCreate(db);
     }
 
@@ -105,6 +115,7 @@ public class DBHandler extends SQLiteOpenHelper{
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_DEVICES_LOG);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_DEVICES_ALERTS);
         db.execSQL("DROP TABLE IF EXISTS " + TABLE_RMS_PROFILES);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_RMS_DEFROST_PROFILES);
         onCreate(db);
     }
 
@@ -115,6 +126,7 @@ public class DBHandler extends SQLiteOpenHelper{
             db.execSQL("DELETE FROM " + TABLE_DEVICES_LOG);
             db.execSQL("DELETE FROM " + TABLE_DEVICES_ALERTS);
             db.execSQL("DELETE FROM " + TABLE_RMS_PROFILES);
+            db.execSQL("DELETE FROM " + TABLE_RMS_DEFROST_PROFILES);
         }catch (Exception e)
         {
             e.printStackTrace();
@@ -163,6 +175,85 @@ public class DBHandler extends SQLiteOpenHelper{
         db.execSQL(sql);
     }
 
+    public List<StaticListItem> getDefrostProfileList(String listName, String orgCode, String title) {
+        List<StaticListItem> items = new ArrayList<StaticListItem>();
+        String sql = "SELECT * FROM  " + TABLE_RMS_DEFROST_PROFILES +
+                " WHERE LISTNAME='" + listName + "' AND " +
+                " ORGCODE = '" + orgCode + "'";
+
+        if (!title.isEmpty()) {
+            sql += " AND TITLE='" + title + "'";
+        }
+
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(sql, null);
+
+        if (cursor.moveToFirst()) {
+            do {
+                StaticListItem item = new StaticListItem();
+                item.setOrgCode(cursor.getString(0));
+                item.setListName(cursor.getString(1));
+                item.setDescription(cursor.getString(2));
+                item.setOptParam1(cursor.getString(3));
+                items.add(item);
+
+            } while (cursor.moveToNext());
+        }
+        return items;
+    }
+
+    public boolean AddorUpdateDefrostProfileList(String listName,String orgCode, String title, StaticListItem array){
+        List<StaticListItem> items = getProfileList(listName, orgCode, title);
+        if(items.size()==1)
+        {
+            return UpdateDefrostProfile(listName, orgCode, title, array) > 0;
+        }else
+        {
+            return AddDefrostProfile(listName, orgCode, title, array) > 0;
+        }
+    }
+
+    private int UpdateDefrostProfile(String listName,String orgCode, String title, StaticListItem array) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        int count = 0;
+        String optParam1 = replaceSingleQoute(array.getOptParam1());
+
+        try {
+            String sql = "UPDATE " + TABLE_RMS_DEFROST_PROFILES + " SET "
+                    + " OPTPARAM1='" + optParam1 + "'"
+                    + " WHERE ORGCODE='" + orgCode + "' AND LISTNAME='" + listName + "' AND TITLE='" + title + "'";
+            db.execSQL(sql);
+            count++;
+        } catch (Exception e) {
+            Log.e("UpdateProfile", "Error:" + listName + ":" + array.getCode());
+
+        }
+
+        return count;
+    }
+
+    private int AddDefrostProfile(String listName,String orgCode, String title, StaticListItem array) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        int count = 0;
+
+        try {
+            ContentValues values = new ContentValues();
+            values.put("ORGCODE", orgCode);
+            values.put("LISTNAME", listName);
+            values.put("TITLE", title);
+            values.put("OPTPARAM1", array.getOptParam1());
+            db.insert(TABLE_RMS_DEFROST_PROFILES, null, values);
+            count++;
+        } catch (Exception e) {
+
+        }
+
+        return count;
+
+    }
+
+
+
     public List<StaticListItem> getProfileList(String listName, String orgCode, String title) {
         List<StaticListItem> items = new ArrayList<StaticListItem>();
         String sql = "SELECT * FROM  " + TABLE_RMS_PROFILES +
@@ -190,6 +281,16 @@ public class DBHandler extends SQLiteOpenHelper{
         return items;
     }
 
+    public boolean AddorUpdateProfileList(String listName,String orgCode, String title, StaticListItem array){
+        List<StaticListItem> items = getProfileList(listName, orgCode, title);
+        if(items.size()==1)
+        {
+            return UpdateProfile(listName, orgCode, title, array) > 0;
+        }else
+        {
+            return AddProfile(listName, orgCode, title, array) > 0;
+        }
+    }
 
     private int UpdateProfile(String listName,String orgCode, String title, StaticListItem array) {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -230,16 +331,7 @@ public class DBHandler extends SQLiteOpenHelper{
 
     }
 
-    public boolean AddorUpdateProfileList(String listName,String orgCode, String title, StaticListItem array){
-        List<StaticListItem> items = getProfileList(listName, orgCode, title);
-        if(items.size()==1)
-        {
-            return UpdateProfile(listName, orgCode, title, array) > 0;
-        }else
-        {
-            return AddProfile(listName, orgCode, title, array) > 0;
-        }
-    }
+
 
     public int AddOrUpdateList(String listName,String orgCode, String code, StaticListItem array) {
         List<StaticListItem> items = getListItems(listName, orgCode, "", "code='" + code + "'");

@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.KeyEvent;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.Animation;
@@ -38,6 +39,18 @@ public class ScanActivity extends AppCompatActivity implements View.OnClickListe
     private ImageView iv_refresh;
     private SensorNodeAdapter mDeviceAdapter;
     List<SensorNode> allSavedNodes = new ArrayList<>();
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                BLEBackgroundService.removeBLEUpdateListener(this.getClass().getSimpleName());
+                finish();
+                return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +93,10 @@ public class ScanActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
+            case R.id.iv_back:
+                BLEBackgroundService.removeBLEUpdateListener(this.getClass().getSimpleName());
+                finish();
+                break;
             case R.id.iv_refresh:
                 if (iv_refresh.getAnimation() != null) {
                     if (!iv_refresh.getAnimation().hasEnded()) {
@@ -116,7 +133,6 @@ public class ScanActivity extends AppCompatActivity implements View.OnClickListe
         iv_refresh.setOnClickListener(this);
 
         mDeviceAdapter = new SensorNodeAdapter(this);
-        mDeviceAdapter.addDevices(BLEBackgroundService.getScannedBLEDeviceList());
 
         GridView listView_device = (GridView) findViewById(R.id.list_device);
         listView_device.setAdapter(mDeviceAdapter);
@@ -126,6 +142,11 @@ public class ScanActivity extends AppCompatActivity implements View.OnClickListe
 
         ImageView iv_scanqr = (ImageView) findViewById(R.id.iv_scanqr);
         iv_scanqr.setOnClickListener(this);
+
+        ImageView iv_back = (ImageView) findViewById(R.id.iv_back);
+        iv_back.setOnClickListener(this);
+
+
 
     }
 
@@ -157,14 +178,10 @@ public class ScanActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-
     @Override
     public void onBLEDeviceCallback(BleDevice device) {
         addDevice(device);
     }
-
-
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {

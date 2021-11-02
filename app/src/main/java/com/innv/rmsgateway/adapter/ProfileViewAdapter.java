@@ -13,7 +13,9 @@ import android.widget.TextView;
 import androidx.core.content.ContextCompat;
 
 import com.innv.rmsgateway.R;
+import com.innv.rmsgateway.activity.DefrostProfileActivity;
 import com.innv.rmsgateway.activity.TypeProfileActivity;
+import com.innv.rmsgateway.classes.DefrostProfile;
 import com.innv.rmsgateway.classes.Profile;
 
 import java.util.List;
@@ -22,27 +24,30 @@ public class ProfileViewAdapter extends BaseAdapter {
 
     Context context;
     List<Profile> profileList;
+    List<DefrostProfile> defrostProfiles;
     LayoutInflater inflater;
 
-    public ProfileViewAdapter(Context ctx, List<Profile> profiles) {
+    public ProfileViewAdapter(Context ctx, List<Profile> profiles, List<DefrostProfile> defrostProfiles) {
         context = ctx;
         profileList = profiles;
+        this.defrostProfiles = defrostProfiles;
         inflater = LayoutInflater.from(ctx);
     }
 
+
     @Override
     public int getCount() {
-        return profileList.size();
+        return profileList != null ? profileList.size() : defrostProfiles.size();
     }
 
     @Override
-    public Profile getItem(int position) {
-        return profileList.get(position);
+    public Object getItem(int position) {
+        return  profileList != null ? profileList.get(position) : defrostProfiles.get(position);
     }
 
     @Override
     public long getItemId(int position) {
-        return profileList.get(position).hashCode();
+        return profileList != null ?  profileList.get(position).hashCode() : defrostProfiles.get(position).hashCode();
     }
 
     @Override
@@ -57,24 +62,41 @@ public class ProfileViewAdapter extends BaseAdapter {
         ImageView iv_settingType = profView.findViewById(R.id.iv_settingType);
         TextView tv_settingName = profView.findViewById(R.id.tv_settingName);
         LinearLayout ll_settings = profView.findViewById(R.id.ll_settings);
-
-        Profile prof = getItem(position);
-
-        int imageId = prof.getProfileImageId();
-        iv_settingType.setImageDrawable(ContextCompat.getDrawable(context, imageId));
-
-        tv_settingName.setText(prof.getTitle());
-
-        ll_settings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(context, TypeProfileActivity.class);
-                intent.putExtra("Title", prof.getTitle());
-                context.startActivity(intent);
-            }
-        });
+        Profile prof;
+        DefrostProfile defrostProfile;
+        if(profileList != null) {
+            prof = (Profile) getItem(position);
 
 
+            int imageId = prof.getProfileImageId();
+            iv_settingType.setImageDrawable(ContextCompat.getDrawable(context, imageId));
+
+            tv_settingName.setText(prof.getTitle());
+
+            ll_settings.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(context, TypeProfileActivity.class);
+                    intent.putExtra("Title", prof.getTitle());
+                    context.startActivity(intent);
+                }
+            });
+
+        }else{
+
+            defrostProfile = (DefrostProfile) getItem(position);
+            iv_settingType.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.defrost_icon_black));
+            tv_settingName.setText(defrostProfile.getName());
+
+            ll_settings.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(context, DefrostProfileActivity.class);
+                    intent.putExtra("Title", defrostProfile.getName());
+                    context.startActivity(intent);
+                }
+            });
+        }
         return profView;
     }
 }

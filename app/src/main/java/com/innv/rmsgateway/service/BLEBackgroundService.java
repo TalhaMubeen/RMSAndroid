@@ -35,7 +35,7 @@ public class BLEBackgroundService extends Service {
     private Context mContext = null;
     private static  Intent bleService = null;
 
-    private static Map<String, String> _scannedList;
+
     private static SensorDataDecoder sensorDataDecoder;
     private static Boolean isScanning = false;
     private static List<SensorNode> allSavedNodes = NodeDataManager.getAllNodesLst();
@@ -74,14 +74,14 @@ public class BLEBackgroundService extends Service {
         BleManager.getInstance().init(getApplication());
         BleManager.getInstance()
                 .enableLog(false)
-                .setOperateTimeout(50000);
+                .setOperateTimeout(180000);
 
         BleScanRuleConfig scanRuleConfig = new BleScanRuleConfig.Builder()
                 .setServiceUuids(null)                  // Only scan the equipment of the specified service, optional
                 .setDeviceName(true, "")   // Only scan devices with specified broadcast name, optional
                 .setDeviceMac("")                       // Only scan devices of specified mac, optional
                 .setAutoConnect(false)                  // AutoConnect parameter when connecting, optional, default false
-                .setScanTimeOut(100000)                 // Scan timeout time, optional, 60-min
+                .setScanTimeOut(180000)                 // Scan timeout time, optional
                 .build();
         BleManager.getInstance().initScanRule(scanRuleConfig);
 
@@ -117,41 +117,17 @@ public class BLEBackgroundService extends Service {
         if(bleService != null){
             BleManager.getInstance().destroy();
             stopService(bleService);
-            thread.interrupt();
         }
 
         bleService = new Intent(getApplicationContext(), BLEBackgroundService.class);
         startService(bleService);
-
-        thread = new Thread() {
-            @Override
-            public void run() {
-                try {
-                    while (true) {
-                        if (!isScanning) {
-                            try {
-                                BleManager.getInstance().destroy();
-                            }catch (Exception e){
-
-                            }
-                            scanBLE();
-                        }
-                        Thread.sleep(5000);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        };
-
-        thread.start();
+        scanBLE();
     }
 
     private static void scanBLE(){
         BleManager.getInstance().scan(new BleScanCallback() {
             @Override
             public void onScanStarted(boolean success) {
-                _scannedList = new HashMap<>();
                 Log.i(TAG, "Started");
                 if(success) {
                     isScanning = true;
@@ -176,7 +152,6 @@ public class BLEBackgroundService extends Service {
                     else if(node.isPreChecked()) {
                         int humidity = sensorDataDecoder.getHumidity(bleDevice);
                         double temp = sensorDataDecoder.getTemperature(bleDevice);
-                        //String mac = bleDevice.getMac();
                         int rssi = bleDevice.getRssi();
 
                         node.setHumidity(humidity);
@@ -198,16 +173,11 @@ public class BLEBackgroundService extends Service {
             @Override
             public void onScanFinished(List<BleDevice> scanResultList) {
                 isScanning = false;
+                BleManager.getInstance().destroy();
+                scanBLE();
             }
         });
     }
-
-
-
-    public static List<String> getScannedBLEDeviceList(){
-        return _scannedList != null? new ArrayList<String>(_scannedList.values()) : new ArrayList<>();
-    }
-
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {

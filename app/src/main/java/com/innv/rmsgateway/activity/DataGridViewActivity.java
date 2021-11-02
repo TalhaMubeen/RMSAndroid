@@ -71,7 +71,7 @@ public class DataGridViewActivity extends AppCompatActivity {
             case "Profile":
                 getSupportActionBar().setTitle("Type Profiles");
                 profileList = ProfileManager.getProfileList();
-                ProfileViewAdapter profileViewAdapter = new ProfileViewAdapter(this, profileList);
+                ProfileViewAdapter profileViewAdapter = new ProfileViewAdapter(this, profileList, null);
                 gv_data_view.setAdapter(profileViewAdapter);
 
                 btn_addNew.setOnClickListener(new View.OnClickListener() {
@@ -88,6 +88,17 @@ public class DataGridViewActivity extends AppCompatActivity {
             case "Defrost":
                 getSupportActionBar().setTitle("Defrost Profiles");
                 defrostProfiles = DefrostProfileManager.getDefrostProfiles();
+                ProfileViewAdapter defrostProfileAdapter = new ProfileViewAdapter(this, null, defrostProfiles);
+                gv_data_view.setAdapter(defrostProfileAdapter);
+                btn_addNew.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(DataGridViewActivity.this, DefrostProfileActivity.class);
+                        intent.putExtra("Title", "");
+                        DataGridViewActivity.this.startActivity(intent);
+                    }
+                });
+
                 break;
 
             case "Assets":

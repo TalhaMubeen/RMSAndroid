@@ -146,16 +146,16 @@ public class SensorNodeAdapter extends BaseAdapter {
             sp_profile.setEnabled(false);
         }
         else{
-            selectedProfile = ProfileManager.IceCream;
-            int index = profileNameList.indexOf(selectedProfile.getTitle());
+            int index =0;
+            selectedProfile = ProfileManager.getProfile(profileNameList.get(index));
             sp_profile.setSelection(index, false);
         }
 
         if(defrostProfileNames.size() == 0){
             sp_defrostProfile.setEnabled(false);
         }else{
-            selectedDefrostProf = DefrostProfileManager.None;
-            int index = defrostProfileNames.indexOf(selectedDefrostProf.getName());
+            int index =0;
+            selectedDefrostProf = DefrostProfileManager.getDefrostProfile(defrostProfileNames.get(index));
             sp_defrostProfile.setSelection(index, false);
         }
 
@@ -202,7 +202,10 @@ public class SensorNodeAdapter extends BaseAdapter {
                 if (node_name.getText().length() > 0 && node_name.isEnabled()) {
 
                     String profileSelected = sp_profile.getSelectedItem().toString();
-                    String defrostSelected = sp_defrostProfile.getSelectedItem().toString();
+                    String defrostSelected = "";
+                    if(defrostProfileNames.size() > 0 ) {
+                        defrostSelected = sp_defrostProfile.getSelectedItem().toString();
+                    }
 
                     try {
 
