@@ -8,18 +8,16 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.GridView;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.innv.rmsgateway.R;
-import com.innv.rmsgateway.activity.ScanActivity;
 import com.innv.rmsgateway.adapter.AssetFiltersAdapter;
-import com.innv.rmsgateway.adapter.AssetsViewAdapter;
+import com.innv.rmsgateway.adapter.AssetManagementAdapter;
 import com.innv.rmsgateway.classes.AlertData;
 import com.innv.rmsgateway.classes.AlertManager;
-import com.innv.rmsgateway.classes.UpdateCounter;
 import com.innv.rmsgateway.data.BleDevice;
 import com.innv.rmsgateway.classes.Globals;
 import com.innv.rmsgateway.data.NodeDataManager;
@@ -32,7 +30,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 
@@ -47,7 +44,7 @@ public class AssetsActivity extends AppCompatActivity implements
     private GridView gvDevices;
 
     // A reference to the service used to get BLE Updates
-    AssetsViewAdapter gv_assetsAdapter;
+    AssetManagementAdapter gv_assetsAdapter;
     static boolean showOne = false;
     RecyclerView rvAssetFilters;
     AssetFiltersAdapter assets_adapter;
@@ -83,10 +80,9 @@ public class AssetsActivity extends AppCompatActivity implements
         if (position > -1) {
             selectedFilterPosition = position;
             selectedText = getString(Globals.AlertType[selectedFilterPosition]);
-
         }
 
-        AlertManager.setNotificationAlertCallback( this.getClass().getSimpleName() , this);
+        AlertManager.setNotificationAlertCallback(this.getClass().getSimpleName(), this);
 /*        ivAddDevices = (ImageView) findViewById(R.id.iv_add);
         ivAddDevices.setOnClickListener(this);*/
     }
@@ -121,7 +117,17 @@ public class AssetsActivity extends AppCompatActivity implements
             rvAssetFilters.scrollToPosition(selectedFilterPosition);
         }
 
-        updateData();
+        List<SensorNode> data = getAlertsList();
+        if (data.size() > 0) {
+            updateData();
+        } else {
+            if(selectedText ==  null || selectedText.equals("All")){
+                Toast.makeText(this, "No asset found", Toast.LENGTH_SHORT).show();
+            }else {
+                Toast.makeText(this, "No asset found in " + selectedText, Toast.LENGTH_SHORT).show();
+            }
+            onKeyDown(KeyEvent.KEYCODE_BACK, null);
+        }
     }
 
     public void UpdatePreCheckedNodes() {
@@ -141,6 +147,7 @@ public class AssetsActivity extends AppCompatActivity implements
     @Override
     protected void onPause() {
         super.onPause();
+        BLEBackgroundService.removeBLEUpdateListener(this.getClass().getSimpleName());
     }
 
     @Override
@@ -175,49 +182,21 @@ public class AssetsActivity extends AppCompatActivity implements
         updateData();
     }
 
-    @Override
-    public void updateData() {
-        List<SensorNode> dataList = new ArrayList<>(NodeDataManager.getPreCheckedNodes());
-        List<AlertData> alerts = new ArrayList<>(AlertManager.getAllNodesAlertList());
+    private List<SensorNode> getAlertsList() {
 
         selectedFilterPosition = assets_adapter.getSelectedFilterPosition();
         selectedText = assets_adapter.getSelectedText();
+        selectedText =  selectedText != null ? selectedText : "All";
+        List<SensorNode> dataList = new ArrayList<>(AlertManager.getNodesFromStatus(selectedText));
+        return dataList;
+    }
 
-        switch (selectedFilterPosition) {
-            //Generic logic to deal with every kind of filter
-            case 0: //ALL
-                break;
-            case 1: //Alert
-            case 2: //Warning
-            case 3: //Normal
-            case 4: //Defrost
-            case 5: //Offline
-            case 6: //ComFail
-
-                alerts.removeIf(x -> !x.getStatusString().equals(selectedText));
-                dataList.removeIf(data -> {
-
-                    AtomicBoolean ret = new AtomicBoolean(true);
-
-                    alerts.forEach(alert -> {
-
-                        if (alert.getNodeMacAddress().equals(data.getMacID())) {
-                            ret.set(false);
-                        }
-
-                    });
-
-                    return ret.get();
-                });
-
-                break;
-
-            default:
-                break;
-        }
+    @Override
+    public void updateData() {
+        List<SensorNode> dataList = getAlertsList();
 
         if (gv_assetsAdapter == null) {
-            gv_assetsAdapter = new AssetsViewAdapter(this, dataList, false);
+            gv_assetsAdapter = new AssetManagementAdapter(this, dataList, false);
             gvDevices = (GridView) findViewById(R.id.gv_devices);
             gvDevices.setAdapter(gv_assetsAdapter);
         } else {
@@ -226,5 +205,7 @@ public class AssetsActivity extends AppCompatActivity implements
             gv_assetsAdapter.notifyDataSetChanged();
 
         }
+
     }
+
 }

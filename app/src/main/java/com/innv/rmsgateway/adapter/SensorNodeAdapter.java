@@ -27,6 +27,7 @@ import androidx.core.content.ContextCompat;
 import com.innv.rmsgateway.bluetooth.BleManager;
 import com.innv.rmsgateway.classes.DefrostProfile;
 import com.innv.rmsgateway.classes.DefrostProfileManager;
+import com.innv.rmsgateway.classes.Globals;
 import com.innv.rmsgateway.classes.Profile;
 import com.innv.rmsgateway.classes.ProfileManager;
 import com.innv.rmsgateway.data.NodeDataManager;
@@ -125,11 +126,7 @@ public class SensorNodeAdapter extends BaseAdapter {
             nodeView = inflater.inflate(R.layout.scan_rms_items, parent, false);
         }
 
-  //      LinearLayout ll_monitor_node = (LinearLayout) nodeView.findViewById(R.id.ll_monitor_node);
         Button btn_addNode = (Button) nodeView.findViewById(R.id.btn_addNode);
-/*        Button btn_updateNode = (Button) nodeView.findViewById(R.id.btn_updateNode);
-        CheckBox add_checkbox = (CheckBox) nodeView.findViewById(R.id.add_checkbox);*/
-
         EditText node_name = (EditText) nodeView.findViewById(R.id.editTV_name);
         TextView tv_address = (TextView) nodeView.findViewById(R.id.tv_address);
 
@@ -198,86 +195,25 @@ public class SensorNodeAdapter extends BaseAdapter {
 
         });
 
-/*        if(updateNode){
-            btn_addNode.setVisibility(View.GONE);
-            ll_monitor_node.setVisibility(View.VISIBLE);
-            btn_updateNode.setVisibility(View.VISIBLE);
-
-            SensorNode node = NodeDataManager.getAllNodeFromMac(macAddress);
-            node_name.setText(node.getName());
-
-            add_checkbox.setChecked(node.isPreChecked());
-
-            selectedProfile = node.getProfile();
-            selectedDefrostProf = node.getDefrostProfile();
-            sp_profile.setSelection(profileAdapter.getPosition(selectedProfile.getTitle()));
-            sp_defrostProfile.setSelection(defrostAdapter.getPosition(selectedDefrostProf.getName()));
-
-            iv_profileIcon.setImageDrawable(ContextCompat.getDrawable(context, selectedProfile.getProfileImageId()));
-        }*/
-
         View finalNodeView = nodeView;
-
-/*        btn_updateNode.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (node_name.getText().length() > 0 && node_name.isEnabled()){
-                    String profileSelected = sp_profile.getSelectedItem().toString();
-                    Profile prof = ProfileManager.getProfile(profileSelected);
-
-                    String defrostSelected = sp_defrostProfile.getSelectedItem().toString();
-                    DefrostProfile defrostProfile = DefrostProfileManager.getDefrostProfile(defrostSelected);
-
-                    SensorNode node = NodeDataManager.getAllNodeFromMac(tv_address.getText().toString());
-
-                    node.setDefrostProfile(defrostProfile);
-                    node.setProfile(prof);
-
-                    node.setName(node_name.getText().toString());
-                    node.setPreChecked(add_checkbox.isSelected());
-
-                    try {
-
-                        btn_updateNode.setEnabled(false);
-                        node_name.setEnabled(false);
-                        NodeDataManager.UpdateNodeDetails(tv_address.getText().toString(),  node);
-                        Toast.makeText(context, node_name.getText() + " Updated Successfully", Toast.LENGTH_SHORT).show();
-                        setViewAndChildrenEnabled(finalNodeView, false);
-
-                    } catch (Exception e) {
-                        Toast.makeText(context, "Exception while updating node data", Toast.LENGTH_SHORT).show();
-                    }
-
-                }
-                else {
-                    Toast.makeText(context, "Please enter node name", Toast.LENGTH_SHORT).show();
-                    node_name.setEnabled(true);
-                }
-            }
-        });*/
-
-
         btn_addNode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (node_name.getText().length() > 0 && node_name.isEnabled()) {
 
                     String profileSelected = sp_profile.getSelectedItem().toString();
-                    Profile prof = ProfileManager.getProfile(profileSelected);
-
                     String defrostSelected = sp_defrostProfile.getSelectedItem().toString();
-                    DefrostProfile defrostProfile = DefrostProfileManager.getDefrostProfile(defrostSelected);
 
                     try {
 
                         btn_addNode.setEnabled(false);
                         node_name.setEnabled(false);
-                        NodeDataManager.AddNodeToDB(node_name.getText().toString(), tv_address.getText().toString(), prof, defrostProfile);
+                        NodeDataManager.AddNodeToDB(node_name.getText().toString(), tv_address.getText().toString(), profileSelected, defrostSelected);
                         Toast.makeText(context, node_name.getText() + " added successfully", Toast.LENGTH_SHORT).show();
                         setViewAndChildrenEnabled(finalNodeView, false);
 
                     } catch (Exception e) {
-                        Toast.makeText(context, "Exception while adding node", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, "Failed to add new node", Toast.LENGTH_SHORT).show();
                     }
 
                 } else {
@@ -290,39 +226,6 @@ public class SensorNodeAdapter extends BaseAdapter {
         return nodeView;
 
     }
-/*
-
-    public static void setListViewHeightBasedOnChildren(ListView listView)
-    {
-        ListAdapter listAdapter = listView.getAdapter();
-        if (listAdapter == null)
-            return;
-
-        int desiredWidth = View.MeasureSpec.makeMeasureSpec(listView.getWidth(), View.MeasureSpec.UNSPECIFIED);
-        int totalHeight=0;
-        View view = null;
-
-        for (int i = 0; i < listAdapter.getCount(); i++)
-        {
-            view = listAdapter.getView(i, view, listView);
-
-            if (i == 0)
-                view.setLayoutParams(new ViewGroup.LayoutParams(desiredWidth,
-                        ViewGroup.LayoutParams.MATCH_PARENT));
-
-            view.measure(desiredWidth, View.MeasureSpec.UNSPECIFIED);
-            totalHeight += view.getMeasuredHeight();
-
-        }
-
-        ViewGroup.LayoutParams params = listView.getLayoutParams();
-        params.height = totalHeight + ((listView.getDividerHeight()) * (listAdapter.getCount()));
-        listView.setLayoutParams(params);
-        listView.requestLayout();
-
-    }
-
-*/
 
     private static void setViewAndChildrenEnabled(View view, boolean enabled) {
         view.setEnabled(enabled);

@@ -1,6 +1,5 @@
 package com.innv.rmsgateway.activity;
 
-import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.view.View;
@@ -28,6 +27,7 @@ import com.innv.rmsgateway.data.NodeDataManager;
 import com.innv.rmsgateway.sensornode.SensorNode;
 
 import java.util.List;
+import java.util.Objects;
 
 public class UpdateSensorNodeDialogue {
     Context context;
@@ -136,8 +136,8 @@ public class UpdateSensorNodeDialogue {
 
         add_checkbox.setChecked(node.isPreChecked());
 
-        selectedProfile = node.getProfile();
-        selectedDefrostProf = node.getDefrostProfile();
+        selectedProfile = ProfileManager.getProfile(node.getProfileTitle());
+        selectedDefrostProf = DefrostProfileManager.getDefrostProfile(node.getDefrostProfileTitle());
         sp_profile.setSelection(profileAdapter.getPosition(selectedProfile.getTitle()));
         sp_defrostProfile.setSelection(defrostAdapter.getPosition(selectedDefrostProf.getName()));
 
@@ -148,15 +148,14 @@ public class UpdateSensorNodeDialogue {
             public void onClick(View view) {
                 if (node_name.getText().length() > 0 && node_name.isEnabled()) {
                     String profileSelected = sp_profile.getSelectedItem().toString();
-                    Profile prof = ProfileManager.getProfile(profileSelected);
-
                     String defrostSelected = sp_defrostProfile.getSelectedItem().toString();
-                    DefrostProfile defrostProfile = DefrostProfileManager.getDefrostProfile(defrostSelected);
 
-                    SensorNode node = new SensorNode(NodeDataManager.getAllNodeFromMac(tv_address.getText().toString()).getJsonObject());
+                    SensorNode node = new SensorNode(
+                            Objects.requireNonNull(
+                                    NodeDataManager.getAllNodeFromMac(tv_address.getText().toString())).getJsonObject());
 
-                    node.setDefrostProfile(defrostProfile);
-                    node.setProfile(prof);
+                    node.setDefrostProfileTitle(defrostSelected);
+                    node.setProfileTitle(profileSelected);
 
                     node.setName(node_name.getText().toString());
                     node.setPreChecked(add_checkbox.isChecked());
@@ -167,7 +166,7 @@ public class UpdateSensorNodeDialogue {
                         node_name.setEnabled(false);
                         NodeDataManager.UpdateNodeDetails(tv_address.getText().toString(), node);
                         Toast.makeText(context, node_name.getText() + " Updated Successfully", Toast.LENGTH_SHORT).show();
-                        AddNodesActivity activity = (AddNodesActivity) context;
+                        AssetManagementActivity activity = (AssetManagementActivity) context;
                         activity.update();
                         dialog.dismiss();
                     } catch (Exception e) {

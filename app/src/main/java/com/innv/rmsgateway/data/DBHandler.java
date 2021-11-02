@@ -77,7 +77,7 @@ public class DBHandler extends SQLiteOpenHelper{
                 + " ALERTTYPE TEXT NOT NULL,"
                 + " ALERTSTATUS TEXT NOT NULL,"
                 + " OPTPARAM1 TEXT,"
-                + "PRIMARY KEY(ORGCODE,LISTNAME,CODE, ALERTTYPE))";
+                + "PRIMARY KEY(ORGCODE,LISTNAME,CODE, DATE, TIMESTAMP, ALERTTYPE))";
         db.execSQL(CREATE_ALERTS_TABLE);
 
         String CREATE_PROFILES_TABLE="CREATE TABLE " + TABLE_RMS_PROFILES
@@ -294,7 +294,7 @@ public class DBHandler extends SQLiteOpenHelper{
         return count;
     }
 
-    public int UpdateSensorNodeAlerts(String listName,String orgCode, String code, String type, String alertStatus, StaticListItem data) {
+    public int UpdateSensorNodeAlerts(String listName,String orgCode, String code, String date, String timeStamp,String type, String alertStatus, StaticListItem data) {
         SQLiteDatabase db=this.getWritableDatabase();
         int count=0;
         String optParam1=replaceSingleQoute(data.getOptParam1());
@@ -306,6 +306,8 @@ public class DBHandler extends SQLiteOpenHelper{
                     +" WHERE ORGCODE='" + orgCode
                     +"' AND LISTNAME='" + listName
                     +"' AND CODE='" + code
+                    +"' AND DATE='" + date
+                    +"' AND TIMESTAMP='" + timeStamp
                     +"' AND ALERTTYPE='" + type +"'";
             db.execSQL(sql);
             count++;
@@ -380,7 +382,8 @@ public class DBHandler extends SQLiteOpenHelper{
         }
 
         if(!startDay.isEmpty() && !endDay.isEmpty()){
-            sql += " BETWEEN '" + startDay + "' AND '" + endDay + "'";
+          //  sql +=  " AND  DATE_FORMAT(DATE,'%Y-%m-%d') " +     " BETWEEN '" + startDay + "' AND '" + endDay + "'";
+            sql += " AND DATE >= '" + startDay +"'" + " AND DATE <= '" + endDay +"'"  ;;
         }
 
         try {
@@ -395,6 +398,7 @@ public class DBHandler extends SQLiteOpenHelper{
                     item.setDate(cursor.getString(3));
                     item.setTimeStamp(cursor.getString(4));
 /*                    item.setAlertType(cursor.getString(5));*/
+/*                    item.setAlertStatus(cursor.getString(6));*/
                     item.setOptParam1(cursor.getString(7));
                     items.add(item);
 

@@ -36,7 +36,7 @@ public class UpdateCounter/* extends androidx.appcompat.widget.AppCompatTextView
     }*/
 
     public void startTimer(SensorNode data, View view, long delay, String part1, String part2) {
-        alerts = data.getAlertsList();
+       // alerts = data.getAlertsList();
         mac = data.getMacID();
         mStartTime = data.getLastUpdatedDate().getTime();
         mTimeNow = System.currentTimeMillis();
@@ -49,7 +49,7 @@ public class UpdateCounter/* extends androidx.appcompat.widget.AppCompatTextView
 
     }
     public void updateStartTime(SensorNode data){
-        alerts = data.getAlertsList();
+      //  alerts = data.getAlertsList();
         mStartTime = data.getLastUpdatedDate().getTime();
         convertDatesToMinutes(mStartTime, mTimeNow);
     }

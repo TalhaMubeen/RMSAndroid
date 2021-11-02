@@ -124,7 +124,6 @@ public class ScanActivity extends AppCompatActivity implements View.OnClickListe
         Animation rotationAnimation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate);
         iv_refresh.startAnimation(rotationAnimation);
 
-
         ImageView iv_scanqr = (ImageView) findViewById(R.id.iv_scanqr);
         iv_scanqr.setOnClickListener(this);
 

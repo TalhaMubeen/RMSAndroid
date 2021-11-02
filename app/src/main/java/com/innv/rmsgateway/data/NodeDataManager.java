@@ -5,8 +5,10 @@ import android.util.Log;
 import com.innv.rmsgateway.R;
 import com.innv.rmsgateway.classes.AlertData;
 import com.innv.rmsgateway.classes.AlertManager;
+import com.innv.rmsgateway.classes.AlertType;
 import com.innv.rmsgateway.classes.DefrostProfile;
 import com.innv.rmsgateway.classes.Globals;
+import com.innv.rmsgateway.classes.NodeState;
 import com.innv.rmsgateway.classes.Profile;
 import com.innv.rmsgateway.classes.ProfileManager;
 import com.innv.rmsgateway.sensornode.SensorNode;
@@ -14,14 +16,18 @@ import com.innv.rmsgateway.sensornode.SensorNode;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class NodeDataManager {
 
 
-    static TreeMap<String, List<SensorNode>> allNodesData = new TreeMap<>();
+    static TreeMap<String, SensorNode> allNodesData = new TreeMap<>();
 
     public static boolean isStopUpdates() {
         return stopUpdates;
@@ -34,20 +40,15 @@ public class NodeDataManager {
     static boolean stopUpdates = false;
 
     public static void init(){
-        allNodesData.put("All", new ArrayList<>());
-        allNodesData.put("Checked", new ArrayList<>());
+/*        allNodesData.put("All", new HashMap<>());
+        allNodesData.put("Checked", new HashMap<>());*/
 
         List<StaticListItem> dataSaved = getAllNodeList();
 
         for (StaticListItem item : dataSaved){
             SensorNode node = new SensorNode();
             if(node.parseListItem(item)) {
-                allNodesData.get("All").add(node);
-
-                if(node.isPreChecked()){
-                    allNodesData.get("Checked").add(node);
-                }
-
+                allNodesData.put(node.getMacID(), node);
             }
         }
 
@@ -55,8 +56,8 @@ public class NodeDataManager {
         updateAlertManager();
     }
 
-    public static void updateAlertManager(){
-        List<StaticListItem> alertList = getAlertList();
+    public static void updateAlertManager(){//24h alert list update
+        List<StaticListItem> alertList = getTodaysAlertList();
         List<SensorNode> data = getPreCheckedNodes();
 
         List<StaticListItem> retAlerts = new ArrayList<>();
@@ -78,7 +79,6 @@ public class NodeDataManager {
     }
 
     public static boolean AddorUpdateProfile(String title, Profile profile, boolean updateProfiles){
-        title = title.toUpperCase();
 
         String opt1 = profile.getJsonObject().toString();
         StaticListItem item = new StaticListItem(Globals.orgCode,
@@ -96,27 +96,34 @@ public class NodeDataManager {
     }
 
     public static void UpdateNodeDetails(String macAddress, SensorNode node){
-        node.setName(node.getName().toUpperCase());
         SaveSensorNodeData(node);
     }
 
-    public static void AddNodeToDB(String name, String macAddress, Profile profile, DefrostProfile defrostProfile){
-        name = name.toUpperCase();
+    public static void AddNodeToDB(String name, String macAddress, String profileName, String defrostProfileName){
+        name = Globals.capitalize(name);
         SensorNode sn1 = new SensorNode(
                 macAddress, name, "0:00am", 0,
                 0, 0, true, 0.0,
-                0, 0.0, 0.0, true, profile, defrostProfile);
+                0, 0.0, 0.0, true, profileName, defrostProfileName);
 
         sn1.setLastUpdatedOn(new Date());
         SaveSensorNodeData(sn1);
     }
 
     public static List<SensorNode> getAllNodesLst(){
-        return allNodesData.get("All");
+        return new ArrayList<>(allNodesData.values());
     }
 
     public static List<SensorNode> getPreCheckedNodes(){
-        return allNodesData.get("Checked");
+        List<SensorNode> retList = new ArrayList<>();
+        allNodesData.values().forEach(node ->{
+
+            if(node.isPreChecked()){
+                retList.add(node);
+            }
+        });
+
+        return retList;
     }
 
     public static List<StaticListItem> getAllNodeList(){
@@ -135,7 +142,7 @@ public class NodeDataManager {
     }
 
 
-    public static SensorNode getPrecheckedNodeFromMac(String mac){
+    public static SensorNode getPreCheckedNodeFromMac(String mac){
         for(SensorNode node : getPreCheckedNodes()){
             if(node.getMacID().equals(mac)){
                 return node;
@@ -174,36 +181,17 @@ public class NodeDataManager {
         AddorUpdateData(node);
     }
 
-    private static void AddorUpdateData(SensorNode data){
+    private static void AddorUpdateData(SensorNode data) {
 
-        boolean updated = false;
-        for(SensorNode node : allNodesData.get("All")){
-            if(node.getMacID().equals(data.getMacID())){
+        if(allNodesData.containsKey(data.getMacID())){
+            allNodesData.replace(data.getMacID(), data);
+        } else{
+            allNodesData.put(data.getMacID(), data);
+            AlertData alert = new AlertData(data.getMacID(), AlertType.RSSI, NodeState.Normal, new Date(), 0, 0);
+            SaveAlertData(alert);
 
-                allNodesData.get("All").remove(node);
-                allNodesData.get("All").add(data);
-
-                if(node.isPreChecked()){
-                    allNodesData.get("Checked").remove(node);
-                }
-
-                if(data.isPreChecked()){
-                    allNodesData.get("Checked").add(data);
-                }
-
-
-                updated = true;
-                break;
-            }
         }
-        if(!updated){
-            allNodesData.get("All").add(data);
-            if(data.isPreChecked()){
-                allNodesData.get("Checked").add(data);
-            }
-        }else{
-            updateAlertManager();
-        }
+        updateAlertManager();
     }
 
 
@@ -289,32 +277,35 @@ public class NodeDataManager {
         init();
     }
 
+    public static void SaveAlertData(AlertData data) {
+        SimpleDateFormat sdf = new SimpleDateFormat("MMM-dd-yyyy", Locale.getDefault());
+        String dateToday = sdf.format(new Date());
+        data.setAlertDay(dateToday);
+
+        Globals.db.AddSensorNodeAlerts(
+                Globals.dbContext.getString(R.string.RMS_DEVICES),
+                Globals.orgCode,
+                data.getNodeMacAddress(),
+                dateToday,
+                data.getAlertStartTimeString(),
+                data.getTypeString(),
+                data.getStatusString(),
+                data.getDataAsStaticListItem());
+    }
+
     //Alerts data handling
-    public static void SaveAlertData(AlertData data){
+    public static void UpdateAlertData (AlertData data) {
 
-        if(data.getAlertDay().isEmpty()) {
-            SimpleDateFormat sdf = new SimpleDateFormat("MMM-dd-yyyy", Locale.getDefault());
-            String dateToday = sdf.format(new Date());
-            data.setAlertDay(dateToday);
+        Globals.db.UpdateSensorNodeAlerts(
+                Globals.dbContext.getString(R.string.RMS_DEVICES),
+                Globals.orgCode,
+                data.getNodeMacAddress(),
+                data.getAlertDay(),
+                data.getAlertStartTimeString(),
+                data.getTypeString(),
+                data.getStatusString(),
+                data.getDataAsStaticListItem());
 
-            Globals.db.AddSensorNodeAlerts(
-                    Globals.dbContext.getString(R.string.RMS_DEVICES),
-                    Globals.orgCode,
-                    data.getNodeMacAddress(),
-                    data.getAlertDay(),
-                    data.getAlertStartTimeString(),
-                    data.getTypeString(),
-                    data.getStatusString(),
-                    data.getDataAsStaticListItem());
-        }else{
-            Globals.db.UpdateSensorNodeAlerts(
-                    Globals.dbContext.getString(R.string.RMS_DEVICES),
-                    Globals.orgCode,
-                    data.getNodeMacAddress(),
-                    data.getTypeString(),
-                    data.getStatusString(),
-                    data.getDataAsStaticListItem());
-        }
     }
 
 }

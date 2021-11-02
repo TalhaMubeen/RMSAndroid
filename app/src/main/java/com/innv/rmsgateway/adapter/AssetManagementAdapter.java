@@ -25,6 +25,7 @@ import com.innv.rmsgateway.classes.AlertManager;
 import com.innv.rmsgateway.classes.Globals;
 import com.innv.rmsgateway.classes.NodeState;
 import com.innv.rmsgateway.classes.Profile;
+import com.innv.rmsgateway.classes.ProfileManager;
 import com.innv.rmsgateway.data.NodeDataManager;
 import com.innv.rmsgateway.sensornode.SensorDataDecoder;
 import com.innv.rmsgateway.sensornode.SensorNode;
@@ -32,21 +33,21 @@ import com.innv.rmsgateway.sensornode.SensorNode;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AssetsViewAdapter extends BaseAdapter {
+public class AssetManagementAdapter extends BaseAdapter {
 
-    List<SensorNode> mRMSDevices= new ArrayList<>();
+    List<SensorNode> mRMSDevices = new ArrayList<>();
     LayoutInflater inflater;
     Context context;
     boolean hideDetails;
 
-    public AssetsViewAdapter(Context ctx, List<SensorNode> list, boolean hideDetails){
+    public AssetManagementAdapter(Context ctx, List<SensorNode> list, boolean hideDetails) {
         mRMSDevices = list;
         inflater = LayoutInflater.from(ctx);
         context = ctx;
         this.hideDetails = hideDetails;
     }
 
-    public void UpdateListData(List<SensorNode> list){
+    public void UpdateListData(List<SensorNode> list) {
         mRMSDevices.clear();
         mRMSDevices = list;
     }
@@ -74,7 +75,8 @@ public class AssetsViewAdapter extends BaseAdapter {
 
         View rmsDeviceCardView = convertView;
         SensorNode item = getItem(position);
-        Profile itemProf = item.getProfile();
+
+        Profile itemProf = ProfileManager.getProfile(item.getProfileTitle());
 
         if (rmsDeviceCardView == null) {
             rmsDeviceCardView = inflater.inflate(R.layout.gridview_monitoring_item_new, parent, false);
@@ -84,12 +86,12 @@ public class AssetsViewAdapter extends BaseAdapter {
         sensor_name.setText(item.getName());
 
         TextView sensor_subTitle = (TextView) rmsDeviceCardView.findViewById(R.id.sensor_subTitle);
-        sensor_subTitle.setText(item.getProfile().getTitle());
+        sensor_subTitle.setText(item.getProfileTitle());
         ImageView iv_settings = (ImageView) rmsDeviceCardView.findViewById(R.id.iv_settings);
         ImageView iv_node_type = (ImageView) rmsDeviceCardView.findViewById(R.id.iv_node_type);
         iv_node_type.setImageDrawable(ContextCompat.getDrawable(context, itemProf.getProfileImageId()));
 
-        if(hideDetails){
+        if (hideDetails) {
 
             CardView sensor_card_view = (CardView) rmsDeviceCardView.findViewById(R.id.sensor_card_view);
             sensor_card_view.setOnLongClickListener(v -> {
@@ -189,39 +191,44 @@ public class AssetsViewAdapter extends BaseAdapter {
 
         View colorView = (View) rmsDeviceCardView.findViewById(R.id.colorNA);
         int color = R.color.color_normal;
-        List<AlertData> alerts = AlertManager.getAlertList(item.getMacID());
-        for (AlertData alert : alerts) {
 
-            switch (alert.getNodeState()){
-                case Alert:
-                    color = R.color.color_alert;
-                    break;
+        if(!item.isPreChecked()){
+            color = R.color.color_dark_grey;
+        } else {
 
-                case Normal:
-                    color = R.color.color_normal;
-                    break;
+            AlertData alerts = AlertManager.getAlert(item.getMacID());
+            if (alerts != null) {
+                switch (alerts.getNodeState()) {
+                    case Alert:
+                        color = R.color.color_alert;
+                        break;
 
-                case Defrost:
-                    color = R.color.color_defrost;
-                    break;
+                    case Normal:
+                        color = R.color.color_normal;
+                        break;
 
-                case Warning:
-                    color = R.color.color_warning;
-                    break;
+                    case Defrost:
+                        color = R.color.color_defrost;
+                        break;
 
-                case Offline:
-                    color = R.color.color_offline;
-                    break;
+                    case Warning:
+                        color = R.color.color_warning;
+                        break;
 
-                case ComFailure:
-                    color = R.color.color_dark_grey;
-                    break;
+                    case Offline:
+                        color = R.color.color_offline;
+                        break;
+
+                    case ComFailure:
+                        color = R.color.color_dark_grey;
+                        break;
+                }
             }
-
         }
         colorView.setBackgroundColor(ContextCompat.getColor(context, color));
 
         return rmsDeviceCardView;
     }
+
 }
 

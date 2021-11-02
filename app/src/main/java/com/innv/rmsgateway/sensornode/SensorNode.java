@@ -7,6 +7,7 @@ import com.innv.rmsgateway.classes.AlertData;
 import com.innv.rmsgateway.classes.AlertManager;
 import com.innv.rmsgateway.classes.DefrostProfile;
 import com.innv.rmsgateway.classes.DefrostProfileManager;
+import com.innv.rmsgateway.classes.NodeState;
 import com.innv.rmsgateway.classes.Profile;
 import com.innv.rmsgateway.classes.Globals;
 import com.innv.rmsgateway.data.IConvertHelper;
@@ -36,7 +37,7 @@ public class SensorNode implements IConvertHelper, Cloneable {
     private String macID;
 
     public String getName() {
-        name = name.toUpperCase(); return name;
+        name = Globals.capitalize(name); return name;
     }
 
     public void setName(String name) {
@@ -53,56 +54,31 @@ public class SensorNode implements IConvertHelper, Cloneable {
     private int humidity;
     private double batteryVoltage;
     private String lastUpdated;
-    private DefrostProfile defrostProfile;
+    private String profileTitle;
+    private String defrostProfileTitle;
+    public static NodeState nodeState;
 
-    public DefrostProfile getDefrostProfile() { return defrostProfile; }
-
-    public void setDefrostProfile(DefrostProfile cycle){ defrostProfile = cycle; }
-    public void setDefrostProfile(JSONObject object){ defrostProfile = new DefrostProfile(object); }
-
-   // public void setDefrostProfile(List<DefrostProfile> defrostProfile) { this.defrostProfile = defrostProfile; }
-
-/*    private Boolean warningStatus = false;
-    private Boolean alertStatus = false;*/
-/*    private String warningTime;
-    private String AlertTime;*/
-
-
-/*    public int getAlertCode() { return alertCode; }
-
-    private void setAlertCode(int alertCode) { this.alertCode = alertCode; }
-
-    public String getWarningTime() { return warningTime; }
-
-    public void setWarningTime(String warningTime) { this.warningTime = warningTime; }
-
-    public String getAlertTime() { return AlertTime; }
-
-    public void setAlertTime(String alertTime) { AlertTime = alertTime; }*/
-
-/*    public Boolean getWarningStatus() { return warningStatus; }
-
-    public void setWarningStatus(Boolean warningStatus) { this.warningStatus = warningStatus; }
-
-    public Boolean getAlertStatus() { return alertStatus; }
-
-    public void setAlertStatus(Boolean alertStatus) {
-        this.alertStatus = alertStatus;
-    }*/
-
-    public List<AlertData> getAlertsList (){ return AlertManager.getAlertList(getMacID()); }
-
-    public Profile getProfile() {
-        return profile;
+    public static NodeState getNodeState() {
+        return nodeState;
     }
 
-    public void setProfile(JSONObject prof) {
-        this.profile = new Profile(prof);
+    public static void setNodeState(NodeState nodeState) {
+        SensorNode.nodeState = nodeState;
     }
 
-    public void setProfile(Profile prof) { this.profile = prof; }
+    public String getProfileTitle() {
+        return profileTitle;
+    }
 
-    private Profile profile;
+    public void setProfileTitle(String profileTitle) {
+        this.profileTitle = profileTitle;
+    }
+
+    public String getDefrostProfileTitle() {
+        return defrostProfileTitle;
+    }
+
+    public void setDefrostProfileTitle(String defrostProfileTitle) { this.defrostProfileTitle = defrostProfileTitle; }
 
     public static final String DATEFORMAT = "yyyy-MM-dd HH:mm:ss";
     public static String defaultDateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS";
@@ -211,7 +187,7 @@ public class SensorNode implements IConvertHelper, Cloneable {
                       int timeAtWakeup, int timeSinceWakeup, int timeSlot,
                       boolean timeSynced, double temperature, int humidity,
                       double batteryVoltage, double rssi, boolean isPreChecked,
-                      Profile profile, DefrostProfile defrostProfile) {
+                      String profileTitle, String defrostProfileTitle) {
         this.macID = macID;
         this.name = name;
         this.advertisingTime = advertisingTime;
@@ -224,12 +200,9 @@ public class SensorNode implements IConvertHelper, Cloneable {
         this.batteryVoltage = batteryVoltage;
         this.rssi = rssi;
         this.isPreChecked = isPreChecked;
-        if(profile != null) {
-            this.profile = profile;
-        }
-        if(defrostProfile != null){
-            setDefrostProfile(defrostProfile);
-        }
+        this.profileTitle = profileTitle;
+        this.defrostProfileTitle = defrostProfileTitle;
+        this.nodeState = NodeState.Normal;
 
     }
 
@@ -331,16 +304,9 @@ public class SensorNode implements IConvertHelper, Cloneable {
             setPreChecked(jsonObject.optBoolean("isPreChecked"));
             setPreChecked(jsonObject.optBoolean("isPreChecked"));
             lastUpdated = jsonObject.optString("LastUpdateTime");
-            try {
-                setProfile(jsonObject.optJSONObject("Profile"));
-            }catch (Exception e){
-            }
-
-            try {
-                setDefrostProfile(jsonObject.optJSONObject("DefrostProfile"));
-            }catch (Exception e){
-                setDefrostProfile(DefrostProfileManager.None);
-            }
+            setProfileTitle(jsonObject.optString("ProfileTitle"));
+            setDefrostProfileTitle(jsonObject.optString("DefrostProfileTitle"));
+            setNodeState(NodeState.valueOf(jsonObject.optString("NodeState")));
 
         } catch (Exception e) {
             Log.e(TAG, e.toString());
@@ -381,9 +347,9 @@ public class SensorNode implements IConvertHelper, Cloneable {
             jo.put("rssi", getRssi());
             jo.put("isPreChecked", isPreChecked());
             jo.put("LastUpdateTime", getLastUpdatedOn());
-            jo.put("Profile", this.profile.getJsonObject());
-            jo.put("DefrostProfile", this.defrostProfile.getJsonObject());
-
+            jo.put("ProfileTitle", getProfileTitle());
+            jo.put("DefrostProfileTitle", getDefrostProfileTitle());
+            jo.put("NodeState", getNodeState().name());
 
         } catch (Exception e) {
             Log.e(TAG, e.toString());

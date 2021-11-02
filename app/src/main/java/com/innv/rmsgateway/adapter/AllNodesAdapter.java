@@ -1,3 +1,4 @@
+/*
 package com.innv.rmsgateway.adapter;
 
 import android.annotation.SuppressLint;
@@ -17,6 +18,7 @@ import android.widget.TextView;
 
 import com.innv.rmsgateway.R;
 import com.innv.rmsgateway.classes.Profile;
+import com.innv.rmsgateway.classes.ProfileManager;
 import com.innv.rmsgateway.data.NodeDataManager;
 import com.innv.rmsgateway.data.StaticListItem;
 import com.innv.rmsgateway.sensornode.SensorNode;
@@ -116,8 +118,8 @@ public class AllNodesAdapter extends BaseAdapter {
         tv_address.setText(item.getMacID());
 
         TextView tv_profile = (TextView) nodeView.findViewById(R.id.tv_profile);
-        Profile prof = item.getProfile();
-        tv_profile.setText(prof.getTitle());
+        Profile prof = ProfileManager.getProfile(item.getProfileTitle());
+        tv_profile.setText(item.getProfileTitle());
 
 
         EditText et_maxTemp = (EditText) nodeView.findViewById(R.id.et_maxTemp);
@@ -156,3 +158,4 @@ public class AllNodesAdapter extends BaseAdapter {
 
     }
 }
+*/

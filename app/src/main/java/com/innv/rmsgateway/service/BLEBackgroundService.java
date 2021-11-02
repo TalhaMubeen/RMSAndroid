@@ -73,15 +73,15 @@ public class BLEBackgroundService extends Service {
         sensorDataDecoder = new SensorDataDecoder();
         BleManager.getInstance().init(getApplication());
         BleManager.getInstance()
-                .enableLog(true)
+                .enableLog(false)
                 .setOperateTimeout(50000);
 
         BleScanRuleConfig scanRuleConfig = new BleScanRuleConfig.Builder()
-                .setServiceUuids(null)      // Only scan the equipment of the specified service, optional
+                .setServiceUuids(null)                  // Only scan the equipment of the specified service, optional
                 .setDeviceName(true, "")   // Only scan devices with specified broadcast name, optional
-                .setDeviceMac("")                  // Only scan devices of specified mac, optional
-                .setAutoConnect(false)      // AutoConnect parameter when connecting, optional, default false
-                .setScanTimeOut(1000 * 60 * 3)              // Scan timeout time, optional, 3-min
+                .setDeviceMac("")                       // Only scan devices of specified mac, optional
+                .setAutoConnect(false)                  // AutoConnect parameter when connecting, optional, default false
+                .setScanTimeOut(100000)                 // Scan timeout time, optional, 60-min
                 .build();
         BleManager.getInstance().initScanRule(scanRuleConfig);
 
@@ -108,13 +108,14 @@ public class BLEBackgroundService extends Service {
 
     public static void stopScan(){
         BleManager.getInstance().cancelScan();
+        BleManager.getInstance().destroy();
         thread.interrupt();
     }
 
     public void startBleService() {
 
         if(bleService != null){
-            BleManager.getInstance().cancelScan();
+            BleManager.getInstance().destroy();
             stopService(bleService);
             thread.interrupt();
         }
@@ -126,8 +127,13 @@ public class BLEBackgroundService extends Service {
             @Override
             public void run() {
                 try {
-                    while (!thread.isInterrupted()) {
+                    while (true) {
                         if (!isScanning) {
+                            try {
+                                BleManager.getInstance().destroy();
+                            }catch (Exception e){
+
+                            }
                             scanBLE();
                         }
                         Thread.sleep(5000);

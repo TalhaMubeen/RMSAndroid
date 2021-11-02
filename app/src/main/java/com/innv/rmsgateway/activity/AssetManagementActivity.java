@@ -6,22 +6,19 @@ import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.GridView;
 import android.widget.ListView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.innv.rmsgateway.R;
-import com.innv.rmsgateway.adapter.AllNodesAdapter;
-import com.innv.rmsgateway.adapter.AssetsViewAdapter;
+import com.innv.rmsgateway.adapter.AssetManagementAdapter;
 import com.innv.rmsgateway.data.NodeDataManager;
 
-public class AddNodesActivity extends AppCompatActivity {
+public class AssetManagementActivity extends AppCompatActivity {
 
     FloatingActionButton btn_addNew;
-    AssetsViewAdapter gv_assetsAdapter;
+    AssetManagementAdapter gv_assetsAdapter;
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
@@ -51,15 +48,18 @@ public class AddNodesActivity extends AppCompatActivity {
         ListView list_device = (ListView) findViewById(R.id.list_device);
 
         if (gv_assetsAdapter == null) {
-            gv_assetsAdapter = new AssetsViewAdapter(this, NodeDataManager.getAllNodesLst(), true);
+            gv_assetsAdapter = new AssetManagementAdapter(this, NodeDataManager.getAllNodesLst(), true);
             list_device.setAdapter(gv_assetsAdapter);
+        }else{
+            gv_assetsAdapter.UpdateListData(NodeDataManager.getAllNodesLst());
+            gv_assetsAdapter.notifyDataSetChanged();
         }
 
         btn_addNew = findViewById(R.id.btn_addNew);
         btn_addNew.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(AddNodesActivity.this, ScanActivity.class);
+                Intent intent = new Intent(AssetManagementActivity.this, ScanActivity.class);
                 startActivity(intent);
             }
         });
@@ -82,6 +82,7 @@ public class AddNodesActivity extends AppCompatActivity {
     }
 
     public void update(){
+        gv_assetsAdapter.UpdateListData(NodeDataManager.getAllNodesLst());
         gv_assetsAdapter.notifyDataSetChanged();
     }
 

@@ -14,13 +14,10 @@ import android.widget.TextView;
 
 import androidx.core.content.ContextCompat;
 
-import com.innv.rmsgateway.ActivityDashboard;
 import com.innv.rmsgateway.R;
-import com.innv.rmsgateway.activity.AddNodesActivity;
+import com.innv.rmsgateway.activity.AssetManagementActivity;
 import com.innv.rmsgateway.activity.DataGridViewActivity;
-import com.innv.rmsgateway.activity.TypeProfileActivity;
 import com.innv.rmsgateway.classes.Globals;
-import com.innv.rmsgateway.sensornode.SensorNode;
 
 public class SettingsAdapter extends BaseAdapter {
 
@@ -90,7 +87,7 @@ public class SettingsAdapter extends BaseAdapter {
                 ll_settings.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        Intent intent = new Intent(context, AddNodesActivity.class);
+                        Intent intent = new Intent(context, AssetManagementActivity.class);
                         context.startActivity(intent);
                     }
                 });

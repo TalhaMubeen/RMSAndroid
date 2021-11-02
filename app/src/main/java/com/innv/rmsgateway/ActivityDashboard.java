@@ -24,23 +24,20 @@ import android.widget.LinearLayout;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.innv.rmsgateway.activity.AssetsActivity;
 import com.innv.rmsgateway.activity.SettingsActivity;
-import com.innv.rmsgateway.adapter.AlertViewAdapter;
+import com.innv.rmsgateway.adapter.AssetsAlertsAdapter;
 import com.innv.rmsgateway.adapter.DeviceViewAdapter;
 import com.innv.rmsgateway.classes.AlertManager;
 import com.innv.rmsgateway.classes.Globals;
 import com.innv.rmsgateway.data.BleDevice;
 import com.innv.rmsgateway.data.NodeDataManager;
 import com.innv.rmsgateway.interfaces.NotificationAlertsCallback;
-import com.innv.rmsgateway.sensornode.SensorNode;
 import com.innv.rmsgateway.service.BLEBackgroundService;
 import com.innv.rmsgateway.service.OnBLEDeviceCallback;
 
@@ -58,7 +55,7 @@ public class ActivityDashboard extends AppCompatActivity implements OnBLEDeviceC
     RecyclerView rv_rms_categories;
     GridView gv_alerts;
     DeviceViewAdapter rv_CategoryAdapter;
-    AlertViewAdapter gv_alertsAdapter;
+    AssetsAlertsAdapter gv_alertsAdapter;
 
 
     @SuppressLint("StaticFieldLeak")
@@ -134,7 +131,6 @@ public class ActivityDashboard extends AppCompatActivity implements OnBLEDeviceC
         }
     }
 
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -158,7 +154,7 @@ public class ActivityDashboard extends AppCompatActivity implements OnBLEDeviceC
             rv_rms_categories.setAdapter(rv_CategoryAdapter);
 
             gv_alerts = (GridView) findViewById(R.id.gv_alerts);
-            gv_alertsAdapter = new AlertViewAdapter(this);
+            gv_alertsAdapter = new AssetsAlertsAdapter(this);
             gv_alerts.setAdapter(gv_alertsAdapter);
 
             //Setting Callbacks here
@@ -184,10 +180,7 @@ public class ActivityDashboard extends AppCompatActivity implements OnBLEDeviceC
             });
 
         }else{
-            gv_alertsAdapter.notifyDataSetChanged();
-
-            rv_CategoryAdapter.update();
-            rv_CategoryAdapter.notifyDataSetChanged();
+            updateData();
         }
 
     }

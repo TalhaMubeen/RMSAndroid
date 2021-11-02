@@ -15,15 +15,19 @@ import androidx.core.content.ContextCompat;
 
 import com.innv.rmsgateway.activity.AssetsActivity;
 import com.innv.rmsgateway.R;
+import com.innv.rmsgateway.classes.AlertData;
 import com.innv.rmsgateway.classes.AlertManager;
 import com.innv.rmsgateway.classes.NodeState;
 import com.innv.rmsgateway.classes.Globals;
 
-public class AlertViewAdapter extends BaseAdapter {
+import java.util.ArrayList;
+import java.util.List;
+
+public class AssetsAlertsAdapter extends BaseAdapter {
     LayoutInflater inflater;
     Context context;
 
-    public AlertViewAdapter(Context ctx){
+    public AssetsAlertsAdapter(Context ctx){
         inflater = LayoutInflater.from(ctx);
         context = ctx;
     }
@@ -60,7 +64,7 @@ public class AlertViewAdapter extends BaseAdapter {
         int alertsCount;
         switch (position) {
             case 1:
-                alertsCount = AlertManager.getAlertsCount("All", NodeState.Alert);
+                alertsCount = AlertManager.getNodeStateCount(NodeState.Alert);
                 tv_total_nodes_count.setText(Integer.toString(alertsCount));
                 iv_alert_icon.setBackgroundResource(R.drawable.alert);
                 ll_bg_color.setBackgroundColor(ContextCompat.getColor(context, R.color.color_alert));
@@ -68,7 +72,7 @@ public class AlertViewAdapter extends BaseAdapter {
                 break;
 
             case 2:
-                alertsCount = AlertManager.getAlertsCount("All", NodeState.Warning);
+                alertsCount = AlertManager.getNodeStateCount(NodeState.Warning);
                 tv_total_nodes_count.setText(Integer.toString(alertsCount));
                 iv_alert_icon.setBackgroundResource(R.drawable.warning);
                 ll_bg_color.setBackgroundColor(ContextCompat.getColor(context, R.color.color_warning));
@@ -76,7 +80,7 @@ public class AlertViewAdapter extends BaseAdapter {
                 break;
 
             case 3:
-                alertsCount = AlertManager.getAlertsCount("All", NodeState.Normal);
+                alertsCount = AlertManager.getNodeStateCount(NodeState.Normal);
                 tv_total_nodes_count.setText(Integer.toString(alertsCount));
                 iv_alert_icon.setBackgroundResource(R.drawable.ok_icon);
                 ll_bg_color.setBackgroundColor(ContextCompat.getColor(context, R.color.color_normal));
@@ -84,7 +88,7 @@ public class AlertViewAdapter extends BaseAdapter {
                 break;
 
             case 4:
-                alertsCount = AlertManager.getAlertsCount("All", NodeState.Defrost);
+                alertsCount = AlertManager.getNodeStateCount(NodeState.Defrost);
                 tv_total_nodes_count.setText(Integer.toString(alertsCount));
                 iv_alert_icon.setBackgroundResource(R.drawable.defrost_icon_white);
                 ll_bg_color.setBackgroundColor(ContextCompat.getColor(context, R.color.color_defrost));
@@ -92,7 +96,7 @@ public class AlertViewAdapter extends BaseAdapter {
                 break;
 
             case 5:
-                alertsCount = AlertManager.getAlertsCount("All", NodeState.Offline);
+                alertsCount = AlertManager.getNodeStateCount(NodeState.Offline);
                 tv_total_nodes_count.setText(Integer.toString(alertsCount));
                 iv_alert_icon.setBackgroundResource(R.drawable.offline_icon_white);
                 ll_bg_color.setBackgroundColor(ContextCompat.getColor(context, R.color.color_offline));
@@ -100,7 +104,7 @@ public class AlertViewAdapter extends BaseAdapter {
                 break;
 
             case 6:
-                alertsCount = AlertManager.getAlertsCount("All", NodeState.ComFailure);
+                alertsCount = AlertManager.getNodeStateCount(NodeState.ComFailure);
                 tv_total_nodes_count.setText(Integer.toString(alertsCount));
                 iv_alert_icon.setBackgroundResource(R.drawable.offline_icon_white);
                 ll_bg_color.setBackgroundColor(ContextCompat.getColor(context, R.color.color_dark_grey));

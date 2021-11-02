@@ -87,7 +87,7 @@ public class TypeProfileActivity extends AppCompatActivity {
                if(showAlerts) Toast.makeText(context, "Profile name can not be empty", Toast.LENGTH_SHORT).show();
                 return false;
             }
-            updatedDataProfile.setTitle(et_profile_name.getText().toString());
+            updatedDataProfile.setTitle(Globals.capitalize(et_profile_name.getText().toString()));
 
             if(et_min_temp.getText().toString().isEmpty()){
                 if(showAlerts)  Toast.makeText(context, "Minimum temperature threshold can not be empty", Toast.LENGTH_SHORT).show();
@@ -190,6 +190,7 @@ public class TypeProfileActivity extends AppCompatActivity {
                 if(isDataChanged(true)){
                     //save Profile data here
                     //updatedDataProfile
+
                     if(NodeDataManager.AddorUpdateProfile(updatedDataProfile.getTitle(), updatedDataProfile, true)){
                         Toast.makeText(context, "Profile " + updatedDataProfile.getTitle() + " added successfully", Toast.LENGTH_SHORT).show();
                         finish();
@@ -204,7 +205,7 @@ public class TypeProfileActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(isDataChanged(false)) {
-                    showAlertisRequired();
+                    showAlertifRequired();
                 }else{
                     finish();
                 }
@@ -213,7 +214,9 @@ public class TypeProfileActivity extends AppCompatActivity {
 
     }
 
-    private void showAlertisRequired() {
+
+
+    private void showAlertifRequired() {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
         builder.setTitle("Discard Changes ? ")
                 .setMessage("Changes made will be lost")
@@ -280,7 +283,7 @@ public class TypeProfileActivity extends AppCompatActivity {
         switch (keyCode) {
             case KeyEvent.KEYCODE_BACK:
                 if(isDataChanged(false)) {
-                    showAlertisRequired();
+                    showAlertifRequired();
                 }else{
                     finish();
                 }
