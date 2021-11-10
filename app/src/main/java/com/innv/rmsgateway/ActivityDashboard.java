@@ -10,6 +10,7 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
@@ -22,6 +23,7 @@ import android.widget.GridView;
 import android.widget.LinearLayout;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -216,6 +218,7 @@ public class ActivityDashboard extends AppCompatActivity implements OnBLEDeviceC
         updateData();
     }
 
+
     private void checkPermissions() {
         BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (!bluetoothAdapter.isEnabled()) {
@@ -225,9 +228,16 @@ public class ActivityDashboard extends AppCompatActivity implements OnBLEDeviceC
         }
 
         String[] permissions = {
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.CAMERA
+                Manifest.permission.CAMERA,
+                Manifest.permission.BLUETOOTH,
+                Manifest.permission.BLUETOOTH_ADMIN,
+                Manifest.permission.BLUETOOTH_ADMIN
         };
+
+        if (Build.VERSION.SDK_INT >= 31) {
+            permissions[3] = Manifest.permission.BLUETOOTH_SCAN;
+        }
+
         List<String> permissionDeniedList = new ArrayList<>();
         for (String permission : permissions) {
             int permissionCheck = ContextCompat.checkSelfPermission(this, permission);
@@ -239,13 +249,13 @@ public class ActivityDashboard extends AppCompatActivity implements OnBLEDeviceC
         }
         if (!permissionDeniedList.isEmpty()) {
             String[] deniedPermissions = permissionDeniedList.toArray(new String[permissionDeniedList.size()]);
-            ActivityCompat.requestPermissions(this, deniedPermissions, REQUEST_CODE_PERMISSION_LOCATION);
+          //  ActivityCompat.requestPermissions(this, deniedPermissions, REQUEST_CODE_PERMISSION_LOCATION);
         }
     }
 
     private void onPermissionGranted(String permission) {
         switch (permission) {
-            case Manifest.permission.ACCESS_FINE_LOCATION:
+/*            case Manifest.permission.ACCESS_FINE_LOCATION:
                 if (!checkGPSIsOpen()) {
                     new AlertDialog.Builder(this)
                             .setTitle(R.string.notifyTitle)
@@ -269,18 +279,11 @@ public class ActivityDashboard extends AppCompatActivity implements OnBLEDeviceC
                             .setCancelable(false)
                             .show();
                 }
-                break;
+                break;*/
 
             case Manifest.permission.CAMERA:
                 break;
         }
-    }
-
-    private boolean checkGPSIsOpen() {
-        LocationManager locationManager = (LocationManager) this.getSystemService(Context.LOCATION_SERVICE);
-        if (locationManager == null)
-            return false;
-        return locationManager.isProviderEnabled(android.location.LocationManager.GPS_PROVIDER);
     }
 
     @Override
@@ -290,7 +293,6 @@ public class ActivityDashboard extends AppCompatActivity implements OnBLEDeviceC
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         switch (requestCode) {
             case REQUEST_CODE_PERMISSION_LOCATION:
-                Log.d(TAG,"Location Permission request");
                 if (grantResults.length > 0) {
                     for (int i = 0; i < grantResults.length; i++) {
                         if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
