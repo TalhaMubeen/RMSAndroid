@@ -187,6 +187,7 @@ public class AssetManagementAdapter extends BaseAdapter {
                 tv_alerts.setText(Integer.toString(alertsCount));
                 tv_alerts.setTextColor(Globals.ALERT);
             }
+
         }
 
         View colorView = (View) rmsDeviceCardView.findViewById(R.id.colorNA);

@@ -12,11 +12,18 @@ import java.util.List;
 public class DefrostProfileManager {
 
     private static List<DefrostProfile> defrostProfiles = new ArrayList<>();
+    private static DefrostProfile None= new DefrostProfile();
 
     public static void init(){
-
+        None.setName("None");;
         defrostProfiles.clear();
         List<StaticListItem> profiles =  NodeDataManager.getAllDefrostProfilesList();
+
+        if(profiles.size() == 0){ //Adding default profiles in-to db
+            NodeDataManager.AddorUpdateDefrostProfile("None", None, false);
+            profiles =  NodeDataManager.getAllProfilesList();
+        }
+
 
         for(StaticListItem item : profiles){
             JSONObject jsonObject = null;

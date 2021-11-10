@@ -203,7 +203,7 @@ public class DBHandler extends SQLiteOpenHelper{
     }
 
     public boolean AddorUpdateDefrostProfileList(String listName,String orgCode, String title, StaticListItem array){
-        List<StaticListItem> items = getProfileList(listName, orgCode, title);
+        List<StaticListItem> items = getDefrostProfileList(listName, orgCode, title);
         if(items.size()==1)
         {
             return UpdateDefrostProfile(listName, orgCode, title, array) > 0;

@@ -1,6 +1,9 @@
 package com.innv.rmsgateway.classes;
 
+import android.os.Build;
 import android.util.Log;
+
+import androidx.annotation.RequiresApi;
 
 import com.innv.rmsgateway.data.IConvertHelper;
 
@@ -8,10 +11,11 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import static android.content.ContentValues.TAG;
@@ -59,18 +63,46 @@ public class DefrostProfile implements IConvertHelper {
             this.endMinute = endMinute;
         }
 
-        public Boolean isTimeInBetween(String date){
-            Date current = parseDate(date);
-            Date dateCompareOne = parseDate(Integer.toString(startHour) + ":" + Integer.toString(startMinute));
-            Date dateCompareTwo = parseDate(Integer.toString(endHour) + ":" + Integer.toString(endMinute));
-
-            boolean ret = false;
-
-            if (dateCompareTwo.before(current) && dateCompareOne.after(current)) {
-                //your logic
-                ret = true;
+        private String getStringDate(int date){
+            String strDate =  Integer.toString(date);
+            if(strDate.length() == 1){
+                strDate = "0" + strDate;
             }
-            return ret;
+            return  strDate;
+        }
+
+        @RequiresApi(api = Build.VERSION_CODES.O)
+        public Boolean isTimeInBetween(String date) {
+            String inputFormat = "HH:mm";
+            String[] curr = date.split(":");
+            String currStartH = getStringDate(Integer.parseInt(curr[0]));
+            String currStartM = getStringDate(Integer.parseInt(curr[1]));
+
+            String startMStr = getStringDate(startMinute);
+            String endMStr = getStringDate(endMinute);
+            String startHStr = getStringDate(startHour);
+            String endHStr = getStringDate(endHour);
+
+            DateTimeFormatter format = DateTimeFormatter.ofPattern(inputFormat);
+            LocalTime target = LocalTime.parse(currStartH + ":" + currStartM, format);
+            LocalTime start = LocalTime.parse(startHStr + ":" + startMStr, format);
+            LocalTime stop = LocalTime.parse(endHStr + ":" + endMStr, format);
+
+            Boolean isBetweenStartAndStopStrictlySpeaking = (!target.isBefore(start) && target.isBefore(stop));
+
+            Boolean isTargetAfterStartAndBeforeStop = (target.isAfter(start) && target.isBefore(stop));
+
+            if (!isTargetAfterStartAndBeforeStop) {
+                if (start.isAfter(stop)) {
+                    if (target.isBefore(stop)) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+            }
+
+            return isTargetAfterStartAndBeforeStop;
 
         }
 
@@ -83,7 +115,6 @@ public class DefrostProfile implements IConvertHelper {
             this.endHour = endHour;
             this.endMinute = endMinute;
         }
-
 
         @Override
         public boolean parseJsonObject(JSONObject jsonObject) {
@@ -181,7 +212,7 @@ public class DefrostProfile implements IConvertHelper {
     public static Date parseDate(String date) {
 
         final String inputFormat = "HH:mm";
-        SimpleDateFormat inputParser = new SimpleDateFormat(inputFormat, Locale.getDefault());
+        SimpleDateFormat inputParser = new SimpleDateFormat(inputFormat);
         try {
             return inputParser.parse(date);
         } catch (java.text.ParseException e) {
@@ -193,7 +224,9 @@ public class DefrostProfile implements IConvertHelper {
 
         AtomicBoolean ret = new AtomicBoolean(false);
         defrostIntervals.forEach( interval -> {
-            ret.set(interval.isTimeInBetween(date));
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                ret.set(interval.isTimeInBetween(date));
+            }
             if(ret.get()){
                 return;
             }

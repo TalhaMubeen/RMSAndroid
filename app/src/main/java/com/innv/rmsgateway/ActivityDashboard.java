@@ -71,6 +71,7 @@ public class ActivityDashboard extends AppCompatActivity implements OnBLEDeviceC
                 mService = binder.getService();
                 try {
                     mService.startBleService();
+                    BLEBackgroundService.addBLEUpdateListener(this.getClass().getSimpleName(), ActivityDashboard.this);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -122,13 +123,7 @@ public class ActivityDashboard extends AppCompatActivity implements OnBLEDeviceC
 
         Globals.setDbContext(getApplicationContext());
         AlertManager.setNotificationAlertCallback( this.getClass().getSimpleName() , this);
-
         NodeDataManager.init();
-
-        if (!mBound) {
-            bindService(new Intent(ActivityDashboard.this, BLEBackgroundService.class), mServiceConnection,
-                    Context.BIND_AUTO_CREATE);
-        }
     }
 
     @Override
@@ -140,8 +135,6 @@ public class ActivityDashboard extends AppCompatActivity implements OnBLEDeviceC
                     mServiceConnection,
                     Context.BIND_AUTO_CREATE);
         }
-
-        BLEBackgroundService.addBLEUpdateListener(this.getClass().getSimpleName(), this);
 
         if(rv_rms_categories == null) {
 
@@ -188,11 +181,13 @@ public class ActivityDashboard extends AppCompatActivity implements OnBLEDeviceC
     @Override
     protected void onStop() {
         super.onStop();
+        BLEBackgroundService.removeBLEUpdateListener(this.getClass().getSimpleName());
     }
 
     @Override
     protected void onPause() {
         super.onPause();
+        BLEBackgroundService.removeBLEUpdateListener(this.getClass().getSimpleName());
     }
 
     @Override
@@ -211,7 +206,6 @@ public class ActivityDashboard extends AppCompatActivity implements OnBLEDeviceC
             case KeyEvent.KEYCODE_BACK: {
                 finish();
             }
-
             return true;
         }
         return super.onKeyDown(keyCode, event);
@@ -278,7 +272,6 @@ public class ActivityDashboard extends AppCompatActivity implements OnBLEDeviceC
                 break;
 
             case Manifest.permission.CAMERA:
-
                 break;
         }
     }
@@ -314,6 +307,17 @@ public class ActivityDashboard extends AppCompatActivity implements OnBLEDeviceC
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE_OPEN_GPS) {
             //done
+        }else if (requestCode == REQUEST_CODE_PERMISSION_BLUETOOTH) {
+            if (mBound) {
+                mBound = false;
+                unbindService(mServiceConnection);
+                BLEBackgroundService.removeBLEUpdateListener(this.getClass().getSimpleName());
+            }
+
+            bindService(new Intent(ActivityDashboard.this, BLEBackgroundService.class),
+                    mServiceConnection,
+                    Context.BIND_AUTO_CREATE);
+
         }
     }
 

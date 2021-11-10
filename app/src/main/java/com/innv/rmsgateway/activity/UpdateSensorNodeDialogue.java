@@ -26,6 +26,7 @@ import com.innv.rmsgateway.classes.ProfileManager;
 import com.innv.rmsgateway.data.NodeDataManager;
 import com.innv.rmsgateway.sensornode.SensorNode;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -33,6 +34,7 @@ public class UpdateSensorNodeDialogue {
     Context context;
     Dialog dialog;
 
+    List<String> nodeStateList = new ArrayList<>();
     List<String> profileNameList;
     List<String> defrostProfileNames;
 
@@ -46,6 +48,8 @@ public class UpdateSensorNodeDialogue {
         profileNameList = ProfileManager.getProfilesTitle();
         defrostProfileNames = DefrostProfileManager.getDefrostProfileNames();
         macAddress = mac;
+        nodeStateList.add("Active");
+        nodeStateList.add("InActive");
     }
 
     public void showDialog() {
@@ -58,21 +62,26 @@ public class UpdateSensorNodeDialogue {
         LinearLayout ll_monitor_node = (LinearLayout) dialog.findViewById(R.id.ll_monitor_node);
         Button btn_addNode = (Button) dialog.findViewById(R.id.btn_addNode);
         Button btn_updateNode = (Button) dialog.findViewById(R.id.btn_updateNode);
-        CheckBox add_checkbox = (CheckBox) dialog.findViewById(R.id.add_checkbox);
+
+        Spinner sp_nodeStatus = dialog.findViewById(R.id.sp_nodeStatus);
+        ArrayAdapter<String> nodeStateAdapter = new ArrayAdapter<String>(context, R.layout.spinner_item, nodeStateList);
+        nodeStateAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
+        sp_nodeStatus.setAdapter(nodeStateAdapter);
+       // CheckBox add_checkbox = (CheckBox) dialog.findViewById(R.id.add_checkbox);
 
         EditText node_name = (EditText) dialog.findViewById(R.id.editTV_name);
         TextView tv_address = (TextView) dialog.findViewById(R.id.tv_address);
 
         // Drop down layout style - list view with radio button
         Spinner sp_profile = dialog.findViewById(R.id.sp_profile);
-        ArrayAdapter<String> profileAdapter = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, profileNameList);
-        profileAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter<String> profileAdapter = new ArrayAdapter<String>(context, R.layout.spinner_item, profileNameList);
+        profileAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         sp_profile.setAdapter(profileAdapter);
 
         // Drop down layout style - list view with radio button
         Spinner sp_defrostProfile = dialog.findViewById(R.id.sp_defrostProfile);
-        ArrayAdapter<String> defrostAdapter = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, defrostProfileNames);
-        defrostAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter<String> defrostAdapter = new ArrayAdapter<String>(context, R.layout.spinner_item, defrostProfileNames);
+        defrostAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         sp_defrostProfile.setAdapter(defrostAdapter);
 
         if (profileNameList.size() == 0) {
@@ -105,8 +114,7 @@ public class UpdateSensorNodeDialogue {
             }
 
             @Override
-            public void onNothingSelected(AdapterView<?> parentView) {
-                // your code here
+            public void onNothingSelected(AdapterView<?> parentView) {// your code here
             }
 
         });
@@ -126,7 +134,6 @@ public class UpdateSensorNodeDialogue {
 
         });
 
-
         btn_addNode.setVisibility(View.GONE);
         ll_monitor_node.setVisibility(View.VISIBLE);
         btn_updateNode.setVisibility(View.VISIBLE);
@@ -134,10 +141,13 @@ public class UpdateSensorNodeDialogue {
         SensorNode node = NodeDataManager.getAllNodeFromMac(macAddress);
         node_name.setText(node.getName());
 
-        add_checkbox.setChecked(node.isPreChecked());
+        if(node.isPreChecked()){
+            sp_nodeStatus.setSelection(0);
+        }else{
+            sp_nodeStatus.setSelection(1);
+        }
 
         selectedProfile = ProfileManager.getProfile(node.getProfileTitle());
-
         selectedDefrostProf = DefrostProfileManager.getDefrostProfile(node.getDefrostProfileTitle());
         sp_profile.setSelection(profileAdapter.getPosition(selectedProfile.getTitle()));
 
@@ -165,7 +175,12 @@ public class UpdateSensorNodeDialogue {
                     node.setProfileTitle(profileSelected);
 
                     node.setName(node_name.getText().toString());
-                    node.setPreChecked(add_checkbox.isChecked());
+
+                    if(sp_nodeStatus.getSelectedItemPosition() == 0){
+                        node.setPreChecked(true);
+                    }else{
+                        node.setPreChecked(false);
+                    }
 
                     try {
                         btn_updateNode.setEnabled(false);

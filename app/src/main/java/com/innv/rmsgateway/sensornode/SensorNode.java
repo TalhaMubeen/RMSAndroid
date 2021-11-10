@@ -56,14 +56,14 @@ public class SensorNode implements IConvertHelper, Cloneable {
     private String lastUpdated;
     private String profileTitle;
     private String defrostProfileTitle;
-    public static NodeState nodeState;
+    public NodeState nodeState;
 
-    public static NodeState getNodeState() {
+    public NodeState getNodeState() {
         return nodeState;
     }
 
-    public static void setNodeState(NodeState nodeState) {
-        SensorNode.nodeState = nodeState;
+    public void setNodeState(NodeState nodeState) {
+        this.nodeState = nodeState;
     }
 
     public String getProfileTitle() {

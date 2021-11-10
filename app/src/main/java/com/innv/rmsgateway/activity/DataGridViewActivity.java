@@ -31,7 +31,7 @@ public class DataGridViewActivity extends AppCompatActivity {
     FloatingActionButton btn_addNew;
 
     List<Profile> profileList;
-    List<DefrostProfile> defrostProfiles;
+    List<DefrostProfile> defrostProfiles = new ArrayList<>();
     List<SensorNode> sensorNodes;
     String settingType;
 
@@ -87,7 +87,8 @@ public class DataGridViewActivity extends AppCompatActivity {
 
             case "Defrost":
                 getSupportActionBar().setTitle("Defrost Profiles");
-                defrostProfiles = DefrostProfileManager.getDefrostProfiles();
+                defrostProfiles.clear();
+                defrostProfiles.addAll(DefrostProfileManager.getDefrostProfiles());
                 ProfileViewAdapter defrostProfileAdapter = new ProfileViewAdapter(this, null, defrostProfiles);
                 gv_data_view.setAdapter(defrostProfileAdapter);
                 btn_addNew.setOnClickListener(new View.OnClickListener() {

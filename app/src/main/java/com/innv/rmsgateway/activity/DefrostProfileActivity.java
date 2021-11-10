@@ -87,7 +87,103 @@ public class DefrostProfileActivity extends AppCompatActivity {
 
     }
 
-    private Boolean isDataChanged(boolean showAlerts) {
+    private void initView() {
+        defrostIntervals.clear();
+        gv_defrostInterval = findViewById(R.id.gv_defrostInterval);
+        ll_parent = findViewById(R.id.ll_parent);
+        List<DefrostProfile.Interval> intervals = new ArrayList<>();
+
+        if (selectedProfile != null) {
+            intervals.addAll(selectedProfile.getDefrostIntervals());
+        }
+
+        defrostProfileAdapter = new DefrostProfileAdapter(this, intervals);
+        gv_defrostInterval.setAdapter(defrostProfileAdapter);
+
+        et_defrost_profile_name = findViewById(R.id.et_defrost_profile_name);
+
+        if (selectedProfile != null) {
+            et_defrost_profile_name.setText(selectedProfile.getName());
+        }
+
+        if (updatingProfileInfo) {
+            et_defrost_profile_name.setEnabled(false);
+        }
+
+        Button btn_save = findViewById(R.id.btn_save);
+        btn_save.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isDataChanged(true, true)) {
+                    //save Profile data here
+                    //updatedDataProfile
+
+                    if (NodeDataManager.AddorUpdateDefrostProfile(
+                            updatedDefrostProfile.getName(),
+                            updatedDefrostProfile,
+                            true)) {
+                        String toastTitle = "Defrost Profile " + updatedDefrostProfile.getName();
+                        if (updatingProfileInfo) {
+                            toastTitle += " updated successfully";
+                        } else {
+                            toastTitle += " added successfully";
+                        }
+
+                        Toast.makeText(context, toastTitle, Toast.LENGTH_SHORT).show();
+                        finish();
+                    }
+                }
+            }
+        });
+
+
+        Button btn_cancel = findViewById(R.id.btn_cancel);
+        btn_cancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (isDataChanged(false, false)) {
+                    showAlert();
+                } else {
+                    finish();
+                }
+            }
+        });
+
+
+        btn_addNew = findViewById(R.id.btn_addNew);
+
+
+        btn_addNew.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                defrostIntervals.add(new DefrostProfile.Interval());
+                defrostProfileAdapter.notifyDataSetChanged();
+
+                setListViewHeightBasedOnChildren(gv_defrostInterval);
+
+                ViewGroup.LayoutParams ll_lp = ll_parent.getLayoutParams();
+                ll_lp.height = gv_defrostInterval.getLayoutParams().height;
+                ll_parent.setLayoutParams(ll_lp);
+                ll_parent.requestLayout();
+
+            }
+        });
+
+        if (!updatingProfileInfo) { //Add one row automatically for new Defrost Profile
+            btn_addNew.callOnClick();
+        }
+
+        setListViewHeightBasedOnChildren(gv_defrostInterval);
+
+        ViewGroup.LayoutParams ll_lp = ll_parent.getLayoutParams();
+        ll_lp.height = gv_defrostInterval.getLayoutParams().height;
+        ll_parent.setLayoutParams(ll_lp);
+        ll_parent.requestLayout();
+
+    }
+
+
+    private Boolean isDataChanged(boolean showAlerts, boolean updatedReq) {
         try {
 
             if(et_defrost_profile_name.getText().toString().isEmpty()){
@@ -121,7 +217,7 @@ public class DefrostProfileActivity extends AppCompatActivity {
                 if(showAlerts) {
                     Toast.makeText(context, "Please input correct interval", Toast.LENGTH_SHORT).show();
                 }
-                return true;
+                return false;
             }
 
             if(updatedDefrostProfile.getDefrostIntervals().size() == 0){
@@ -132,7 +228,9 @@ public class DefrostProfileActivity extends AppCompatActivity {
             }
 
             if (selectedProfile != null) {
-                return selectedProfile.isEqual(updatedDefrostProfile); //data not changed if equal
+                boolean retVal = selectedProfile.isEqual(updatedDefrostProfile);
+
+                return updatedReq != retVal;
             }
 
         }catch (Exception e){
@@ -142,88 +240,6 @@ public class DefrostProfileActivity extends AppCompatActivity {
         return true;
     }
 
-    private void initView() {
-        defrostIntervals.clear();
-        gv_defrostInterval = findViewById(R.id.gv_defrostInterval);
-        ll_parent = findViewById(R.id.ll_parent);
-        List<DefrostProfile.Interval> intervals = new ArrayList<>();
-
-        if (selectedProfile != null) {
-            intervals.addAll(selectedProfile.getDefrostIntervals());
-        }
-
-        defrostProfileAdapter = new DefrostProfileAdapter(this, intervals);
-        gv_defrostInterval.setAdapter(defrostProfileAdapter);
-
-        et_defrost_profile_name = findViewById(R.id.et_defrost_profile_name);
-
-        if (selectedProfile != null) {
-            et_defrost_profile_name.setText(selectedProfile.getName());
-        }
-
-        if(updatingProfileInfo){
-            et_defrost_profile_name.setEnabled(false);
-        }
-
-        Button btn_save = findViewById(R.id.btn_save);
-        btn_save.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (isDataChanged(true)) {
-                    //save Profile data here
-                    //updatedDataProfile
-
-                    if (NodeDataManager.AddorUpdateDefrostProfile(
-                            updatedDefrostProfile.getName(),
-                            updatedDefrostProfile,
-                            true)) {
-                        String toastTitle = "Defrost Profile " + updatedDefrostProfile.getName();
-                        if (updatingProfileInfo) {
-                            toastTitle += " updated successfully";
-                        } else {
-                            toastTitle += " added successfully";
-                        }
-
-                        Toast.makeText(context, toastTitle, Toast.LENGTH_SHORT).show();
-                        finish();
-                    }
-                }
-            }
-        });
-
-
-        Button btn_cancel = findViewById(R.id.btn_cancel);
-        btn_cancel.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (isDataChanged(false)) {
-                    showAlert();
-                } else {
-                    finish();
-                }
-            }
-        });
-
-        btn_addNew = findViewById(R.id.btn_addNew);
-
-        btn_addNew.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                defrostIntervals.add(new DefrostProfile.Interval());
-                defrostProfileAdapter.notifyDataSetChanged();
-
-                setListViewHeightBasedOnChildren(gv_defrostInterval);
-
-                ViewGroup.LayoutParams ll_lp = ll_parent.getLayoutParams();
-                ll_lp.height = gv_defrostInterval.getLayoutParams().height;
-                ll_parent.setLayoutParams(ll_lp);
-                ll_parent.requestLayout();
-
-            }
-        });
-
-
-    }
 
     private void showAlert() {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
@@ -295,7 +311,7 @@ public class DefrostProfileActivity extends AppCompatActivity {
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         switch (keyCode) {
             case KeyEvent.KEYCODE_BACK:
-                if(isDataChanged(false)) {
+                if(isDataChanged(false, false)) {
                     showAlert();
                 }else{
                     finish();

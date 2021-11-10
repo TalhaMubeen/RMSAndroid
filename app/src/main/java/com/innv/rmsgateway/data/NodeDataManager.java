@@ -213,11 +213,11 @@ public class NodeDataManager {
             allNodesData.replace(data.getMacID(), data);
         } else{
             allNodesData.put(data.getMacID(), data);
-            AlertData alert = new AlertData(data.getMacID(), AlertType.RSSI, NodeState.Normal, new Date(), 0, 0);
-            SaveAlertData(alert);
+/*            AlertData alert = new AlertData(data.getMacID(), AlertType.RSSI, NodeState.Normal, new Date(), 0, 0);
+            SaveAlertData(alert);*/
 
         }
-        updateAlertManager();
+     //   updateAlertManager();
     }
 
 
@@ -317,6 +317,8 @@ public class NodeDataManager {
                 data.getTypeString(),
                 data.getStatusString(),
                 data.getDataAsStaticListItem());
+
+        updateAlertManager();
     }
 
     //Alerts data handling
@@ -331,6 +333,8 @@ public class NodeDataManager {
                 data.getTypeString(),
                 data.getStatusString(),
                 data.getDataAsStaticListItem());
+
+        updateAlertManager();
 
     }
 

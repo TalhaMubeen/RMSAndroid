@@ -184,8 +184,8 @@ public class TypeProfileActivity extends AppCompatActivity {
         }
 
 
-        ArrayAdapter<Integer> dataAdapter = new ArrayAdapter<Integer>(this, android.R.layout.simple_spinner_item, warn2AlertTimeList);
-        dataAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        ArrayAdapter<Integer> dataAdapter = new ArrayAdapter<Integer>(this, R.layout.spinner_item, warn2AlertTimeList);
+        dataAdapter.setDropDownViewResource(R.layout.spinner_dropdown_item);
         sp_warn2Alert.setAdapter(dataAdapter);
         if(selectedProfile != null) {
             sp_warn2Alert.setSelection(dataAdapter.getPosition(selectedProfile.getWarningToAlertTime()));

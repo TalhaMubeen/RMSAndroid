@@ -18,6 +18,7 @@ import com.innv.rmsgateway.activity.TypeProfileActivity;
 import com.innv.rmsgateway.classes.DefrostProfile;
 import com.innv.rmsgateway.classes.Profile;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ProfileViewAdapter extends BaseAdapter {
@@ -29,8 +30,19 @@ public class ProfileViewAdapter extends BaseAdapter {
 
     public ProfileViewAdapter(Context ctx, List<Profile> profiles, List<DefrostProfile> defrostProfiles) {
         context = ctx;
+
         profileList = profiles;
-        this.defrostProfiles = defrostProfiles;
+
+        if(defrostProfiles != null) {
+            defrostProfiles.removeIf(dprof -> {
+                if (dprof.getName().equals("None")) {
+                    return true;
+                }
+                return false;
+            });
+            this.defrostProfiles = defrostProfiles;
+        }
+
         inflater = LayoutInflater.from(ctx);
     }
 
