@@ -8,6 +8,8 @@
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
         <item name="colorAccent">@color/colorAccent</item>
 
+        <item name="android:windowIsFloating">false</item>
+        <item name="android:windowSoftInputMode">adjustResize|stateVisible</item>
         //No support for dark mode
         <item name="android:forceDarkAllowed" tools:targetApi="q">false</item>
     </style>

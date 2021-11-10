@@ -119,7 +119,6 @@ public class AssetManagementAdapter extends BaseAdapter {
                                 notifyDataSetChanged();
                                 _dialog.dismiss();
                                 NodeDataManager.setStopUpdates(false);
-
                             }
                         });
 

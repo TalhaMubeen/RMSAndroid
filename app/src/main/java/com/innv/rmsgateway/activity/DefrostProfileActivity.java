@@ -387,6 +387,7 @@ public class DefrostProfileActivity extends AppCompatActivity {
             }
             //Start Interval
             EditText et_startInterval = (EditText) convertView.findViewById(R.id.et_startInterval);
+            ImageView iv_delInterval = (ImageView) convertView.findViewById(R.id.iv_delInterval);
             et_startInterval.setClickable(true);
             et_startInterval.setLongClickable(false);
             et_startInterval.setInputType(InputType.TYPE_NULL);
@@ -435,11 +436,26 @@ public class DefrostProfileActivity extends AppCompatActivity {
                 if (!prof.isEmpty()) {
                     et_startInterval.setText(Integer.toString(prof.getStartHour()) + ":" + Integer.toString(prof.getStartMinute()));
                     et_endInterval.setText(Integer.toString(prof.getEndHour()) + ":" + Integer.toString(prof.getEndMinute()));
-                }else{
+                } else {
                     et_startInterval.setText("");
                     et_endInterval.setText("");
                 }
             }
+
+            iv_delInterval.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    defrostIntervals.remove(position);
+                    defrostProfileAdapter.notifyDataSetChanged();
+
+                    setListViewHeightBasedOnChildren(gv_defrostInterval);
+
+                    ViewGroup.LayoutParams ll_lp = ll_parent.getLayoutParams();
+                    ll_lp.height = gv_defrostInterval.getLayoutParams().height;
+                    ll_parent.setLayoutParams(ll_lp);
+                    ll_parent.requestLayout();
+                }
+            });
 
             // returns the view for the current row
             return convertView;

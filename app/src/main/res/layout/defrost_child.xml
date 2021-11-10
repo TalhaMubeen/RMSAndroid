@@ -3,16 +3,15 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="10dp"
-    android:padding="5dp"
     android:orientation="vertical">
-    
+
     <LinearLayout
         android:layout_width="match_parent"
         android:orientation="horizontal"
         android:layout_height="wrap_content">
 
         <com.google.android.material.textfield.TextInputLayout
+            android:layout_marginStart="5dp"
             android:id="@+id/tinputstart"
             android:layout_width="match_parent"
             android:layout_weight="1"
@@ -30,8 +29,8 @@
                 android:gravity="left" />
         </com.google.android.material.textfield.TextInputLayout>
 
-
         <com.google.android.material.textfield.TextInputLayout
+            android:layout_marginStart="5dp"
             android:id="@+id/tinputEnd"
             android:layout_width="match_parent"
             android:layout_weight="1"
@@ -48,6 +47,17 @@
                 android:focusable="false"
                 android:gravity="left" />
         </com.google.android.material.textfield.TextInputLayout>
+
+        <ImageView
+            android:id="@+id/iv_delInterval"
+            android:adjustViewBounds="true"
+            android:scaleType="centerCrop"
+            android:maxWidth="40dip"
+            android:padding="22dp"
+            android:src="@drawable/delete"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"/>
+
     </LinearLayout>
 
 </LinearLayout>

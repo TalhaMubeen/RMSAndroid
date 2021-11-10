@@ -5,6 +5,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:layout_alignParentBottom="true"
     android:orientation="vertical">
 
     <RelativeLayout
@@ -58,7 +60,9 @@
 
     </RelativeLayout>
 
-    <LinearLayout
+    <RelativeLayout
+        android:fitsSystemWindows="true"
+        android:layout_alignParentBottom="true"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
@@ -67,14 +71,14 @@
         <GridView
             android:id="@+id/list_device"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="2dp"
+            android:layout_height="match_parent"
             android:layout_margin="2dp"
+            android:verticalSpacing="10dp"
             android:divider="@android:color/background_light"
             android:dividerHeight="5dp"
             android:scrollbars="vertical"
+            android:fadeScrollbars="false" />
 
-            />
-    </LinearLayout>
+    </RelativeLayout >
 
 </RelativeLayout>

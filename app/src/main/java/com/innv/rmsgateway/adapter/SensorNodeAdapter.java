@@ -4,11 +4,13 @@ import com.innv.rmsgateway.R;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.os.Handler;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
@@ -25,6 +27,7 @@ import android.widget.Toast;
 
 import androidx.core.content.ContextCompat;
 
+import com.innv.rmsgateway.activity.ScanActivity;
 import com.innv.rmsgateway.bluetooth.BleManager;
 import com.innv.rmsgateway.classes.DefrostProfile;
 import com.innv.rmsgateway.classes.DefrostProfileManager;
@@ -40,6 +43,7 @@ import java.util.List;
 public class SensorNodeAdapter extends BaseAdapter {
     private static final String TAG = "sensorScanner";
     private final Context context;
+    private final ScanActivity scanActivity;
     LayoutInflater inflater;
     private static List<String> bleDeviceList;
     List<String> profileNameList;
@@ -48,7 +52,9 @@ public class SensorNodeAdapter extends BaseAdapter {
     DefrostProfile selectedDefrostProf;
     //constructor function
     public SensorNodeAdapter(Context context) {
+
         this.context = context;
+        scanActivity = (ScanActivity) context;
         inflater = LayoutInflater.from(context);
         bleDeviceList = new ArrayList<>();
         profileNameList = ProfileManager.getProfilesTitle();

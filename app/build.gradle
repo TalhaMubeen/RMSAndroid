@@ -3,11 +3,11 @@ plugins {
 }
 
 android {
-    compileSdk 31
+    compileSdk 30
 
     defaultConfig {
         applicationId "com.innv.rmsgateway"
-        minSdk 23
+        minSdk 25
         targetSdk 31
         versionCode 1
         versionName "1.0"

@@ -4,6 +4,7 @@ import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.WindowCompat;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
@@ -37,8 +38,10 @@ public class ScanActivity extends AppCompatActivity implements View.OnClickListe
     private static final String TAG = ScanActivity.class.getSimpleName();
 
     private ImageView iv_refresh;
+    private GridView listView_device;
     private SensorNodeAdapter mDeviceAdapter;
     List<SensorNode> allSavedNodes = new ArrayList<>();
+    int selectedPositon = 0;
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -52,14 +55,13 @@ public class ScanActivity extends AppCompatActivity implements View.OnClickListe
         return super.onOptionsItemSelected(item);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.R)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_scan_nodes);
-
         getSupportActionBar().hide();
-      //  getSupportActionBar().setDisplayOptions(ActionBar.DISPLAY_SHOW_CUSTOM);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         initView();
     }
@@ -134,7 +136,7 @@ public class ScanActivity extends AppCompatActivity implements View.OnClickListe
 
         mDeviceAdapter = new SensorNodeAdapter(this);
 
-        GridView listView_device = (GridView) findViewById(R.id.list_device);
+        listView_device = (GridView) findViewById(R.id.list_device);
         listView_device.setAdapter(mDeviceAdapter);
 
         Animation rotationAnimation = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.rotate);
