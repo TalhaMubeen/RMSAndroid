@@ -105,11 +105,22 @@ public class SensorDataDecoder {
     }
 
     public double getTemperature(BleDevice bleDevice){
-        int temp = 0;
-        sensorData =  bleDevice.getScanRecord();
+        byte valueLS = 0;
+        byte valueMS = 0;
 
-        temp = (int)sensorData[TEMPERATURE0_LOCATION] *255;
-        temp += sensorData[TEMPERATURE1_LOCATION];
+        boolean isNegative = false;
+
+        valueLS = (sensorData[TEMPERATURE0_LOCATION]);
+        if((valueLS & 0x80) == 0x80){
+            isNegative = true;
+        }
+        valueLS = (byte) ((valueLS << 1) >> 1);
+        valueMS = (sensorData[TEMPERATURE1_LOCATION]);
+
+        int temp =  (( valueLS & 0xff) << 8) | (valueMS  & 0xff);
+        if(isNegative) {
+            temp *= -1;
+        }
         double ret = round((double)temp*0.01, 2);
         return  ret;
     }
