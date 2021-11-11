@@ -213,7 +213,7 @@ public class NodeDataManager {
             allNodesData.replace(data.getMacID(), data);
         } else{
             allNodesData.put(data.getMacID(), data);
-/*            AlertData alert = new AlertData(data.getMacID(), AlertType.RSSI, NodeState.Normal, new Date(), 0, 0);
+/*            AlertData alert = new AlertData(data.getMacID(), AlertType.DEFAULT, NodeState.Normal, new Date(), 0, 0);
             SaveAlertData(alert);*/
 
         }

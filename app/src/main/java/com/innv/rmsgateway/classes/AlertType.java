@@ -7,5 +7,5 @@ public enum AlertType implements Serializable {
     HIGH_TEMP,
     LOW_HUMIDITY,
     HIGH_HUMIDITY,
-    RSSI,
+    DEFAULT,
 }

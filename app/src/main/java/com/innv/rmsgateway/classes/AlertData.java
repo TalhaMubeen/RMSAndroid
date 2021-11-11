@@ -17,8 +17,6 @@ import java.util.Locale;
 import static android.content.ContentValues.TAG;
 
 public class AlertData implements IConvertHelper {
-
-
     AlertType type;
     NodeState nodeState;
     String alertStartTime = "";

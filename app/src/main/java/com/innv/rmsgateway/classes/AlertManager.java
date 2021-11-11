@@ -54,7 +54,7 @@ public class AlertManager {
 
     public static void parseListItems(List<StaticListItem> alertsData) {
 
-        //  alertsMap.clear();
+        allAlerts.clear();
         List<SensorNode> nodeList = NodeDataManager.getPreCheckedNodes();
 
         alertsData.forEach(item -> {
@@ -208,6 +208,21 @@ public class AlertManager {
         return retVal;
     }
 
+    private static void addNewAlert(SensorNode node, SensorNode data, AlertType alertType, NodeState state) {
+        AlertData alert = new AlertData(
+                data.getMacID(),
+                alertType,
+                state,
+                new Date(),
+                data.getTemperature(),
+                data.getHumidity());
+        alertsMap.put(data.getMacID(), alert);
+        NodeDataManager.SaveAlertData(alert);
+        node.setNodeState(state);
+        NodeDataManager.UpdateNodeDetails(node.getMacID(), node);
+
+    }
+
     public static void onSensorNodeDataRcvd(SensorNode data) {
 
         SensorNode node = NodeDataManager.getPreCheckedNodeFromMac(data.getMacID());
@@ -241,22 +256,17 @@ public class AlertManager {
 
         if (isDefrostCycle) {
             if(alertsMap.containsKey(data.getMacID())) {
-                alertsMap.get(data.getMacID()).setNodeState(NodeState.Defrost);
 
-                updateData = true;
+                if(alertsMap.get(data.getMacID()).getNodeState() != NodeState.Defrost){
+
+                    alertsMap.remove(data.getMacID());
+                    addNewAlert(node, data,  AlertType.DEFAULT, NodeState.Defrost);
+                    updateData = true;
+                }
             }else{
-                AlertData alert = new AlertData(
-                        data.getMacID(),
-                        AlertType.HIGH_TEMP,
-                        NodeState.Defrost,
-                        new Date(),
-                        data.getTemperature(),
-                        data.getHumidity());
-                alertsMap.put(data.getMacID(), alert);
-                NodeDataManager.SaveAlertData(alert);
-
+                addNewAlert(node, data,  AlertType.DEFAULT, NodeState.Defrost);
+                updateData = true;
             }
-            node.setNodeState(NodeState.Defrost);
         }
 
         else if (nodeRetAlerts.size() > 0) {
@@ -264,18 +274,7 @@ public class AlertManager {
             for (AlertType alertType : nodeRetAlerts) {
 
                 if (!alertsMap.containsKey(data.getMacID())) {
-                    AlertData alert = new AlertData(
-                            data.getMacID(),
-                            alertType,
-                            NodeState.Warning,
-                            new Date(),
-                            data.getTemperature(),
-                            data.getHumidity());
-                    alertsMap.put(data.getMacID(), alert);
-                    NodeDataManager.SaveAlertData(alert);
-                    node.setNodeState(NodeState.Warning);
-                    NodeDataManager.UpdateNodeDetails(node.getMacID(), node);
-
+                    addNewAlert(node, data,  alertType, NodeState.Warning);
                 } else {
 
                     switch (alertsMap.get(data.getMacID()).getNodeState()) {
@@ -283,21 +282,18 @@ public class AlertManager {
                             break;
 
                         case Offline:
-
                         case Normal:
-                            alertsMap.get(data.getMacID()).setNodeState(NodeState.Warning);
-                            node.setNodeState(NodeState.Warning);
+                            alertsMap.remove(data.getMacID());
+                            addNewAlert(node, data, alertType, NodeState.Warning);
                             updateData = true;
                             break;
 
                         case Defrost:
-                            if(alertsMap.get(data.getMacID()).getNodeState() != NodeState.Warning) {
-                                alertsMap.get(data.getMacID()).setAlertStartTime(new Date()); //Warning Start after Defrost Interval
+                            endAlert(data, node);
+                            alertsMap.remove(data.getMacID());
+                            addNewAlert(node, data,  alertType, NodeState.Warning);
+                            updateData = true;
 
-                                alertsMap.get(data.getMacID()).setNodeState(NodeState.Warning);
-                                node.setNodeState(NodeState.Warning);
-                                updateData = true;
-                            }
                             break;
 
                         case Warning:
@@ -311,37 +307,47 @@ public class AlertManager {
                 }
             }
         }
-
         else {//Save alert end here
-            Date endTime = new Date();
-            if (alertsMap.containsKey(data.getMacID())) {
+            NodeState state = alertsMap.get(data.getMacID()).getNodeState();
+            if (state != NodeState.Normal) {
 
-                if (alertsMap.get(data.getMacID()).getAlertEndTime() == null) {
-
-                    alertsMap.get(data.getMacID()).setNodeState(NodeState.Normal);
-                    alertsMap.get(data.getMacID()).setAlertEndTime(endTime);
-                    node.setNodeState(NodeState.Normal);
-                    updateData = true;
+                if(state == NodeState.Offline){
+                    setAlertStatus(data.getMacID(), NodeState.Normal);
+                }else{
+                    endAlert(data, node);
+                    alertsMap.remove(data.getMacID());
+                    addNewAlert(node, data, AlertType.DEFAULT, NodeState.Normal);
+                    alertCallback.values().forEach(NotificationAlertsCallback::updateData);
                 }
 
-                else if (alertsMap.get(data.getMacID()).getNodeState() != NodeState.Normal) {
-                    alertsMap.get(data.getMacID()).setNodeState(NodeState.Normal);
-                    node.setNodeState(NodeState.Normal);
-                    updateData = true;
-                }
+
             }
         }
 
+
         if (updateData && alertCallback != null) {
-
-            NodeDataManager.UpdateAlertData(alertsMap.get(data.getMacID()));
-            NodeDataManager.UpdateNodeDetails(node.getMacID(), node);
-
-
-
+            updateAlertNodeData(data, node);
             alertCallback.values().forEach(NotificationAlertsCallback::updateData);
-
         }
+    }
+
+
+
+    private static void endAlert(SensorNode data, SensorNode node){
+        Date endTime = new Date();
+        if (alertsMap.containsKey(data.getMacID())) {
+
+            if (alertsMap.get(data.getMacID()).getAlertEndTime() == null) {
+                alertsMap.get(data.getMacID()).setAlertEndTime(endTime);
+                node.setNodeState(NodeState.Normal);
+                updateAlertNodeData(data, node);
+            }
+        }
+    }
+
+    private static void updateAlertNodeData(SensorNode data, SensorNode node){
+        NodeDataManager.UpdateAlertData(alertsMap.get(data.getMacID()));
+        NodeDataManager.UpdateNodeDetails(node.getMacID(), node);
     }
 
     //checks sensor data to see if any alert is required or not
@@ -394,7 +400,7 @@ public class AlertManager {
             if(!alertsMap.containsKey(mac)){
 
                 SensorNode data =  NodeDataManager.getPreCheckedNodeFromMac(mac);
-                AlertData alert = new AlertData(data.getMacID(), AlertType.RSSI, status, new Date(), data.getTemperature(), data.getHumidity());
+                AlertData alert = new AlertData(data.getMacID(), AlertType.DEFAULT, status, new Date(), data.getTemperature(), data.getHumidity());
                 alertsMap.put(data.getMacID(), alert);
                 NodeDataManager.SaveAlertData(alert);
                 NodeDataManager.getPreCheckedNodeFromMac(mac).setNodeState(status);

@@ -152,11 +152,17 @@ public class SensorNodeAdapter extends BaseAdapter {
                     try {
                         btn_addNode.setEnabled(false);
                         node_name.setEnabled(false);
+                        sp_defrostProfile.setEnabled(false);
+                        sp_profile.setEnabled(false);
                         NodeDataManager.AddNodeToDB(node_name.getText().toString(), tv_address.getText().toString(), profileSelected, defrostSelected);
                         Toast.makeText(context, node_name.getText() + " added successfully", Toast.LENGTH_SHORT).show();
-                        setViewAndChildrenEnabled(finalNodeView, false);
+                       // setViewAndChildrenEnabled(finalNodeView, false);
 
                     } catch (Exception e) {
+                        btn_addNode.setEnabled(true);
+                        node_name.setEnabled(true);
+                        sp_defrostProfile.setEnabled(true);
+                        sp_profile.setEnabled(true);
                         Toast.makeText(context, "Failed to add new node", Toast.LENGTH_SHORT).show();
                     }
 

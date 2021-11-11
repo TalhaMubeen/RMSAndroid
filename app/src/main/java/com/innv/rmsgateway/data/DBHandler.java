@@ -13,6 +13,7 @@ import com.innv.rmsgateway.classes.Globals;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,7 +21,7 @@ import java.util.List;
 public class DBHandler extends SQLiteOpenHelper{
     // Database Version
     private static DBHandler sInstance;
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = Globals.Db_Version;
 
     // Database Name
     private static final String DATABASE_NAME = "RMS";
@@ -45,6 +46,7 @@ public class DBHandler extends SQLiteOpenHelper{
     public DBHandler(Context context)
     {
         super(context,DATABASE_NAME,null,DATABASE_VERSION );
+        File path =  context.getDatabasePath(DATABASE_NAME);
     }
 
     @Override

@@ -95,6 +95,7 @@ public class ActivityDashboard extends AppCompatActivity implements OnBLEDeviceC
         if(gv_alertsAdapter!= null) {
             gv_alertsAdapter.notifyDataSetChanged();
         }
+
         if(rv_CategoryAdapter != null) {
             rv_CategoryAdapter.update();
             rv_CategoryAdapter.notifyDataSetChanged();
@@ -213,7 +214,7 @@ public class ActivityDashboard extends AppCompatActivity implements OnBLEDeviceC
 
     @Override
     public void onBLEDeviceCallback(BleDevice device) {
-        updateData();
+        //updateData();
     }
 
     private void checkPermissions() {
