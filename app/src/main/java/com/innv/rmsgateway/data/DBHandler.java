@@ -46,7 +46,6 @@ public class DBHandler extends SQLiteOpenHelper{
     public DBHandler(Context context)
     {
         super(context,DATABASE_NAME,null,DATABASE_VERSION );
-        File path =  context.getDatabasePath(DATABASE_NAME);
     }
 
     @Override
@@ -215,6 +214,16 @@ public class DBHandler extends SQLiteOpenHelper{
         }
     }
 
+    public void RemoveDefrostProfile(String listName,String orgCode, String title){
+        SQLiteDatabase db=this.getWritableDatabase();
+        String sql="Delete from " + TABLE_RMS_DEFROST_PROFILES +
+                " WHERE ORGCODE='" + orgCode +"' AND "+
+                " LISTNAME='" + listName +"' AND " +
+                "TITLE='"+ title+"'";
+
+        db.execSQL(sql);
+    }
+
     private int UpdateDefrostProfile(String listName,String orgCode, String title, StaticListItem array) {
         SQLiteDatabase db = this.getWritableDatabase();
         int count = 0;
@@ -311,6 +320,16 @@ public class DBHandler extends SQLiteOpenHelper{
         }
 
         return count;
+    }
+
+    public void RemoveProfile(String listName,String orgCode, String title){
+        SQLiteDatabase db=this.getWritableDatabase();
+        String sql="Delete from " + TABLE_RMS_PROFILES +
+                " WHERE ORGCODE='" + orgCode +"' AND "+
+                " LISTNAME='" + listName +"' AND " +
+                "TITLE='"+ title+"'";
+
+        db.execSQL(sql);
     }
 
     private int AddProfile(String listName,String orgCode, String title, StaticListItem array) {

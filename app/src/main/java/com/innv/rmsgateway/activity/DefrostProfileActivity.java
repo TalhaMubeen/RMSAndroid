@@ -49,7 +49,7 @@ public class DefrostProfileActivity extends AppCompatActivity {
     DefrostProfileAdapter defrostProfileAdapter;
     EditText et_defrost_profile_name;
     AlertDialog alertDialog;
-    List<DefrostProfile.Interval> defrostIntervals = new ArrayList<>();
+    List<DefrostProfile.Interval> defrostIntervals;
 
     ImageView btn_addNew;
 
@@ -88,13 +88,14 @@ public class DefrostProfileActivity extends AppCompatActivity {
     }
 
     private void initView() {
-        defrostIntervals.clear();
         gv_defrostInterval = findViewById(R.id.gv_defrostInterval);
         ll_parent = findViewById(R.id.ll_parent);
-        List<DefrostProfile.Interval> intervals = new ArrayList<>();
+        List<DefrostProfile.Interval> intervals ;
 
         if (selectedProfile != null) {
-            intervals.addAll(selectedProfile.getDefrostIntervals());
+            intervals = selectedProfile.getDefrostIntervals();
+        }else{
+            intervals = new ArrayList<>();
         }
 
         defrostProfileAdapter = new DefrostProfileAdapter(this, intervals);
@@ -132,6 +133,8 @@ public class DefrostProfileActivity extends AppCompatActivity {
                         Toast.makeText(context, toastTitle, Toast.LENGTH_SHORT).show();
                         finish();
                     }
+                }else{
+                    finish();
                 }
             }
         });
@@ -229,8 +232,15 @@ public class DefrostProfileActivity extends AppCompatActivity {
 
             if (selectedProfile != null) {
                 boolean retVal = selectedProfile.isEqual(updatedDefrostProfile);
+                if(retVal && updatedReq){
+                    return false;
+                }else if(retVal){
+                    return false;
+                }
+                else {
+                    return true;
+                }
 
-                return updatedReq != retVal;
             }
 
         }catch (Exception e){
@@ -357,7 +367,11 @@ public class DefrostProfileActivity extends AppCompatActivity {
 
         //public constructor
         public DefrostProfileAdapter(Context context, List<DefrostProfile.Interval> list) {
-            defrostIntervals = list;
+            defrostIntervals = new ArrayList<>();
+            list.forEach(interval -> {
+                defrostIntervals.add(new DefrostProfile.Interval(interval));
+            });
+
             this.context = context;
         }
 

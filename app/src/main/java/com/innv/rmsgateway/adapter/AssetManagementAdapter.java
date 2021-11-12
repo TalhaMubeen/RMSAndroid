@@ -1,7 +1,6 @@
 package com.innv.rmsgateway.adapter;
 
 import android.annotation.SuppressLint;
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.ColorStateList;
@@ -9,11 +8,13 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import androidx.appcompat.app.AlertDialog;
 
 import androidx.cardview.widget.CardView;
 import androidx.core.content.ContextCompat;
@@ -88,23 +89,27 @@ public class AssetManagementAdapter extends BaseAdapter {
         TextView sensor_subTitle = (TextView) rmsDeviceCardView.findViewById(R.id.sensor_subTitle);
         sensor_subTitle.setText(item.getProfileTitle());
         ImageView iv_settings = (ImageView) rmsDeviceCardView.findViewById(R.id.iv_settings);
+        ImageView iv_delAsset = (ImageView) rmsDeviceCardView.findViewById(R.id.iv_delAsset);
         ImageView iv_node_type = (ImageView) rmsDeviceCardView.findViewById(R.id.iv_node_type);
         iv_node_type.setImageDrawable(ContextCompat.getDrawable(context, itemProf.getProfileImageId()));
 
         if (hideDetails) {
-
-            CardView sensor_card_view = (CardView) rmsDeviceCardView.findViewById(R.id.sensor_card_view);
-            sensor_card_view.setOnLongClickListener(v -> {
+            iv_delAsset.setVisibility(View.VISIBLE);
+            iv_delAsset.setOnClickListener(v -> {
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(context);
                 builder.setTitle(context.getResources().getString(R.string.confirmation))
-                        .setMessage("Do you want to permanently delete rms node ?")
+                        .setMessage("Do you want to permanently delete RMS node ?")
                         .setIcon(android.R.drawable.ic_dialog_alert);
                 builder.setPositiveButton("YES", null);
                 builder.setNegativeButton("NO", null);
                 builder.setCancelable(false);
 
                 final AlertDialog alertDialog = builder.create();
+
+                alertDialog.setCanceledOnTouchOutside(true);
+                alertDialog.setCancelable(true);
+                alertDialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
 
                 alertDialog.setOnShowListener(new DialogInterface.OnShowListener() {
                     @Override
@@ -133,7 +138,6 @@ public class AssetManagementAdapter extends BaseAdapter {
                 });
 
                 alertDialog.show();
-                return false;
             });
 
             LinearLayout ll_details_view = (LinearLayout) rmsDeviceCardView.findViewById(R.id.ll_details_view);

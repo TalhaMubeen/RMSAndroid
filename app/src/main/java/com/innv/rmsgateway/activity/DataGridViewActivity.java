@@ -1,11 +1,13 @@
 package com.innv.rmsgateway.activity;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.GridView;
 import android.widget.Toast;
 
@@ -29,7 +31,8 @@ public class DataGridViewActivity extends AppCompatActivity {
 
     GridView gv_data_view;
     FloatingActionButton btn_addNew;
-
+    ProfileViewAdapter profileViewAdapter;
+    ProfileViewAdapter defrostProfileAdapter;
     List<Profile> profileList;
     List<DefrostProfile> defrostProfiles = new ArrayList<>();
     List<SensorNode> sensorNodes;
@@ -71,7 +74,7 @@ public class DataGridViewActivity extends AppCompatActivity {
             case "Profile":
                 getSupportActionBar().setTitle("Type Profiles");
                 profileList = ProfileManager.getProfileList();
-                ProfileViewAdapter profileViewAdapter = new ProfileViewAdapter(this, profileList, null);
+                profileViewAdapter = new ProfileViewAdapter(this, profileList, null);
                 gv_data_view.setAdapter(profileViewAdapter);
 
                 btn_addNew.setOnClickListener(new View.OnClickListener() {
@@ -89,7 +92,7 @@ public class DataGridViewActivity extends AppCompatActivity {
                 getSupportActionBar().setTitle("Defrost Profiles");
                 defrostProfiles.clear();
                 defrostProfiles.addAll(DefrostProfileManager.getDefrostProfiles());
-                ProfileViewAdapter defrostProfileAdapter = new ProfileViewAdapter(this, null, defrostProfiles);
+                defrostProfileAdapter = new ProfileViewAdapter(this, null, defrostProfiles);
                 gv_data_view.setAdapter(defrostProfileAdapter);
                 btn_addNew.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -105,17 +108,6 @@ public class DataGridViewActivity extends AppCompatActivity {
             case "Assets":
                 getSupportActionBar().setTitle("Assets Management");
                 sensorNodes = NodeDataManager.getAllNodesLst();
-
-
-                btn_addNew.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-/*                        Intent intent = new Intent(DataGridViewActivity.this, TypeProfileActivity.class);
-                        intent.putExtra("Title", "");
-                        DataGridViewActivity.this.startActivity(intent);*/
-                    }
-                });
-
                 break;
         }
 
@@ -144,6 +136,22 @@ public class DataGridViewActivity extends AppCompatActivity {
                 return true;
         }
         return super.onKeyDown(keyCode, event);
+    }
+
+    public void update() {
+        switch (settingType) {
+            case "Profile":
+                profileViewAdapter.updateProfiles(profileList, null);
+                profileViewAdapter.notifyDataSetChanged();
+                break;
+
+            case "Defrost":
+                defrostProfiles.clear();
+                defrostProfiles.addAll(DefrostProfileManager.getDefrostProfiles());
+                defrostProfileAdapter.updateProfiles(null, defrostProfiles);
+                defrostProfileAdapter.notifyDataSetChanged();
+                break;
+        }
     }
 
 }

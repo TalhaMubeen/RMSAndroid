@@ -29,6 +29,19 @@ public class DefrostProfile implements IConvertHelper {
         int endMinute = 0;
 
         public Interval(){ }
+        public Interval(Interval copy){
+            this.startHour = copy.startHour;
+            this.startMinute = copy.startMinute;
+            this.endHour = copy.endHour;
+            this.endMinute = copy.endMinute;
+        }
+        public boolean isEqual(Interval second){
+
+            return this.startHour == second.startHour && this.startMinute == second.startMinute &&
+                            this.endHour == second.endHour && this.endMinute == second.endMinute ;
+
+        }
+
         public Interval(JSONObject jsonObject){ parseJsonObject(jsonObject); }
 
         public int getStartHour() {
@@ -175,17 +188,24 @@ public class DefrostProfile implements IConvertHelper {
 
 
     public Boolean isEqual(DefrostProfile second){
+        boolean ret = true;
+        for(int i = 0; i< this.defrostIntervals.size() ; i++){
+            Interval firstInterval = this.defrostIntervals.get(i);
+            Interval secondInterval = second.defrostIntervals.get(i);
+            if(!firstInterval.isEqual(secondInterval)){
+                ret = false;
+                break;
+            }
+        }
 
-        boolean ret = this.defrostIntervals.equals(second) &&
-                this.name.equals(second.name);
-        return ret;
+        return ret && this.name.equals(second.name);
     }
 
 
     String name;
 
     public List<Interval> getDefrostIntervals() {
-        return defrostIntervals;
+        return new ArrayList<>(defrostIntervals);
     }
 
     public void setDefrostIntervals(List<Interval> defrostIntervals) {
@@ -193,7 +213,7 @@ public class DefrostProfile implements IConvertHelper {
     }
 
     public void addDefrostInterval(Interval interval){
-        defrostIntervals.add(interval);
+        defrostIntervals.add(new Interval(interval));
     }
 
     List<Interval> defrostIntervals = new ArrayList<>();

@@ -20,7 +20,7 @@ public class Globals {
     public static final String APPLICATION_LOOKUP_LIST_NAME = "ApplicationLookups";
     public static DBHandler db;
     public static Context dbContext;
-    public static int Db_Version = 4;
+    public static int Db_Version = 1;
 
     public static boolean useCelsius = true;
     public static int NORMAL = Color.parseColor("#99C24D");

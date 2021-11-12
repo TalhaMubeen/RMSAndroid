@@ -42,7 +42,7 @@
 
         <activity
             android:name=".activity.ScanActivity"
-            android:windowSoftInputMode="adjustResize"
+            android:windowSoftInputMode="stateVisible|adjustResize"
             android:label="@string/rms_node_details"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
@@ -74,12 +74,14 @@
 
         <activity
             android:name=".activity.TypeProfileActivity"
+            android:windowSoftInputMode="stateVisible|adjustResize"
             android:label="@string/rms_node_details"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
 
         <activity
             android:name=".activity.DefrostProfileActivity"
+            android:windowSoftInputMode="stateVisible|adjustResize"
             android:label="@string/rms_node_details"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />

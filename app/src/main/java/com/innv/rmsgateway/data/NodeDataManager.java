@@ -303,6 +303,18 @@ public class NodeDataManager {
         init();
     }
 
+    public static void RemoveDefrostProfile(String defrostProfileTitle){
+        Globals.db.RemoveDefrostProfile(Globals.dbContext.getString(R.string.RMS_DEVICES),Globals.orgCode, defrostProfileTitle);
+        DefrostProfileManager.init();
+    }
+
+
+    public static void RemoveProfile(String ProfileTitle){
+        Globals.db.RemoveProfile(Globals.dbContext.getString(R.string.RMS_DEVICES),Globals.orgCode, ProfileTitle);
+        ProfileManager.init();
+    }
+
+
     public static void SaveAlertData(AlertData data) {
         SimpleDateFormat sdf = new SimpleDateFormat("MMM-dd-yyyy", Locale.getDefault());
         String dateToday = sdf.format(new Date());

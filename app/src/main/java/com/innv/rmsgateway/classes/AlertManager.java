@@ -66,20 +66,7 @@ public class AlertManager {
 
                     nodeList.forEach(node -> {
                         if (node.getMacID().equals(newAlert.getNodeMacAddress())) {
-
-                            if (!alertsMap.containsKey(newAlert.getNodeMacAddress())) {
-                                alertsMap.put(newAlert.getNodeMacAddress(), newAlert);
-                            } else {
-                                AlertType type = alertsMap.get(newAlert.getNodeMacAddress()).getType();
-                                if (type == AlertType.HIGH_HUMIDITY || type == AlertType.LOW_HUMIDITY) {
-                                    if (newAlert.getType() == AlertType.LOW_TEMP ||
-                                            newAlert.getType() == AlertType.HIGH_TEMP) {
-
-                                        alertsMap.put(newAlert.getNodeMacAddress(), newAlert);
-
-                                    }
-                                }
-                            }
+                            alertsMap.put(newAlert.getNodeMacAddress(), newAlert);
                         }
                     });
                 }
@@ -234,8 +221,12 @@ public class AlertManager {
 
         String profName = node.getProfileTitle();
         Profile nodeProf = ProfileManager.getProfile(profName);
+        if (nodeProf == null) {
+            return;
+        }
 
         List<AlertType> nodeRetAlerts = isNodeDataOk(data, nodeProf);
+
 
         String defrostProfileName = node.getDefrostProfileTitle();
         boolean isDefrostCycle = false;
@@ -292,6 +283,7 @@ public class AlertManager {
                             endAlert(data, node);
                             alertsMap.remove(data.getMacID());
                             addNewAlert(node, data,  alertType, NodeState.Warning);
+                            node.setNodeState(NodeState.Warning);
                             updateData = true;
 
                             break;

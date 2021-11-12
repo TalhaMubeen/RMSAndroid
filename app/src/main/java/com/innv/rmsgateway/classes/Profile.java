@@ -135,6 +135,7 @@ public class Profile implements IConvertHelper {
     private double rssiThreshold;
     private int warningToAlertTime;
     private int pictureID;
+    private boolean isDefault;
 
     public void set(Profile second){
         this.lowTempThreshold =second.lowTempThreshold ;
@@ -144,6 +145,7 @@ public class Profile implements IConvertHelper {
                 this.warningToAlertTime =second.warningToAlertTime ;
                 this.pictureID = second.getPictureID();
                 this.title = second.title;
+                this.isDefault = second.isDefault;
     }
 
     public Boolean isEqual(Profile second){
@@ -154,7 +156,8 @@ public class Profile implements IConvertHelper {
                 this.highHumidityThreshold == second.highHumidityThreshold &&
                 this.warningToAlertTime == second.warningToAlertTime &&
                 this.getProfileImageId() == second.getProfileImageId() &&
-                this.title.equals(second.title);
+                this.title.equals(second.title) &&
+                this.isDefault == second.isDefault;
     }
 
     public int getWarningToAlertTime() {
@@ -178,9 +181,14 @@ public class Profile implements IConvertHelper {
         this.rssiThreshold = 0;
         this.warningToAlertTime = 0;
         this.pictureID =  R.drawable.rms_icon;
+        this.isDefault = false;
     }
 
-    public Profile(String title, double lowtempTH, double highTempTh, double rssiTH, int lowHumidityTH, int highHumidityTH, int alertTime){
+    public Profile(Profile prof){
+        set(prof);
+    }
+
+    public Profile(String title, double lowtempTH, double highTempTh, double rssiTH, int lowHumidityTH, int highHumidityTH, int alertTime, boolean isDefault){
         this.title = title;
         this.lowTempThreshold = lowtempTH;
         this.highTempThreshold = highTempTh;
@@ -188,6 +196,7 @@ public class Profile implements IConvertHelper {
         this.lowHumidityThreshold = lowHumidityTH;
         this.highHumidityThreshold = highHumidityTH;
         this.warningToAlertTime = alertTime;
+        this.isDefault = isDefault;
     }
 
     @Override
@@ -201,6 +210,7 @@ public class Profile implements IConvertHelper {
             setHighHumidityThreshold(obj.getInt("HighHumidityTh"));
             setWarningToAlertTime(obj.getInt("Warn2AlertTime"));
             setPictureID(obj.getInt("PictureID"));
+            setDefault(obj.getBoolean("IsDefault"));
 
             return true;
 
@@ -222,10 +232,18 @@ public class Profile implements IConvertHelper {
             jo.put("HighHumidityTh", getHighHumidityThreshold());
             jo.put("Warn2AlertTime", getWarningToAlertTime());
             jo.put("PictureID", getPictureID());
+            jo.put("IsDefault", isDefault());
         } catch (Exception e) {
             Log.e(TAG, e.toString());
         }
         return jo;
     }
 
+    public boolean isDefault() {
+        return isDefault;
+    }
+
+    public void setDefault(boolean aDefault) {
+        isDefault = aDefault;
+    }
 }

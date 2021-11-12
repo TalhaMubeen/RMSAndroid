@@ -10,10 +10,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ProfileManager {
-    public static Profile IceCream = new Profile( "Ice Cream",-10,-1,-87,30,50, 5);
-    public static Profile FrozenFood = new Profile("Frozen Food",-10, 0,-90,50,80, 5);
-    public static Profile FruitVegDrinksDairy = new Profile( "Fruits, Veg, Cold Drinks & Dairy",1, 15,-90,50,80, 5);
-    public static Profile WalkinChiller = new Profile("Walk-in Chiller", 10, 25,-90,50,80, 5);
+    public static Profile IceCream = new Profile( "Ice Cream",-10,-1,-87,30,50, 5, true);
+    public static Profile FrozenFood = new Profile("Frozen Food",-10, 0,-90,50,80, 5, true);
+    public static Profile FruitVegDrinksDairy = new Profile( "Fruits, Veg, Cold Drinks & Dairy",1, 15,-90,50,80, 5, true);
+    public static Profile WalkinChiller = new Profile("Walk-in Chiller", 10, 25,-90,50,80, 5, true);
 
     private static List<Profile> profileList = new ArrayList<>();
 
@@ -52,7 +52,7 @@ public class ProfileManager {
     public static Profile getProfile(String title){
         for(Profile profile: profileList){
             if(profile.getTitle().equals(title)){
-                return  profile;
+                return new Profile(profile);
             }
         }
         return null;

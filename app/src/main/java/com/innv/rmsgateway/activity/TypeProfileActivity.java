@@ -46,7 +46,7 @@ public class TypeProfileActivity extends AppCompatActivity {
     Context context;
     AlertDialog alertDialog;
     List<Integer> warn2AlertTimeList = new ArrayList<Integer>(Arrays.asList(0,5,10,20,30,60));
-    String title ;
+    String title;
     boolean updatingProfileInfo = false;
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -137,6 +137,7 @@ public class TypeProfileActivity extends AppCompatActivity {
             updatedDataProfile.setWarningToAlertTime((Integer) sp_warn2Alert.getSelectedItem());
 
             if (selectedProfile != null) {
+                updatedDataProfile.setDefault(selectedProfile.isDefault());
                 return !selectedProfile.isEqual(updatedDataProfile); //data not changed if equal
             }
 
@@ -311,6 +312,4 @@ public class TypeProfileActivity extends AppCompatActivity {
         }
         return super.onKeyDown(keyCode, event);
     }
-
-
 }

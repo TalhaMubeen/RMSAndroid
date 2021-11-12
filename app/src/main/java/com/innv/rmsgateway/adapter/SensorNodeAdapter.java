@@ -194,7 +194,7 @@ public class SensorNodeAdapter extends BaseAdapter {
             if (defrostProfileNames.size() == 0) {
                 sp_defrostProfile.setEnabled(false);
             } else {
-                int index = 0;
+                int index = defrostProfileNames.indexOf("None");
                 selectedDefrostProf = DefrostProfileManager.getDefrostProfile(defrostProfileNames.get(index));
                 sp_defrostProfile.setSelection(index, false);
             }
