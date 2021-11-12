@@ -28,7 +28,7 @@ public class Globals {
     public static int INACTIVE = Color.parseColor("#006E90");
     public static int WARNING = Color.parseColor("#F18F01");
     public static int BELOW_THRESHOLD = Color.parseColor("#41BBD9");
-    public static int NODE_OFFLINE_TIME = 1; //minutes
+    public static int NODE_OFFLINE_TIME = 6; //minutes
 
     static SharedPreferences pref;
 
