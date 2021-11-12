@@ -114,13 +114,19 @@ public class SensorDataDecoder {
         if((valueLS & 0x80) == 0x80){
             isNegative = true;
         }
-        valueLS = (byte) ((valueLS << 1) >> 1);
         valueMS = (sensorData[TEMPERATURE1_LOCATION]);
 
-        int temp =  (( valueLS & 0xff) << 8) | (valueMS  & 0xff);
+        int temp = 0;
+
         if(isNegative) {
-            temp *= -1;
+            String tempS = Byte.toString(valueLS) + Byte.toString(valueMS);
+            tempS = tempS.replace("-" , "");
+            temp = -1 * Integer.parseInt(tempS);
+        }else{
+            temp = (( valueLS & 0xff) << 8) | (valueMS  & 0xff);
         }
+
+        
         double ret = round((double)temp*0.01, 2);
         return  ret;
     }
