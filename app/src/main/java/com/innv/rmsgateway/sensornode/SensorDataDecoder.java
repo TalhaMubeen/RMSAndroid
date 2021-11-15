@@ -67,12 +67,8 @@ public class SensorDataDecoder {
 
     private final byte DeviceType_Beacon = 2;
     private final int dataSize = 21;
-
-
+    
     byte[] sensorData;
-    private double temperature = 25.6;
-    private byte humidity = 10;
-
 
     public SensorDataDecoder() {
     }
@@ -107,6 +103,7 @@ public class SensorDataDecoder {
     public double getTemperature(BleDevice bleDevice){
         byte valueLS = 0;
         byte valueMS = 0;
+        sensorData =  bleDevice.getScanRecord();
 
         boolean isNegative = false;
 
@@ -142,7 +139,7 @@ public class SensorDataDecoder {
 
     public int getHumidity(BleDevice bleDevice){
         sensorData =  bleDevice.getScanRecord();
-        humidity = sensorData[HUMIDITY_LOCATION];
+        byte humidity = sensorData[HUMIDITY_LOCATION];
         return (int)humidity;
     }
 
