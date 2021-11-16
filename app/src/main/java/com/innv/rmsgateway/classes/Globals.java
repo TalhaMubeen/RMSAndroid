@@ -16,11 +16,17 @@ import java.util.ResourceBundle;
 
 public class Globals {
     private static final int MODE_PRIVATE = 0;
+
+    public static String appid="";
+    public static String appid_temp="";
     public static String orgCode = "ps19";
+    public static int lastWsReturnCode=0;
+    public static String lastConnectionError="";
+
     public static final String APPLICATION_LOOKUP_LIST_NAME = "ApplicationLookups";
     public static DBHandler db;
     public static Context dbContext;
-    public static int Db_Version = 1;
+    public static int Db_Version = 2;
 
     public static boolean useCelsius = true;
     public static int NORMAL = Color.parseColor("#99C24D");

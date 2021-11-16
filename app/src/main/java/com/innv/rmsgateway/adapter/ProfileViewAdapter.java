@@ -39,14 +39,12 @@ public class ProfileViewAdapter extends BaseAdapter {
 
     public void updateProfiles(List<Profile> profiles, List<DefrostProfile> defrostProfiles) {
         profileList = profiles;
-        if (defrostProfiles != null) {
-            defrostProfiles.removeIf(dprof -> {
-                if (dprof.getName().equals("None")) {
-                    return true;
-                }
-                return false;
+        this.defrostProfiles = defrostProfiles;
+
+        if(this.defrostProfiles != null) {
+            this.defrostProfiles.removeIf(defrostProfile -> {
+                return defrostProfile.getName().equals("None");
             });
-            this.defrostProfiles = defrostProfiles;
         }
     }
 
@@ -55,15 +53,12 @@ public class ProfileViewAdapter extends BaseAdapter {
         typeProfileActivity = (DataGridViewActivity) ctx;
 
         profileList = profiles;
+        this.defrostProfiles = defrostProfiles;
 
-        if (defrostProfiles != null) {
-            defrostProfiles.removeIf(dprof -> {
-                if (dprof.getName().equals("None")) {
-                    return true;
-                }
-                return false;
+        if(this.defrostProfiles != null) {
+            this.defrostProfiles.removeIf(defrostProfile -> {
+                return defrostProfile.getName().equals("None");
             });
-            this.defrostProfiles = defrostProfiles;
         }
 
         inflater = LayoutInflater.from(ctx);
@@ -184,7 +179,9 @@ public class ProfileViewAdapter extends BaseAdapter {
                 });
             }
 
-        } else {
+        }
+
+        else if (this.defrostProfiles != null) {
 
             defrostProfile = (DefrostProfile) getItem(position);
             iv_settingType.setImageDrawable(ContextCompat.getDrawable(context, R.drawable.defrost_icon_black));
@@ -256,6 +253,7 @@ public class ProfileViewAdapter extends BaseAdapter {
                 }
             });
         }
+
         return profView;
     }
 }

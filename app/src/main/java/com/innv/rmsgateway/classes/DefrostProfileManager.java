@@ -42,7 +42,7 @@ public class DefrostProfileManager {
 
     }
 
-    public static List<DefrostProfile> getDefrostProfiles(){ return defrostProfiles;}
+    public static List<DefrostProfile> getDefrostProfiles(){ return new ArrayList<>(defrostProfiles);}
 
     public static DefrostProfile getDefrostProfile(String name){
         for(DefrostProfile profile: defrostProfiles){
@@ -52,6 +52,8 @@ public class DefrostProfileManager {
         }
         return null;
     }
+
+
 
     public static List<String> getDefrostProfileNames(){
         List<String> retList = new ArrayList<>();

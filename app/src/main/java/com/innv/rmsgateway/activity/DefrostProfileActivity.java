@@ -133,8 +133,6 @@ public class DefrostProfileActivity extends AppCompatActivity {
                         Toast.makeText(context, toastTitle, Toast.LENGTH_SHORT).show();
                         finish();
                     }
-                }else{
-                    finish();
                 }
             }
         });
@@ -233,6 +231,7 @@ public class DefrostProfileActivity extends AppCompatActivity {
             if (selectedProfile != null) {
                 boolean retVal = selectedProfile.isEqual(updatedDefrostProfile);
                 if(retVal && updatedReq){
+                    Toast.makeText(context, "No change detected", Toast.LENGTH_SHORT).show();
                     return false;
                 }else if(retVal){
                     return false;

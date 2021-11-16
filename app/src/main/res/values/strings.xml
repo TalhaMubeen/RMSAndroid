@@ -3,7 +3,7 @@
     <string name="rms_sensors">RMS Assets Monitoring</string>
 
     <string name="notifyTitle">Prompt</string>
-    <string name="gpsNotifyMsg">Current mobile phone scanning Bluetooth needs to open the positioning function</string>
+    <string name="gpsNotifyMsg">GPS required for Bluetooth function</string>
     <string name="setting">Go to settings</string>
     <string name="cancel">Cancel</string>
 

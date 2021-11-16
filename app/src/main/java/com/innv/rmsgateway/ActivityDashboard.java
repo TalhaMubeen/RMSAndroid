@@ -3,10 +3,12 @@ package com.innv.rmsgateway;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.bluetooth.BluetoothAdapter;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
@@ -131,11 +133,11 @@ public class ActivityDashboard extends AppCompatActivity implements OnBLEDeviceC
     protected void onResume() {
         super.onResume();
 
-        if (!mBound) {
+/*        if (!mBound) {
             bindService(new Intent(ActivityDashboard.this, BLEBackgroundService.class),
                     mServiceConnection,
                     Context.BIND_AUTO_CREATE);
-        }
+        }*/
 
         if(rv_rms_categories == null) {
 
@@ -229,6 +231,7 @@ public class ActivityDashboard extends AppCompatActivity implements OnBLEDeviceC
                 Manifest.permission.ACCESS_FINE_LOCATION,
                 Manifest.permission.CAMERA
         };
+
         List<String> permissionDeniedList = new ArrayList<>();
         for (String permission : permissions) {
             int permissionCheck = ContextCompat.checkSelfPermission(this, permission);
@@ -241,7 +244,12 @@ public class ActivityDashboard extends AppCompatActivity implements OnBLEDeviceC
         if (!permissionDeniedList.isEmpty()) {
             String[] deniedPermissions = permissionDeniedList.toArray(new String[permissionDeniedList.size()]);
             ActivityCompat.requestPermissions(this, deniedPermissions, REQUEST_CODE_PERMISSION_LOCATION);
+        }else{
+            bindService(new Intent(ActivityDashboard.this, BLEBackgroundService.class),
+                    mServiceConnection,
+                    Context.BIND_AUTO_CREATE);
         }
+        registerReceiver(bluetoothStateRcvr, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
     }
 
     private void onPermissionGranted(String permission) {
@@ -302,22 +310,48 @@ public class ActivityDashboard extends AppCompatActivity implements OnBLEDeviceC
         }
     }
 
+    private final BroadcastReceiver bluetoothStateRcvr = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            String action = intent.getAction();
+
+            if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
+                int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1);
+
+                switch (state) {
+                    case BluetoothAdapter.STATE_OFF:
+                        if(mBound){
+                            unbindService(mServiceConnection);
+                            mBound = false;
+                        }
+
+                        startActivityForResult(new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE),REQUEST_CODE_PERMISSION_BLUETOOTH);
+                        break;
+
+                    case BluetoothAdapter.STATE_ON:
+                        bindService(new Intent(ActivityDashboard.this, BLEBackgroundService.class),
+                                mServiceConnection,
+                                Context.BIND_AUTO_CREATE);
+                        break;
+                }
+            }
+        }
+    };
+
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE_OPEN_GPS) {
-            //done
-        }else if (requestCode == REQUEST_CODE_PERMISSION_BLUETOOTH) {
-            if (mBound) {
-                mBound = false;
-                unbindService(mServiceConnection);
-                BLEBackgroundService.removeBLEUpdateListener(this.getClass().getSimpleName());
-            }
-
             bindService(new Intent(ActivityDashboard.this, BLEBackgroundService.class),
                     mServiceConnection,
                     Context.BIND_AUTO_CREATE);
 
+        }else if (requestCode == REQUEST_CODE_PERMISSION_BLUETOOTH) {
+            if(resultCode == 0){
+                finish();
+            }
         }
     }
 

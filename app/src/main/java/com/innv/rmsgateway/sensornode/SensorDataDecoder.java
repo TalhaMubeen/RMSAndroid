@@ -67,7 +67,7 @@ public class SensorDataDecoder {
 
     private final byte DeviceType_Beacon = 2;
     private final int dataSize = 21;
-    
+
     byte[] sensorData;
 
     public SensorDataDecoder() {

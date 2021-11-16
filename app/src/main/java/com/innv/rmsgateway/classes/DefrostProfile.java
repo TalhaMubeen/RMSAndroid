@@ -189,12 +189,17 @@ public class DefrostProfile implements IConvertHelper {
 
     public Boolean isEqual(DefrostProfile second){
         boolean ret = true;
-        for(int i = 0; i< this.defrostIntervals.size() ; i++){
-            Interval firstInterval = this.defrostIntervals.get(i);
-            Interval secondInterval = second.defrostIntervals.get(i);
-            if(!firstInterval.isEqual(secondInterval)){
-                ret = false;
-                break;
+
+        if(second.getDefrostIntervals().size() != this.defrostIntervals.size()){
+            ret = false;
+        }else {
+            for (int i = 0; i < this.defrostIntervals.size(); i++) {
+                Interval firstInterval = this.defrostIntervals.get(i);
+                Interval secondInterval = second.defrostIntervals.get(i);
+                if (!firstInterval.isEqual(secondInterval)) {
+                    ret = false;
+                    break;
+                }
             }
         }
 
