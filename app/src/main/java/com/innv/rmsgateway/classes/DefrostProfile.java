@@ -23,10 +23,10 @@ import static android.content.ContentValues.TAG;
 public class DefrostProfile implements IConvertHelper {
 
     public static class Interval implements IConvertHelper{
-        int startHour =0;
-        int startMinute =0;
-        int endHour = 0;
-        int endMinute = 0;
+        int startHour =-1;
+        int startMinute = -1;
+        int endHour = -1;
+        int endMinute = -1;
 
         public Interval(){ }
         public Interval(Interval copy){
@@ -103,7 +103,7 @@ public class DefrostProfile implements IConvertHelper {
 
             Boolean isBetweenStartAndStopStrictlySpeaking = (!target.isBefore(start) && target.isBefore(stop));
 
-            Boolean isTargetAfterStartAndBeforeStop = (target.isAfter(start) && target.isBefore(stop));
+            Boolean isTargetAfterStartAndBeforeStop = ( (  target.equals(start) || target.isAfter(start)) && target.isBefore(stop));
 
             if (!isTargetAfterStartAndBeforeStop) {
                 if (start.isAfter(stop)) {
@@ -161,8 +161,8 @@ public class DefrostProfile implements IConvertHelper {
 
         public boolean isEmpty(){
             boolean ret = false;
-            if(startHour == 0 && startMinute == 0 &&
-                    endHour == 0 && endMinute == 0){
+            if(startHour == -1 && startMinute == -1 &&
+                    endHour == -1 && endMinute == -1){
                 ret = true;
             }
             return ret;
@@ -170,7 +170,7 @@ public class DefrostProfile implements IConvertHelper {
 
         public boolean isOk(){
             boolean ret = false;
-            if(startHour!=0 && endHour != 0){
+            if(startHour!= -1 && endHour !=  -1){
                 ret = true;
             }
 
