@@ -35,6 +35,8 @@ public class BLEBackgroundService extends Service {
     private Context mContext = null;
     private static  Intent bleService = null;
 
+    static Map<String , Date> nodeSequenceNo = new HashMap<>();
+
 
     private static SensorDataDecoder sensorDataDecoder;
     private static Boolean isScanning = false;
@@ -107,9 +109,11 @@ public class BLEBackgroundService extends Service {
 
 
     public static void stopScan(){
-        BleManager.getInstance().cancelScan();
-        BleManager.getInstance().destroy();
-        thread.interrupt();
+        try {
+            BleManager.getInstance().cancelScan();
+            BleManager.getInstance().destroy();
+            thread.interrupt();
+        }catch (Exception ignored){}
     }
 
     public void startBleService() {
@@ -152,19 +156,37 @@ public class BLEBackgroundService extends Service {
                     else if(node.isPreChecked()) {
                         int humidity = sensorDataDecoder.getHumidity(bleDevice);
                         double temp = sensorDataDecoder.getTemperature(bleDevice);
+                      //  int seq = sensorDataDecoder.getSequencenumber(bleDevice);
                         int rssi = bleDevice.getRssi();
 
                         node.setHumidity(humidity);
                         node.setTemperature(temp);
                         node.setRssi(rssi);
                         node.setLastUpdatedOn(new Date());
+                        Boolean processData = false;
 
-                        NodeDataManager.UpdateNodeData(node, true);
-                        AlertManager.onSensorNodeDataRcvd(node);
-
-                        for (String name : onBLEUpdateCallbacks.keySet()) {
-                            onBLEUpdateCallbacks.get(name).onBLEDeviceCallback(bleDevice);
+                        if(nodeSequenceNo.containsKey(node.getMacID())){
+                            Date prevDate = nodeSequenceNo.get(node.getMacID());
+                            long diff = new Date().getSeconds()  - prevDate.getSeconds();
+                            if(diff >= 7 ){
+                                processData = true;
+                                nodeSequenceNo.put(node.getMacID(), new Date());
+                            }
+                        }else{
+                            nodeSequenceNo.put(node.getMacID(), new Date());
+                            processData = true;
                         }
+
+                        if(processData){
+                            NodeDataManager.UpdateNodeData(node, true);
+                            AlertManager.onSensorNodeDataRcvd(node);
+
+                            for (String name : onBLEUpdateCallbacks.keySet()) {
+                                onBLEUpdateCallbacks.get(name).onBLEDeviceCallback(bleDevice);
+                            }
+                        }
+
+
                     }
 
                 }

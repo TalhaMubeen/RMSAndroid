@@ -1,6 +1,7 @@
 package com.innv.rmsgateway.activity;
 
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.MenuItem;
@@ -66,6 +67,7 @@ public class AssetsActivity extends AppCompatActivity implements
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Globals.setScreenOrientation(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -153,7 +155,6 @@ public class AssetsActivity extends AppCompatActivity implements
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        BLEBackgroundService.removeBLEUpdateListener(this.getClass().getSimpleName());
     }
 
     @Override

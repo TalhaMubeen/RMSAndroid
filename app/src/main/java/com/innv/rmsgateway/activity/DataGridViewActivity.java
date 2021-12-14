@@ -2,6 +2,7 @@ package com.innv.rmsgateway.activity;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.MenuItem;
@@ -19,6 +20,7 @@ import com.innv.rmsgateway.adapter.ProfileViewAdapter;
 import com.innv.rmsgateway.adapter.SettingsAdapter;
 import com.innv.rmsgateway.classes.DefrostProfile;
 import com.innv.rmsgateway.classes.DefrostProfileManager;
+import com.innv.rmsgateway.classes.Globals;
 import com.innv.rmsgateway.classes.Profile;
 import com.innv.rmsgateway.classes.ProfileManager;
 import com.innv.rmsgateway.data.NodeDataManager;
@@ -50,6 +52,7 @@ public class DataGridViewActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Globals.setScreenOrientation(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.profile_defrost_asset_view);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);

@@ -160,7 +160,7 @@ public class DBHandler extends SQLiteOpenHelper{
         String sql="Delete from " + TABLE_DEVICES_LOG +
                 " WHERE ORGCODE='" + orgCode +"' AND "+
                 " LISTNAME='" + listName +"' AND " +
-                "code='"+ code+"'";
+                "CODE='"+ code+"'";
 
         db.execSQL(sql);
     }
@@ -444,6 +444,39 @@ public class DBHandler extends SQLiteOpenHelper{
             return AddSensorNodeAlerts(listName, orgCode, code, date, timeStamp, type, data);
         }
     }*/
+
+    public List<StaticListItem> getSensorNodeLogsBetween(String listName, String orgCode, String code, String date1, String date2)
+    {
+        List<StaticListItem> items=new ArrayList<StaticListItem>();
+        String sql="SELECT * FROM  " + TABLE_DEVICES_LOG +
+                " WHERE LISTNAME='" + listName +
+                "' AND " + " ORGCODE= '" + orgCode +
+                "' AND CODE='" + code +
+                "' AND DATE BETWEEN '" +date1 +"' AND '"+ date2 + "'";
+
+        try {
+            SQLiteDatabase db=this.getReadableDatabase();
+            Cursor cursor= db.rawQuery(sql,null);
+            if(cursor.moveToFirst())
+            {
+                do{
+                    StaticListItem item=new StaticListItem();
+                    item.setOrgCode(cursor.getString(0));
+                    item.setListName(cursor.getString(1));
+                    item.setCode(cursor.getString(2));
+                    item.setDate(cursor.getString(3));
+                    item.setTimeStamp(cursor.getString(4));
+                    item.setOptParam1(cursor.getString(5));
+                    items.add(item);
+
+                }while(cursor.moveToNext());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return items;
+    }
+
 
     public List<StaticListItem> getSensorNodeLogs(String listName, String orgCode, String code, String date)
     {

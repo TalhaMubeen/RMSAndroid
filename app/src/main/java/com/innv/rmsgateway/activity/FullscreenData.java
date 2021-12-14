@@ -13,7 +13,7 @@ public enum FullscreenData {
     HUMIDITY_SCROLLING(R.layout.fullscreen, RealtimeHumidity .class);
 
     public static final String ARG_ID = "FEID";
-    public static final String NODE_MAC = "MAC";
+    public static final String TYPE = "TYPE";
 
     public final @LayoutRes
     int contentView;

@@ -31,12 +31,6 @@ public class GraphViewActivity extends AppCompatActivity {
         mLogicHumidityScrolling = new RealtimeHumidity();
 
 
-        GraphView temp_graph = (GraphView) findViewById(R.id.temp_graph);
-        mLogicTempScrolling.initGraph(temp_graph, mac);
-
-        GraphView humidity_graph = (GraphView) findViewById(R.id.humidity_graph);
-        mLogicHumidityScrolling.initGraph(humidity_graph, mac);
-
 
         findViewById(R.id.img_fullScreenTemp).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -57,7 +51,6 @@ public class GraphViewActivity extends AppCompatActivity {
     private void openFullscreen(FullscreenData data, String mac) {
         Intent intent = new Intent(this, FullscreenActivity.class);
         intent.putExtra(FullscreenData.ARG_ID, data.name());
-        intent.putExtra(FullscreenData.NODE_MAC, mac);
         startActivity(intent);
     }
 

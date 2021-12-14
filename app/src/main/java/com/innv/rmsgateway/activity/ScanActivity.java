@@ -8,6 +8,7 @@ import androidx.core.view.WindowCompat;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -24,6 +25,7 @@ import android.widget.Toast;
 
 import com.innv.rmsgateway.R;
 import com.innv.rmsgateway.adapter.SensorNodeAdapter;
+import com.innv.rmsgateway.classes.Globals;
 import com.innv.rmsgateway.data.BleDevice;
 import com.innv.rmsgateway.data.NodeDataManager;
 import com.innv.rmsgateway.sensornode.SensorNode;
@@ -58,6 +60,7 @@ public class ScanActivity extends AppCompatActivity implements View.OnClickListe
     @RequiresApi(api = Build.VERSION_CODES.R)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Globals.setScreenOrientation(this);
         super.onCreate(savedInstanceState);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         setContentView(R.layout.activity_scan_nodes);

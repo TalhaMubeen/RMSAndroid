@@ -358,4 +358,45 @@ public class SensorNode implements IConvertHelper, Cloneable {
 
         return jo;
     }
+
+    public JSONObject getJsonObjectMSG(){
+
+        JSONObject jo = new JSONObject();
+        try {
+
+            String mac = new String(getMacID());
+            mac = mac.replace(":", "");
+            jo.put("macAddress", mac);
+            jo.put("rssi", getRssi());
+            jo.put("unixTimeStamp", (getLastUpdatedDate().getTime() / 1000));
+            jo.put("protocolVersion", 1);
+            jo.put("timeSlot", getTimeSlot());
+            jo.put("productIdentifier", 1);
+            jo.put("deviceType", 1);
+            jo.put("frameType", 1);
+            jo.put("timePeriod", 3);
+            jo.put("timeAtWakeup", getTimeAtWakeup());
+            jo.put("timeSinceWakeup", getTimeSinceWakeup());
+            jo.put("batteryVoltage", getBatteryVoltage());
+            jo.put("timeSyncOnWakeup", 0);
+            jo.put("timeSynced", 1);
+            jo.put("timeSyncRequired", 0);
+            jo.put("sequenceNumber", 1);
+            jo.put("temperature", temperature);
+            jo.put("humidity", getHumidity());
+/*
+            jo.put("isPreChecked", isPreChecked());
+            jo.put("LastUpdateTime", getLastUpdatedOn());
+            jo.put("ProfileTitle", getProfileTitle());
+            jo.put("DefrostProfileTitle", getDefrostProfileTitle());
+            jo.put("NodeState", getNodeState().name());*/
+
+        } catch (Exception e) {
+            Log.e(TAG, e.toString());
+            jo = null;
+        }
+
+        return jo;
+
+    }
 }

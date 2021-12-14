@@ -17,6 +17,7 @@ import androidx.core.content.ContextCompat;
 import com.innv.rmsgateway.R;
 import com.innv.rmsgateway.activity.AssetManagementActivity;
 import com.innv.rmsgateway.activity.DataGridViewActivity;
+import com.innv.rmsgateway.activity.LoginActivity;
 import com.innv.rmsgateway.classes.Globals;
 
 public class SettingsAdapter extends BaseAdapter {
@@ -25,7 +26,8 @@ public class SettingsAdapter extends BaseAdapter {
       "Type Profiles",
       "Defrost Profiles",
       "Assets Management",
-      "Temperature Unit - "
+      "Temperature Unit - ",
+      "Data Sync Management"
     };
 
 
@@ -128,6 +130,18 @@ public class SettingsAdapter extends BaseAdapter {
                             }
                         });
                         builder.show();
+                    }
+                });
+                break;
+
+
+            case 4:
+                iv_settingType.setImageDrawable(ContextCompat.getDrawable(context,R.drawable.databackup));
+                ll_settings.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Intent intent = new Intent(context, LoginActivity.class);
+                        context.startActivity(intent);
                     }
                 });
                 break;

@@ -3,9 +3,11 @@ package com.innv.rmsgateway.classes;
 
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -17,15 +19,18 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
+
+import javax.net.ssl.HttpsURLConnection;
 
 public class JsonWebService {
 
     public static String getJSON(String url, int timeout) {
-        HttpURLConnection c = null;
+        HttpsURLConnection c = null;
         try {
             URL u = new URL(url);
-            c = (HttpURLConnection) u.openConnection();
+            c = (HttpsURLConnection) u.openConnection();
             c.setRequestMethod("GET");
             c.setRequestProperty("Content-length", "0");
             c.setRequestProperty("Authorization",(Globals.appid.equals("")?Globals.appid_temp:Globals.appid));
@@ -46,7 +51,6 @@ public class JsonWebService {
                         sb.append(line+"\n");
                     }
                     br.close();
-                    //System.out.println(sb.toString());
                     return sb.toString();
                 case 401:
 
@@ -121,23 +125,19 @@ public class JsonWebService {
         }
         return null;
     }
-    public static  String postJSON(String url1, String  jsonData,int timeOut) throws IOException, JSONException {
+
+    public static  String postJSON(String url1, String  jsonData, int timeOut) throws IOException, JSONException {
         URL url = new URL(url1);
-        String charset = "UTF-8";
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
         conn.setRequestMethod("POST");
+
         conn.setDoInput(true);
         conn.setDoOutput(true);
         conn.setRequestProperty("Authorization",Globals.appid);
         conn.setConnectTimeout(timeOut);
         conn.setReadTimeout(timeOut);
-        //String getParams=getQuery(apiParams);
-
         conn.setDoOutput(true); // Triggers POST.
-        conn.setRequestProperty("Accept-Charset", charset);
-        conn.setRequestProperty("Content-Type", "application/json;charset=" + charset);
-
-        String getParams=jsonData;
+        conn.setRequestProperty("Content-Type", "application/json");
 
         OutputStream os = conn.getOutputStream();
         BufferedWriter writer = new BufferedWriter(
@@ -253,34 +253,37 @@ public class JsonWebService {
         Globals.lastConnectionError=message;
     }
 
-    public static  String postJSON(String url1, JSONArray ja, int timeOut) throws IOException, JSONException {
+    public static  String postJSON(String url1, JSONObject jo, int timeOut) throws IOException, JSONException {
+
         URL url = new URL(url1);
         String charset = "UTF-8";
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        HttpsURLConnection conn = (HttpsURLConnection) url.openConnection();
         conn.setRequestMethod("POST");
         conn.setDoInput(true);
         conn.setDoOutput(true);
 
-
         conn.setConnectTimeout(timeOut);
         conn.setReadTimeout(timeOut);
-        //String getParams=getQuery(apiParams);
-
+        conn.setInstanceFollowRedirects( false );
         conn.setDoOutput(true); // Triggers POST.
         conn.setRequestProperty("Accept-Charset", charset);
-        conn.setRequestProperty("Content-Type", "application/json;charset=" + charset);
+        conn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
 
-        String getParams=ja.toString();
 
-        OutputStream os = conn.getOutputStream();
-        BufferedWriter writer = new BufferedWriter(
-                new OutputStreamWriter(os, "UTF-8"));
-        writer.write(getParams);
-        writer.flush();
-        writer.close();
-        os.close();
+        StringBuilder postData = new StringBuilder();
+        postData.append(URLEncoder.encode("data", "UTF-8"));
+        postData.append('=');
+        postData.append(URLEncoder.encode(jo.toString(), "UTF-8"));
+
+        byte[] postDataBytes = postData.toString().getBytes("UTF-8");
+
+        conn.setRequestProperty("Content-Length", String.valueOf(postDataBytes.length));
+        conn.getOutputStream().write(postDataBytes);
+        conn.getOutputStream().flush();
+        conn.getOutputStream().close();
+
+
         conn.connect();
-
         int status = conn.getResponseCode();
         setLastWsReturnCode(status);
         switch (status) {

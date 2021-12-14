@@ -124,7 +124,7 @@ public class ProfileViewAdapter extends BaseAdapter {
 
 
                         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                        builder.setTitle(context.getResources().getString(R.string.confirmation))
+                        builder.setTitle(context.getResources().getString(R.string.confirmation_profile))
                                 .setMessage("Do you want to permanently delete " + prof.getTitle() + " ?")
                                 .setIcon(android.R.drawable.ic_dialog_alert);
                         builder.setPositiveButton("YES", null);
@@ -200,7 +200,7 @@ public class ProfileViewAdapter extends BaseAdapter {
                 @Override
                 public void onClick(View v) {
                     AlertDialog.Builder builder = new AlertDialog.Builder(context);
-                    builder.setTitle(context.getResources().getString(R.string.confirmation))
+                    builder.setTitle(context.getResources().getString(R.string.confirmation_defrost_interval))
                             .setMessage("Do you want to permanently delete " + defrostProfile.getName() + " ?")
                             .setIcon(android.R.drawable.ic_dialog_alert);
                     builder.setPositiveButton("YES", null);

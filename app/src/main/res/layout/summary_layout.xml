@@ -8,26 +8,37 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-<!--    <androidx.appcompat.widget.Toolbar
-        android:id="@+id/my_toolbar"
+    <RelativeLayout
+        android:id="@+id/actionbar"
         android:layout_width="match_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        android:elevation="4dp"
-        android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
-        app:popupTheme="@style/ThemeOverlay.AppCompat.Light">
+        android:layout_height="60dp"
+        android:background="@color/colorPrimary">
 
         <TextView
-            android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+            android:textAppearance="@style/TextAppearance.AppCompat.Title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerVertical="true"
             android:layout_marginStart="20dp"
-            android:textColor="#fff"
-            android:text="Summary View"
+            android:id="@+id/title"
+            android:text="@string/summary_view"
+            android:textColor="#fff" />
+
+
+        <ImageView
+            android:id="@+id/iv_cloudSyncIcon"
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="20dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_alignParentEnd="true"
+            android:src="@drawable/ic_cloud_off_white_24dp"
+            app:tint="@color/cardview_light_background"
             />
 
-    </androidx.appcompat.widget.Toolbar>-->
+    </RelativeLayout>
 
     <LinearLayout
         android:layout_marginTop="4dp"
@@ -81,9 +92,9 @@
                     android:src="@drawable/rms_icon"
                     android:adjustViewBounds="true"
                     android:scaleType="fitCenter"
-                     android:paddingLeft="20dp"
+                    android:paddingLeft="20dp"
                     android:paddingRight="20dp"
-                    android:paddingTop="20dp" />
+                    android:paddingTop="10dp" />
 
                 <TextView
                     android:gravity="top"
@@ -114,22 +125,21 @@
                     android:paddingRight="10dp"
                     android:paddingLeft="10dp"
                     android:layout_gravity="bottom|center"
-                    android:layout_weight="2"
-                    tools:ignore="NestedWeights"
+                    android:layout_weight="1.6"
                     android:background="@color/white"
                     android:layout_marginBottom="5dp" />
 
-                    <TextView
-                        android:gravity="center"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:text="Reports"
-                        android:background="@color/color_offline"
-                        android:textSize="15sp"
-                        android:maxLines="1"
-                        android:textColor="@color/white"
-                        android:layout_weight = "1"
-                        android:layout_marginBottom="5dp" />
+                <TextView
+                    android:gravity="center"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="Reports"
+                    android:background="@color/color_offline"
+                    android:textSize="15sp"
+                    android:maxLines="1"
+                    android:textColor="@color/white"
+                    android:layout_weight = "1"
+                    android:layout_marginBottom="5dp" />
 
                 </LinearLayout>
 
@@ -151,7 +161,7 @@
                     android:paddingRight="10dp"
                     android:paddingLeft="10dp"
                     android:layout_gravity="bottom|center"
-                    android:layout_weight="2"
+                    android:layout_weight="1.6"
                     tools:ignore="NestedWeights"
                     android:background="@color/white"
                     android:layout_marginBottom="5dp"/>
@@ -188,7 +198,7 @@
                     android:paddingRight="10dp"
                     android:paddingLeft="10dp"
                     android:layout_gravity="bottom|center"
-                    android:layout_weight="2"
+                    android:layout_weight="1.6"
                     tools:ignore="NestedWeights"
                     android:background="@color/white"
                     android:layout_marginBottom="5dp"/>

@@ -11,7 +11,9 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.location.LocationManager;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
@@ -21,8 +23,11 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.GridView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -32,11 +37,15 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.innv.rmsgateway.activity.AssetsActivity;
+import com.innv.rmsgateway.activity.LoginActivity;
+import com.innv.rmsgateway.activity.ReportsViewActivity;
 import com.innv.rmsgateway.activity.SettingsActivity;
 import com.innv.rmsgateway.adapter.AssetsAlertsAdapter;
 import com.innv.rmsgateway.adapter.DeviceViewAdapter;
 import com.innv.rmsgateway.classes.AlertManager;
+import com.innv.rmsgateway.classes.DataSyncProcessEx;
 import com.innv.rmsgateway.classes.Globals;
+import com.innv.rmsgateway.classes.ObservableObject;
 import com.innv.rmsgateway.data.BleDevice;
 import com.innv.rmsgateway.data.NodeDataManager;
 import com.innv.rmsgateway.interfaces.NotificationAlertsCallback;
@@ -45,8 +54,12 @@ import com.innv.rmsgateway.service.OnBLEDeviceCallback;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Observable;
+import java.util.Observer;
 
-public class ActivityDashboard extends AppCompatActivity implements OnBLEDeviceCallback , NotificationAlertsCallback {
+import static com.innv.rmsgateway.activity.LoginActivity.PREFS_KEY_SERVER_SYNC;
+
+public class ActivityDashboard extends AppCompatActivity implements OnBLEDeviceCallback, Observer, NotificationAlertsCallback {
 
     private static final String TAG = "sensorScanner";
     private static final int REQUEST_CODE_OPEN_GPS = 1;
@@ -59,6 +72,9 @@ public class ActivityDashboard extends AppCompatActivity implements OnBLEDeviceC
     DeviceViewAdapter rv_CategoryAdapter;
     AssetsAlertsAdapter gv_alertsAdapter;
 
+    static DataSyncProcessEx dataSyncProcessEx=null;
+    ImageView iv_cloudSyncIcon;
+    ActivityResultLauncher<Intent> activityLauncher;
 
     @SuppressLint("StaticFieldLeak")
     private static BLEBackgroundService mService = null;
@@ -115,36 +131,129 @@ public class ActivityDashboard extends AppCompatActivity implements OnBLEDeviceC
         return super.onOptionsItemSelected(item);
     }
 
+    private  void StartDataSyncService(){
+        Globals.IsAutoUpdateEnabled=true;
+        dataSyncProcessEx =new DataSyncProcessEx();
+        Globals.dataSyncProcessEx=dataSyncProcessEx;
+        StartAsyncTaskInParallel(dataSyncProcessEx, this);
+        Log.i("StartDataSyncService","Starting Data Sync Service");
+    }
+
+    private void StartAsyncTaskInParallel(DataSyncProcessEx task, Context context){
+        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,context);
+    }
+
+
+
+    @Override
+    public void update(Observable o, Object arg) {
+        Intent intent=(Intent)arg;
+        Bundle b1= intent.getExtras();
+        final String messageName=b1.getString("messageName");
+        final String messageData=b1.getString("messageData");
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                String message="";
+                switch (messageName){
+                    case Globals.OBSERVABLE_MESSAGE_DATA_SENT:
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                iv_cloudSyncIcon.setImageDrawable(ContextCompat.getDrawable(ActivityDashboard.this, R.drawable.ic_cloud_queue_white_24dp));
+                            }
+                        });
+
+                        break;
+                    case Globals.OBSERVABLE_MESSAGE_NETWORK_PULL:
+                        Log.i("Info","pull");
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                iv_cloudSyncIcon.setImageDrawable(ContextCompat.getDrawable(ActivityDashboard.this, R.drawable.ic_cloud_download_white_24dp));
+
+                            }
+                        });
+                        break;
+                    case Globals.OBSERVABLE_MESSAGE_NETWORK_PUSH:
+                        Log.i("Info","push");
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                iv_cloudSyncIcon.setImageDrawable(ContextCompat.getDrawable(ActivityDashboard.this,R.drawable.ic_cloud_upload_white_24dp));
+                            }
+                        });
+                        break;
+                    case Globals.OBSERVABLE_MESSAGE_NETWORK_CONNECTED:
+                        Log.i("Info","connected");
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                iv_cloudSyncIcon.setImageDrawable(ContextCompat.getDrawable(ActivityDashboard.this,R.drawable.ic_cloud_white_24dp));
+                            }
+                        });
+                        break;
+
+                    case Globals.OBSERVABLE_MESSAGE_TOKEN_STATUS:
+                    case Globals.OBSERVABLE_MESSAGE_NETWORK_DISCONNECTED:
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                iv_cloudSyncIcon.setImageDrawable(ContextCompat.getDrawable(ActivityDashboard.this,R.drawable.ic_cloud_off_white_24dp));
+                            }
+                        });
+                        break;
+                    case Globals.OBSERVABLE_MESSAGE_LANGUAGE_CHANGED:
+                       // ActivityDashboard.this.recreate();
+
+                }
+                if(!message.equals(""))
+                    Toast.makeText(ActivityDashboard.this,message,Toast.LENGTH_SHORT ).show();
+            }
+        });
+
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Globals.setScreenOrientation(this);
+
+        checkPermissions();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.summary_layout);
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
-        getSupportActionBar().setTitle("Summary View");
-        checkPermissions();
+        iv_cloudSyncIcon = (ImageView) findViewById(R.id.iv_cloudSyncIcon);
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+        getSupportActionBar().hide();
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        ObservableObject.getInstance().addObserver(this);
+
 
         Globals.setDbContext(getApplicationContext());
         AlertManager.setNotificationAlertCallback( this.getClass().getSimpleName() , this);
         NodeDataManager.init();
+
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
-/*        if (!mBound) {
-            bindService(new Intent(ActivityDashboard.this, BLEBackgroundService.class),
-                    mServiceConnection,
-                    Context.BIND_AUTO_CREATE);
-        }*/
-
         if(rv_rms_categories == null) {
 
             rv_rms_categories = (RecyclerView) findViewById(R.id.rv_rms_categories);
+            int orientation = this.getResources().getConfiguration().orientation;
+            int spanCount;
+            if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+                spanCount = 2;
+            } else {
+                spanCount = 1;
+            }
+
             GridLayoutManager horizontalLayoutManager =
-                    new GridLayoutManager(this, 2, GridLayoutManager.HORIZONTAL, false);
+                    new GridLayoutManager(this, spanCount, GridLayoutManager.HORIZONTAL, false);
             rv_rms_categories.setLayoutManager(horizontalLayoutManager);
+
 
             rv_CategoryAdapter = new DeviceViewAdapter(this);
             rv_rms_categories.setAdapter(rv_CategoryAdapter);
@@ -155,6 +264,14 @@ public class ActivityDashboard extends AppCompatActivity implements OnBLEDeviceC
 
             //Setting Callbacks here
             LinearLayout ll_reports = (LinearLayout) findViewById(R.id.ll_reports);
+            ll_reports.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(ActivityDashboard.this, ReportsViewActivity.class);
+                    startActivity(intent);
+                }
+            });
+
             LinearLayout ll_assets = (LinearLayout) findViewById(R.id.ll_assets);
             ll_assets.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -179,6 +296,81 @@ public class ActivityDashboard extends AppCompatActivity implements OnBLEDeviceC
             updateData();
         }
 
+        Thread thread = new Thread(new Runnable() {
+
+            @Override
+            public void run() {
+                try  {
+                    if(LoginActivity.checkCloudSync(ActivityDashboard.this)) {
+                        startDataSyncService();
+                    }else{
+                        if(Globals.pref.getBoolean(PREFS_KEY_SERVER_SYNC, true)) {
+                            Intent intent = new Intent(ActivityDashboard.this, LoginActivity.class);
+                            intent.putExtra("FIRST_START", true);
+                            startActivity(intent);
+                        }
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        thread.start();
+    }
+
+    public static void stopDataSyncService(){
+        if(dataSyncProcessEx != null) {
+            dataSyncProcessEx.CancelTask();
+            Globals.dataSyncProcessEx = null;
+        }
+    }
+
+    public static void startSync(){
+
+    }
+
+
+    private void startDataSyncService(){
+
+        if (Globals.dataSyncProcessEx == null) {
+            StartDataSyncService();
+            dataSyncProcessEx.setDataSyncProcessListener(new DataSyncProcessEx.DataSyncProcessListener() {
+                @Override
+                public void onStatusChanged(int status) {
+                    final int _status = status;
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            /*
+                            switch(_status){
+                                case 2:
+                                    syncStatusIcon.setImageResource(R.drawable.ic_sync_green_24dp);
+                                    break;
+                                case 1:
+                                    syncStatusIcon.setImageResource(R.drawable.ic_sync_red_24dp);
+                                    break;
+                                case 3:
+                                    syncStatusIcon.setImageResource(R.drawable.ic_sync_green_24dp);
+                                    break;
+                                    default:
+                                        syncStatusIcon.setImageResource(R.drawable.ic_sync_grey_24dp);
+                                        break;
+                            }*/
+/*                            if (_status == 1) {
+                                iv_cloudSyncIcon.setImageResource(R.drawable.ic_sync_green_24dp);
+                            } else if (_status == 2) {
+                                iv_cloudSyncIcon.setImageResource(R.drawable.ic_sync_red_24dp);
+                            } else if (_status == 3) {
+                                iv_cloudSyncIcon.setImageResource(R.drawable.ic_sync_grey_24dp);
+                            }*/
+                           // Toast.makeText(getApplicationContext(), "Status : " + _status, Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
+                }
+            });
+        }
     }
 
     @Override
@@ -196,11 +388,13 @@ public class ActivityDashboard extends AppCompatActivity implements OnBLEDeviceC
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(mBound) {
+        try{
+            BLEBackgroundService.stopScan();
+            stopDataSyncService();
             mBound = false;
             unbindService(mServiceConnection);
             BLEBackgroundService.removeBLEUpdateListener(this.getClass().getSimpleName());
-        }
+        }catch (Exception ignored){ }
     }
 
     @Override
@@ -220,12 +414,7 @@ public class ActivityDashboard extends AppCompatActivity implements OnBLEDeviceC
     }
 
     private void checkPermissions() {
-        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (!bluetoothAdapter.isEnabled()) {
-            //Log.d(TAG,"BLE adapter is not enabled");
-            // Toast.makeText(this, getString(R.string.please_open_blue), Toast.LENGTH_LONG).show();
-            startActivityForResult(new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE),REQUEST_CODE_PERMISSION_BLUETOOTH);
-        }
+        registerReceiver(bluetoothStateRcvr, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
 
         String[] permissions = {
                 Manifest.permission.ACCESS_FINE_LOCATION,
@@ -245,12 +434,27 @@ public class ActivityDashboard extends AppCompatActivity implements OnBLEDeviceC
             String[] deniedPermissions = permissionDeniedList.toArray(new String[permissionDeniedList.size()]);
             ActivityCompat.requestPermissions(this, deniedPermissions, REQUEST_CODE_PERMISSION_LOCATION);
         }else{
+            checkBluetoothPermissions();
+        }
+
+    }
+
+    private void checkBluetoothPermissions(){
+        BluetoothAdapter bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (!bluetoothAdapter.isEnabled()) {
+            //Log.d(TAG,"BLE adapter is not enabled");
+            if(!Globals.BLE_Available) {
+                startActivityForResult(new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE),REQUEST_CODE_PERMISSION_BLUETOOTH);
+                Globals.BLE_Available = true;
+            }
+        }else {
+            Globals.BLE_Available = true;
             bindService(new Intent(ActivityDashboard.this, BLEBackgroundService.class),
                     mServiceConnection,
                     Context.BIND_AUTO_CREATE);
         }
-        registerReceiver(bluetoothStateRcvr, new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED));
     }
+
 
     private void onPermissionGranted(String permission) {
         switch (permission) {
@@ -277,6 +481,8 @@ public class ActivityDashboard extends AppCompatActivity implements OnBLEDeviceC
 
                             .setCancelable(false)
                             .show();
+                }else{
+                    checkBluetoothPermissions();
                 }
                 break;
 
@@ -323,13 +529,22 @@ public class ActivityDashboard extends AppCompatActivity implements OnBLEDeviceC
                     case BluetoothAdapter.STATE_OFF:
                         if(mBound){
                             unbindService(mServiceConnection);
-                            mBound = false;
-                        }
+                            Globals.BLE_Available = false;
+                            mBound = false; }
 
-                        startActivityForResult(new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE),REQUEST_CODE_PERMISSION_BLUETOOTH);
+                        if(!Globals.BLE_Available) {
+                            Globals.BLE_Available = true;
+                            startActivityForResult(new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE), REQUEST_CODE_PERMISSION_BLUETOOTH);
+                        }
+                        break;
+
+                    case BluetoothAdapter.STATE_TURNING_OFF:
+                    case BluetoothAdapter.STATE_TURNING_ON:
+                        Globals.BLE_Available = false;
                         break;
 
                     case BluetoothAdapter.STATE_ON:
+                        Globals.BLE_Available = true;
                         bindService(new Intent(ActivityDashboard.this, BLEBackgroundService.class),
                                 mServiceConnection,
                                 Context.BIND_AUTO_CREATE);
@@ -344,12 +559,11 @@ public class ActivityDashboard extends AppCompatActivity implements OnBLEDeviceC
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == REQUEST_CODE_OPEN_GPS) {
-            bindService(new Intent(ActivityDashboard.this, BLEBackgroundService.class),
-                    mServiceConnection,
-                    Context.BIND_AUTO_CREATE);
+            checkBluetoothPermissions();
 
         }else if (requestCode == REQUEST_CODE_PERMISSION_BLUETOOTH) {
             if(resultCode == 0){
+                Globals.BLE_Available = false;
                 finish();
             }
         }

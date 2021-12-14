@@ -99,7 +99,7 @@ public class AssetManagementAdapter extends BaseAdapter {
 
                 AlertDialog.Builder builder = new AlertDialog.Builder(context);
                 builder.setTitle(context.getResources().getString(R.string.confirmation))
-                        .setMessage("Do you want to permanently delete RMS node ?")
+                        .setMessage("Do you want to permanently delete "+item.getName() +" node ?")
                         .setIcon(android.R.drawable.ic_dialog_alert);
                 builder.setPositiveButton("YES", null);
                 builder.setNegativeButton("NO", null);

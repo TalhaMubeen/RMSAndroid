@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:layout_height="match_parent">
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/mcv1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginTop="10dp"
+        >
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+        <TextView
+            android:layout_marginStart="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:paddingEnd="35dp"
+            android:text="Interval"
+            android:layout_gravity="start|center_vertical"
+            android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+
+            />
+
+
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/mbtg_IntervalButtons"
+            android:layout_height="wrap_content"
+            app:singleSelection="true"
+            android:gravity="center|end"
+            android:layout_weight="1"
+            android:layout_marginEnd="5dp"
+            app:checkedButton="@id/btn_1hour"
+            android:layout_width="0dp"
+            android:layout_gravity="center"
+
+            >
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_1hour"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="1H"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+
+            />
+            <com.google.android.material.button.MaterialButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="8H"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+
+                />
+            <com.google.android.material.button.MaterialButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:text="24H"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                />
+
+        </com.google.android.material.button.MaterialButtonToggleGroup>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/mcv_nodeSelector"
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:layout_below="@+id/mcv1"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <TextView
+                android:maxLines="1"
+                android:layout_weight=".001"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:text="@string/select_node"
+                android:layout_gravity="start|center_vertical"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+
+                />
+
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_weight="2"
+                android:layout_marginEnd="5dp"
+                android:layout_marginBottom="5dp"
+                android:layout_marginTop="3dp"
+                android:imeOptions="actionDone"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_gravity="end|center_vertical"
+                android:layout_height="wrap_content">
+
+                <AutoCompleteTextView
+                    android:id="@+id/actv_nodeSelector"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:imeOptions="actionDone"
+                    android:inputType="none" />
+            </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
+
+
+    </com.google.android.material.card.MaterialCardView>
+
+
+<!--    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/mcv_sensorSelector"
+        android:layout_width="match_parent"
+        android:orientation="horizontal"
+        android:layout_below="@+id/mcv_nodeSelector"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginTop="10dp"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <TextView
+                android:maxLines="1"
+                android:layout_weight=".001"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center_vertical"
+                android:paddingEnd="30dp"
+                android:text="@string/select_sensor"
+                android:layout_gravity="start|center_vertical"
+                android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+
+                />
+
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_weight="2"
+                android:layout_marginEnd="5dp"
+                android:layout_marginBottom="5dp"
+                android:layout_marginTop="3dp"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                android:layout_width="match_parent"
+                android:layout_gravity="end|center_vertical"
+                android:layout_height="wrap_content">
+
+                <AutoCompleteTextView
+                    android:id="@+id/actv_sensorSelector"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+
+                    android:inputType="none" />
+            </com.google.android.material.textfield.TextInputLayout>
+        </LinearLayout>
+
+    </com.google.android.material.card.MaterialCardView>-->
+
+
+<!--
+    <com.github.mikephil.charting.charts.LineChart
+        android:layout_below="@+id/mcv_nodeSelector"
+        android:id="@+id/temperatureChart"
+        android:layout_width="match_parent"
+        android:layout_height="230dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="10dp"
+        android:background="@color/white"
+        android:elevation="8dp"
+        />
+
+
+    <com.github.mikephil.charting.charts.LineChart
+        android:layout_below="@+id/temperatureChart"
+        android:id="@+id/humidityChart"
+        android:layout_width="match_parent"
+        android:layout_height="230dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="10dp"
+        android:background="@color/white"
+        android:elevation="8dp"
+        />
+-->
+
+    <include layout="@layout/node_graph_view"/>
+
+
+
+</LinearLayout>

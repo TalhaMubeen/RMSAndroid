@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:background="@color/card_background_color_lite"
+    android:orientation="vertical"
+    android:layout_height="match_parent">
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_marginTop="10dp"
+        android:gravity="start|center_vertical"
+        android:layout_gravity="center"
+        android:background="@color/cardview_dark_background"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:layout_height="match_parent">
+
+        <ImageView
+            android:layout_marginEnd="5dp"
+            android:layout_gravity="start|center_vertical"
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter"
+            android:src="@drawable/reports"
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            android:padding="12dp"
+            app:tint="@color/color_dark_grey">
+        </ImageView>
+
+        <TextView
+            android:id="@+id/tv_24hReport"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="start|center_vertical"
+            android:layout_gravity="center"
+            android:padding="15dp"
+            style="@style/TextAppearance.AppCompat.Large"
+            android:textColor="@color/color_dark_grey"
+            android:text="24 Hours Report"/>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_marginTop="10dp"
+        android:gravity="start|center_vertical"
+        android:layout_gravity="center"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:layout_height="match_parent">
+
+        <ImageView
+            android:layout_marginEnd="5dp"
+            android:layout_gravity="start|center_vertical"
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter"
+            android:src="@drawable/reports"
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            android:padding="12dp"
+            app:tint="@color/color_dark_grey">
+        </ImageView>
+
+        <TextView
+            android:id="@+id/tv_abnormalReport"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="start|center_vertical"
+            android:layout_gravity="center"
+            android:padding="15dp"
+            style="@style/TextAppearance.AppCompat.Large"
+            android:textColor="@color/color_dark_grey"
+            android:text="Abnormality Report"/>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_marginTop="10dp"
+        android:gravity="start|center_vertical"
+        android:layout_gravity="center"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="horizontal"
+            android:layout_height="match_parent">
+
+        <ImageView
+            android:layout_marginEnd="5dp"
+            android:layout_gravity="start|center_vertical"
+            android:adjustViewBounds="true"
+            android:scaleType="fitCenter"
+            android:src="@drawable/reports"
+            android:layout_width="65dp"
+            android:layout_height="65dp"
+            android:padding="12dp"
+            app:tint="@color/color_dark_grey">
+        </ImageView>
+
+        <TextView
+            android:id="@+id/tv_assetsReport"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="start|center_vertical"
+            android:layout_gravity="center"
+            android:padding="15dp"
+            style="@style/TextAppearance.AppCompat.Large"
+            android:textColor="@color/color_dark_grey"
+            android:text="Assets Report"/>
+        </LinearLayout>
+    </com.google.android.material.card.MaterialCardView>
+
+
+
+
+</LinearLayout>

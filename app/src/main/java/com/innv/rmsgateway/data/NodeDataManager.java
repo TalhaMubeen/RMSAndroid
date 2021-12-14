@@ -27,6 +27,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class NodeDataManager {
 
+    static final long DAY = 24 * 60 * 60 * 1000;
 
     static TreeMap<String, SensorNode> allNodesData = new TreeMap<>();
 
@@ -140,6 +141,21 @@ public class NodeDataManager {
         return new ArrayList<>(allNodesData.values());
     }
 
+
+
+    public static List<String> getPreCheckedNodesNames(){
+        List<String> retList = new ArrayList<>();
+        allNodesData.values().forEach(node ->{
+
+            if(node.isPreChecked()){
+                retList.add(node.getName());
+            }
+        });
+
+        return retList;
+    }
+
+
     public static List<SensorNode> getPreCheckedNodes(){
         List<SensorNode> retList = new ArrayList<>();
         allNodesData.values().forEach(node ->{
@@ -171,6 +187,15 @@ public class NodeDataManager {
     public static SensorNode getPreCheckedNodeFromMac(String mac){
         for(SensorNode node : getPreCheckedNodes()){
             if(node.getMacID().equals(mac)){
+                return node;
+            }
+        }
+        return null;
+    }
+
+    public static SensorNode getPreCheckedNodeFromName(String name){
+        for(SensorNode node : getPreCheckedNodes()){
+            if(node.getName().equals(name)){
                 return node;
             }
         }
@@ -239,7 +264,9 @@ public class NodeDataManager {
 
     public static TreeMap<Date, Double> getTemerature(String mac){
 
-        List<StaticListItem> dataSaved = getAllLoggedData(mac);
+        long time =  new Date().getTime() - DAY;
+        Date date = new Date(time);
+        List<StaticListItem> dataSaved = getAllLoggedData(mac, date);
 
 /*        SimpleDateFormat sdf = new SimpleDateFormat("MMM-dd-yyyy", Locale.getDefault());
         String dateToday = sdf.format(new Date());*/
@@ -255,16 +282,33 @@ public class NodeDataManager {
         return  temp;
     }
 
-
-    public static List<StaticListItem> getAllLoggedData(String mac){
-
+    public static List<StaticListItem> getAllLoggedData(String mac, Date date){
         SimpleDateFormat sdf = new SimpleDateFormat("MMM-dd-yyyy", Locale.getDefault());
-        String dateToday = sdf.format(new Date());
+        String dateStr =  sdf.format(date);
 
-        List<StaticListItem> dataSaved =  Globals.db.getSensorNodeLogs(Globals.dbContext.getString(R.string.RMS_DEVICES), Globals.orgCode, mac, dateToday);
+        List<StaticListItem> dataSaved =  Globals.db.getSensorNodeLogs(Globals.dbContext.getString(R.string.RMS_DEVICES), Globals.orgCode, mac, dateStr);
 
 
-        return  dataSaved;
+        return dataSaved;
+    }
+
+    public static List<SensorNode> getSensorLogsBetween(String mac, Date date1, Date date2){
+        SimpleDateFormat sdf = new SimpleDateFormat("MMM-dd-yyyy", Locale.getDefault());
+        String date1Str =  sdf.format(date1);
+        String date2Str =  sdf.format(date2);
+
+        List<StaticListItem> dataSaved =  Globals.db.getSensorNodeLogsBetween(Globals.dbContext.getString(R.string.RMS_DEVICES), Globals.orgCode, mac, date1Str, date2Str);
+
+        List<SensorNode> retArr = new ArrayList<>();
+
+        for (StaticListItem item : dataSaved){
+            SensorNode node = new SensorNode();
+            if(node.parseListItem(item)) {
+                retArr.add(node);
+            }
+        }
+
+        return retArr;
     }
 
     public static List<StaticListItem> getTodaysAlertList(){

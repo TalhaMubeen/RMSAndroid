@@ -1,5 +1,9 @@
 package com.innv.rmsgateway.classes;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Handler;
 import android.util.Log;
 
@@ -8,6 +12,7 @@ import com.innv.rmsgateway.data.StaticListItem;
 import com.innv.rmsgateway.interfaces.NotificationAlertsCallback;
 import com.innv.rmsgateway.sensornode.SensorNode;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -27,6 +32,8 @@ public class AlertManager {
     private static long mDelay = 0;
     private static long mTimeNow = System.currentTimeMillis();
 
+    private static JSONArray sensorInfoArr = new JSONArray();
+
     public static List<AlertData> getAllNodesAlertList() {
         List<AlertData> data = new ArrayList<>(alertsMap.values());
         return data;
@@ -39,6 +46,7 @@ public class AlertManager {
         public void run() {
             mTimeNow += mDelay;
             ProcessAlerts();
+
             if (mHandler != null) {
                 mHandler.postDelayed(r, mDelay);
             }
@@ -49,6 +57,38 @@ public class AlertManager {
         if (mHandler != null) {
             mHandler = null;
             mTimeNow = 0;
+        }
+    }
+
+    private static void SendDataToCloud() {
+        if (sensorInfoArr != null) {
+            if (sensorInfoArr.length() > 0) {
+
+                JSONObject obj = new JSONObject();
+
+
+                @SuppressLint("HardwareIds") String macAddress =
+                        android.provider.Settings.Secure.getString(Globals.dbContext.getApplicationContext().getContentResolver(), "android_id");
+                macAddress = macAddress.replace(":", "");
+
+                try {
+                    obj.put("gatewayMacAddress", macAddress.toUpperCase());
+                    obj.put("unixTime", (new Date().getTime() / 1000));
+                    obj.put("hasDiagnosticInfo", true);
+                    obj.put("protocolVersion", 1);
+                    obj.put("apiKey", "ABCDEFGHI");
+                    obj.put("location", "4-J");
+                    obj.put("metaData", "Any String");
+                    obj.put("sensorsInfo", sensorInfoArr);
+
+                    DataSyncProcessEx.addToSyncDataList(obj);
+
+                    sensorInfoArr = new JSONArray();
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
         }
     }
 
@@ -152,7 +192,7 @@ public class AlertManager {
 
     public AlertManager() { }
 
-    private static  void ProcessAlerts(){
+    private static  void ProcessAlerts() {
         List<SensorNode> nodesList = NodeDataManager.getPreCheckedNodes();
 
         AtomicBoolean updateView = new AtomicBoolean(false);
@@ -170,6 +210,7 @@ public class AlertManager {
             if (minute >= Globals.NODE_OFFLINE_TIME || hour > 0 || days > 0) {//Offline timeout
                 setAlertStatus(node.getMacID(), NodeState.Offline);
                 updateView.set(true);
+                SendDataToCloud();
             }
         });
 
@@ -213,6 +254,7 @@ public class AlertManager {
     public static void onSensorNodeDataRcvd(SensorNode data) {
 
         SensorNode node = NodeDataManager.getPreCheckedNodeFromMac(data.getMacID());
+        sensorInfoArr.put(node.getJsonObjectMSG());
 
         if (node == null) {
             return;
@@ -300,19 +342,24 @@ public class AlertManager {
             }
         }
         else {//Save alert end here
-            NodeState state = alertsMap.get(data.getMacID()).getNodeState();
-            if (state != NodeState.Normal) {
 
-                if(state == NodeState.Offline){
-                    setAlertStatus(data.getMacID(), NodeState.Normal);
-                }else{
-                    endAlert(data, node);
-                    alertsMap.remove(data.getMacID());
-                    addNewAlert(node, data, AlertType.DEFAULT, NodeState.Normal);
-                    alertCallback.values().forEach(NotificationAlertsCallback::updateData);
+            if(!alertsMap.containsKey(data.getMacID())){
+                setAlertStatus(data.getMacID(), NodeState.Normal);
+                updateData = true;
+            }else {
+
+                NodeState state = alertsMap.get(data.getMacID()).getNodeState();
+                if (state != NodeState.Normal) {
+
+                    if (state == NodeState.Offline) {
+                        setAlertStatus(data.getMacID(), NodeState.Normal);
+                    } else {
+                        endAlert(data, node);
+                        alertsMap.remove(data.getMacID());
+                        addNewAlert(node, data, AlertType.DEFAULT, NodeState.Normal);
+                        alertCallback.values().forEach(NotificationAlertsCallback::updateData);
+                    }
                 }
-
-
             }
         }
 
@@ -385,9 +432,6 @@ public class AlertManager {
     }
 
     public static void setAlertStatus(String mac, NodeState status) {
-        if (alertsMap.size() == 0) {
-            return;
-        }
         try {
             if(!alertsMap.containsKey(mac)){
 

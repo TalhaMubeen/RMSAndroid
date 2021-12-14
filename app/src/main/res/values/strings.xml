@@ -44,8 +44,10 @@
     <string name="scan_rms_node">Scan RMS Node</string>
     <string name="rms_node_details">RMS Node Details</string>
     <string name="monitor_node">Manage RMS Nodes</string>
-    <string name="scanning_nodes">Adding Nodes</string>
-    <string name="confirmation">Delete RMS Node</string>
+    <string name="scanning_nodes">Scan RMS Nodes</string>
+    <string name="confirmation">Deleting RMS Node</string>
+    <string name="confirmation_profile">Deleting RMS Profile</string>
+    <string name="confirmation_defrost_interval">Deleting Defrost Profile</string>
     <string name="max_temp">Max Temp</string>
     <string name="normal">Normal</string>
     <string name="warning">Warning</string>
@@ -54,5 +56,24 @@
     <string name="all">All</string>
     <string name="defrost">Defrost</string>
     <string name="comfail">Com.Fail</string>
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_log_in">Login</string>
+    <string name="prompt_url">Server Url</string>
+    <string name="prompt_port">Port</string>
+    <string name="error_invalid_password">This password is too short</string>
+    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_field_required">This field is required</string>
+    <string name="error_invalid_email">This email address is invalid</string>
+    <string name="dialog_wait_title">Please wait...</string>
+    <string name="err_internet_not_available">Server unreachable, check internet connection!</string>
+    <string name="incorrect_user_info_error">Incorrect User Info</string>
+    <string name="toast_server_unreach">Server Unreachable!</string>
+    <string name="toast_timps_no_run">RMS Server not running !</string>
+    <string name="msg_server_unreach">Server Unreachable!</string>
+    <string name="msg_rms_running_server">RMS not running on Server</string>
+    <string name="summary_view">Summary View</string>
+    <string name="select_node">RMS Node</string>
+    <string name="select_sensor">Sensor</string>
 
 </resources>

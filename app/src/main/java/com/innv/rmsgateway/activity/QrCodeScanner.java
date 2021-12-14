@@ -6,6 +6,7 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.zxing.Result;
+import com.innv.rmsgateway.classes.Globals;
 
 import me.dm7.barcodescanner.zxing.ZXingScannerView;
 
@@ -14,6 +15,7 @@ public class QrCodeScanner extends AppCompatActivity implements ZXingScannerView
 
     @Override
     public void onCreate(Bundle state) {
+        Globals.setScreenOrientation(this);
         super.onCreate(state);
         // Programmatically initialize the scanner view
         mScannerView = new ZXingScannerView(this);

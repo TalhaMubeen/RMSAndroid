@@ -1,5 +1,6 @@
 package com.innv.rmsgateway.activity;
 
+import android.content.pm.ActivityInfo;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.MenuItem;
@@ -11,6 +12,7 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.innv.rmsgateway.R;
 import com.innv.rmsgateway.adapter.SettingsAdapter;
+import com.innv.rmsgateway.classes.Globals;
 import com.innv.rmsgateway.service.BLEBackgroundService;
 
 public class SettingsActivity extends AppCompatActivity {
@@ -30,8 +32,10 @@ public class SettingsActivity extends AppCompatActivity {
     SettingsAdapter settingsAdapter;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Globals.setScreenOrientation(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.settings_activity);
+
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         getSupportActionBar().setTitle("Settings");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);

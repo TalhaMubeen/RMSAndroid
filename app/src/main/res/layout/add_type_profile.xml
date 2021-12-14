@@ -48,7 +48,7 @@
                 android:layout_width="match_parent"
                 android:layout_margin="10dp"
                 android:orientation="horizontal"
-                android:layout_height="60dp">
+                android:layout_height="80dp">
 
                 <TextView
                     android:id="@+id/tv_selectProfileImage"
@@ -60,13 +60,13 @@
                     android:text="Select Profile Image" />
 
                 <ImageView
-                    android:layout_weight="5"
+                    android:layout_weight="4"
                     android:id="@+id/iv_profile_image"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:src="@drawable/rms_icon"
                     android:adjustViewBounds="true"
-                    android:scaleType="fitXY"
+                    android:scaleType="fitCenter"
                     android:padding="10dp"
                     android:background="@drawable/bg_rounded"
                     android:layout_gravity="center"
