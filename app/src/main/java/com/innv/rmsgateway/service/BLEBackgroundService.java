@@ -30,7 +30,7 @@ public class BLEBackgroundService extends Service {
 
     private static final String TAG = BLEBackgroundService.class.getSimpleName();
     private final IBinder mBinder = new LocalBinder();
-
+    private final static int MIN_TIME_FOR_NEXT_PACKET = 7; //seconds
     private Handler mServiceHandler;
     private Context mContext = null;
     private static  Intent bleService = null;
@@ -168,7 +168,7 @@ public class BLEBackgroundService extends Service {
                         if(nodeSequenceNo.containsKey(node.getMacID())){
                             Date prevDate = nodeSequenceNo.get(node.getMacID());
                             long diff = new Date().getSeconds()  - prevDate.getSeconds();
-                            if(diff >= 7 ){
+                            if(diff >= MIN_TIME_FOR_NEXT_PACKET ){
                                 processData = true;
                                 nodeSequenceNo.put(node.getMacID(), new Date());
                             }

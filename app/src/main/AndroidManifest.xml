@@ -26,6 +26,7 @@
         android:roundIcon="@drawable/rms_icon"
         android:supportsRtl="true"
         android:largeHeap="true"
+        android:hardwareAccelerated="false"
         android:theme="@style/AppTheme">
 
         <activity

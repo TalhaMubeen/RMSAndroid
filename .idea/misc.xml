@@ -10,6 +10,15 @@
         <entry key="..\:/project/Android/AES/ReferenceApps/INNVApps/working/RMSGateway/app/src/main/res/drawable/ic_launcher_background.xml" value="0.1" />
         <entry key="..\:/project/Android/AES/ReferenceApps/INNVApps/working/RMSGateway/app/src/main/res/layout/activity_device_view.xml" value="0.20520833333333333" />
         <entry key="..\:/project/Android/AES/ReferenceApps/INNVApps/working/RMSGateway/app/src/main/res/layout/activity_main.xml" value="0.17831813576494426" />
+        <entry key="..\:/project/Innovation/Android/git/RMSAndroid/app/src/main/res/layout-land/asset_filter_view.xml" value="0.18209876543209877" />
+        <entry key="..\:/project/Innovation/Android/git/RMSAndroid/app/src/main/res/layout/activity_device_view.xml" value="0.36666666666666664" />
+        <entry key="..\:/project/Innovation/Android/git/RMSAndroid/app/src/main/res/layout/adapter_characteristic.xml" value="0.36666666666666664" />
+        <entry key="..\:/project/Innovation/Android/git/RMSAndroid/app/src/main/res/layout/asset_filter_view.xml" value="0.21510416666666668" />
+        <entry key="..\:/project/Innovation/Android/git/RMSAndroid/app/src/main/res/layout/assets_grphview_layout.xml" value="0.21510416666666668" />
+        <entry key="..\:/project/Innovation/Android/git/RMSAndroid/app/src/main/res/layout/gridview_monitoring_item.xml" value="0.21510416666666668" />
+        <entry key="..\:/project/Innovation/Android/git/RMSAndroid/app/src/main/res/layout/gridview_monitoring_item_new.xml" value="0.21510416666666668" />
+        <entry key="..\:/project/Innovation/Android/git/RMSAndroid/app/src/main/res/layout/scan_rms_items.xml" value="0.21510416666666668" />
+        <entry key="..\:/project/Innovation/Android/git/RMSAndroid/app/src/main/res/layout/test_layout.xml" value="0.36666666666666664" />
       </map>
     </option>
   </component>
